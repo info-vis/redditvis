@@ -9,8 +9,7 @@ class BodyModel:
     """
     __instance = None
     data = None
-    BODY_DATA_PATH = os.getenv("EMAIL")
-
+    BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
 
     @staticmethod 
     def getInstance():
@@ -25,8 +24,7 @@ class BodyModel:
             raise Exception("This class is a singleton. To create an object, call BodyModel.getInstance()")
         else:
             BodyModel.__instance = self
-
-        self.data = pd.read_parquet("src/api/data/reddit_hyperlinks.body.parquet.gzip", engine="fastparquet")
+        self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="fastparquet")
 
 
     def get_random_20(self):
