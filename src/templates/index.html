@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="mt-4">
+        Welcome to RedditVis
+    </h1>
+    <p>The following table gives a sample of 20 rows of the Reddit data that this dashboard will use.</p>
+    
+
+    <button id="refresh" type="button" class="btn btn-primary btn-lg mb-2">Get new sample</button>
+
+    <div id="spinner">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" style="width: 5rem; height: 5rem;" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <table id="reddit-table" class="table table-light table-striped">
+    </table>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                console.log('Websocket connected!');
+                socket.emit('ready_for_data')
+            });
+
+            socket.on("data_sent", function(msg) {
+                $("#spinner").remove()
+                createTable(msg)
+            });
+
+            $("#refresh").click(function() {
+                socket.emit('ready_for_data')
+            });
+
+            function createTable(data) {
+                $("#reddit-table tr").remove();
+                const tableData = JSON.parse(data)
+                var table = document.getElementById("reddit-table")
+                
+                function createTableBody(table, tableData) {
+                    for (const row of tableData.data) {
+                        var r = table.insertRow(0)
+                        for (const [i, cellContents] of row.entries()) {
+                            c = r.insertCell(i);
+                            c.innerHTML = cellContents
+                        }
+                    }
+                }
+                
+                function createTableHeader(table, tableData) {
+                    var header = table.createTHead();
+                    var h = header.insertRow(0)
+                    for (const [i, headerName] of tableData.columns.entries()) {
+                        headerCell = h.insertCell(i);
+                        headerCell.innerHTML = headerName
+                    }
+                }
+
+                createTableBody(table, tableData)
+                createTableHeader(table, tableData)
+            }
+        })
+    </script>
+{% endblock %}
