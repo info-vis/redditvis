@@ -30,3 +30,7 @@ class BodyModel:
     def get_random_20(self):
         min = random.randint(0, len(self.data.index) - 20)
         return self.data[min:min + 20]
+
+    def get_top_target_subreddits(self, num):
+        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
+            .sort_values("counts", ascending=False).head(num)

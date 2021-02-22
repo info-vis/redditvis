@@ -1,5 +1,5 @@
 from flask import render_template
-from src.app import bp
+from src.client import bp
 
 
 @bp.route('/', methods=['GET'])
