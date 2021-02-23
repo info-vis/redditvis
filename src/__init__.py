@@ -5,9 +5,9 @@ socketio = SocketIO()
 
 
 def register_blueprints(flask_app):
-    from src.app import bp as app_bp
+    from src.client import bp as client_bp
     from src.api import bp as api_bp
-    flask_app.register_blueprint(app_bp)
+    flask_app.register_blueprint(client_bp)
     flask_app.register_blueprint(api_bp, url_prefix="/api")
 
 
