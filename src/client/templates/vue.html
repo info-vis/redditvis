@@ -1,6 +1,14 @@
 
 {% block vue %}
 <div id="vm" class="container">
+  <div class="row mb-3 mt-3">
+    <div class="col-md-9">
+      <graph-network></graph-network>
+    </div>
+    <div class="col-md-3">
+      <filters></filters>
+    </div>
+  </div>
   <div class="row">
     <!-- Plot -->
     <div class="col-md-8">
@@ -31,5 +39,9 @@
   </div>
 </div>
 
+<!-- Child components (Put the child components before the root component ) -->
+<script src="{{ url_for('client.static', filename='graph_network.js') }}"></script>
+<script src="{{ url_for('client.static', filename='filters.js') }}"></script>
+<!-- Root Vue component -->
 <script src="{{ url_for('client.static', filename='index.js') }}"></script>
 {% endblock %}

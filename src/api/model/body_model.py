@@ -34,3 +34,13 @@ class BodyModel:
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
+
+    def get_network_data(self, head=None):
+        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+                .size()\
+                .reset_index()\
+                .rename(columns={0: "count"})\
+                .sort_values("count", ascending=False)
+        if head is not None:
+            return result.head(head)
+        return result

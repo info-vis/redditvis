@@ -7,6 +7,7 @@ from bokeh.plotting import figure
 from flask import request
 from src.api import bp
 from src.api.model.body_model import BodyModel
+from src.api.helpers.network_graph_helper import NetworkGraphHelper
 
 
 # Currently unused
@@ -37,3 +38,12 @@ def plot1():
 	p.xaxis.major_label_orientation = math.pi/2
 
 	return json.dumps(bokeh.embed.json_item(p, "myplot"))
+
+@bp.route("/network")
+def network():
+	n = int(request.args.get('n', default="20"))
+	data = BodyModel.getInstance().get_network_data(head=n)
+	network_graph = NetworkGraphHelper.to_network_graph(data)
+	return network_graph
+
+	
