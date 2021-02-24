@@ -23,18 +23,26 @@ Vue.component('graph-network', {
     methods: {
         getData: async function() {
             console.log("Getting network data..")
-            const response = await fetch(`${apiEndpoint}network?n=20`);
+            const response = await fetch(`${apiEndpoint}network?n=1000`);
             const data = await response.json();
             return data
         }
     },
     created: async function() {
         this.data = await this.getData()
+
         const height = 600
         const width = 1000
-        console.log(this.data)
-        const links = this.data.links.map(d => Object.create(d));
-        const nodes = this.data.nodes.map(d => Object.create({"id": d}))
+  
+        const links = this.data.links.map(d => ({source: d[0], target: d[1], value: d[2]}))
+        const nodes = this.data.nodes.map(d => ({id: d, group: Math.floor(Math.random() * Math.floor(10))}))
+        console.log(links)
+        console.log(nodes)
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id))
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(width / 2, height / 2));
 
         const drag = simulation => {
             function dragstarted(event) {
@@ -60,25 +68,13 @@ Vue.component('graph-network', {
                 .on("end", dragended);
         }
 
-        // Unused, but can be used in the future
-        // const color = function () {
-        //     const scale = d3.scaleOrdinal(d3.schemeCategory10);
-        //     return d => scale(d.group);
-        // }
-
-        const nodeColor = function() {
-            return "#0250c4"
+        const color = function () {
+            const scale = d3.scaleOrdinal(d3.schemeCategory10);
+            return d => scale(d.group);
         }
-
-        const simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(links).id(d => d[0]))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(width / 2, height / 2));
 
         const svg = d3.select("#mychart")
             .attr("viewBox", [0, 0, width, height]);
-
-        console.log(links)
 
         const link = svg.append("g")
             .attr("stroke", "#999")
@@ -86,7 +82,7 @@ Vue.component('graph-network', {
             .selectAll("line")
             .data(links)
             .join("line")
-            .attr("stroke-width", 100);
+            .attr("stroke-width", d => Math.sqrt(d.value) / 4);
             // .attr("stroke-width", d => Math.sqrt(d[2]));
 
         const node = svg.append("g")
@@ -96,7 +92,7 @@ Vue.component('graph-network', {
             .data(nodes)
             .join("circle")
             .attr("r", 5)
-            .attr("fill", nodeColor)
+            .attr("fill", color)
             .call(drag(simulation));
 
         node.append("title")
@@ -105,25 +101,20 @@ Vue.component('graph-network', {
         // Called whenever a node is dragged, i.e. network 'physics' need to be simulated
         simulation.on("tick", () => {
             link
-                .attr("x1", d => d[0].x)
-                .attr("y1", d => d[0].y)
-                .attr("x2", d => d[1].x)
-                .attr("y2", d => d[1].y);
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
 
             node
                 .attr("cx", d => d.x)
                 .attr("cy", d => d.y);
         });
-
-        // invalidation.then(() => simulation.stop());
-
-        // svg.node();
-        // }
     },
     template: `
         <div style="
             border: 1px solid #e8e8e8;
-            box-shadow: 2px 2px 3px 1px #0000002e;
+            box-shadow: rgb(0 0 0 / 9%) 2px 2px 2px 0px;;
         ">
             <svg id="mychart">
             </svg>
