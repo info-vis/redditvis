@@ -19,6 +19,8 @@ const vm = new Vue({
 
             document.getElementById("testPlot").innerHTML = "";
             window.Bokeh.embed.embed_item(plotObject, 'testPlot')
+
+           
         }
     },
     created: async function(){
@@ -28,7 +30,8 @@ const vm = new Vue({
 
         const plot1 = await fetch(`${apiEndpoint}plot1?num=${this.numberOfSubreddits}`);
         const gObject2 = await plot1.json();
-        window.Bokeh.embed.embed_item(gObject2, 'testPlot')
+        window.Bokeh.embed.embed_item(gObject2, 'testPlot');
 
+    
     }
 })

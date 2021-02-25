@@ -21,7 +21,8 @@
       <p>Number of subreddits selected: [[ numberOfSubreddits ]] </p>
     </div>
   </div>
-  <!-- Raw data section -->
+
+   <!-- Raw data section -->
   <div class="row">
     <div class="card">
       <div class="card-body">
@@ -29,7 +30,15 @@
       </div>
     </div>
   </div>
+  
+  <div class="row">
+    <div class="col-md-8">
+      <properties_plot></properties_plot>
+    </div> 
+  </div>
 </div>
+
+  
 
 <script src="{{ url_for('client.static', filename='index.js') }}"></script>
 {% endblock %}
