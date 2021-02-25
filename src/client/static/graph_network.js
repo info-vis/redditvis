@@ -2,46 +2,35 @@
 Vue.component('graph-network', {
     data: function () {
         return {
-            data: {
-                "nodes":[
-                        {"id":"IAmA","group":10},
-                        {"id":"abc","group":9},
-                        {"id":"abc","group":8},
-                        {"id":"abc","group":7},
-                        {"id":"abc","group":6},
-                        {"id":"abc","group":5},
-                        {"id":"abc","group":4},
-                        {"id":"Funny","group":1}
-                ],
-                "links":[
-                    {"source":"IAmA","target":"Funny","value":1},
-                    {"source":"abc","target":"IAmA","value":100}
-                ]
-            },
+            data: {},
+            numberOfNodes: 2000,
+            isLoading: true
         }   
     },
     methods: {
         getData: async function() {
             console.log("Getting network data..")
-            const response = await fetch(`${apiEndpoint}network?n=1000`);
+            const response = await fetch(`${apiEndpoint}network?n=${this.numberOfNodes}`);
             const data = await response.json();
             return data
         }
     },
     created: async function() {
         this.data = await this.getData()
+        this.isLoading = false
 
         const height = 600
         const width = 1000
   
         const links = this.data.links.map(d => ({source: d[0], target: d[1], value: d[2]}))
         const nodes = this.data.nodes.map(d => ({id: d, group: Math.floor(Math.random() * Math.floor(10))}))
-        console.log(links)
-        console.log(nodes)
 
         const simulation = d3.forceSimulation(nodes)
             .force("link", d3.forceLink(links).id(d => d.id))
-            .force("charge", d3.forceManyBody())
+            .force("charge", d3.forceManyBody()
+                .strength(-30) // -30 = default
+                .distanceMax(300)
+            )
             .force("center", d3.forceCenter(width / 2, height / 2));
 
         const drag = simulation => {
@@ -68,37 +57,57 @@ Vue.component('graph-network', {
                 .on("end", dragended);
         }
 
-        const color = function () {
-            const scale = d3.scaleOrdinal(d3.schemeCategory10);
-            return d => scale(d.group);
-        }
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+        const color =  d => scale(d.group);
 
-        const svg = d3.select("#mychart")
+        // Select the svg #mychart
+        const svg = d3.select("#network-graph-svg")
             .attr("viewBox", [0, 0, width, height]);
 
-        const link = svg.append("g")
+        // Background
+        svg.append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "black");
+
+        // Create a group
+        const g = svg.append("g")
+
+        // Append the links/edges to the group, under a new group
+        const link = g.append("g:g")
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6)
             .selectAll("line")
             .data(links)
             .join("line")
-            .attr("stroke-width", d => Math.sqrt(d.value) / 4);
-            // .attr("stroke-width", d => Math.sqrt(d[2]));
+            .attr("stroke-width", d => Math.sqrt(d.value) / 2);
 
-        const node = svg.append("g")
+        // Append the nodes to the group, under a new group
+        const node = g.append("g:g")
             .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
+            .attr("stroke-width", 1)
             .selectAll("circle")
             .data(nodes)
             .join("circle")
-            .attr("r", 5)
+            .attr("r", 4)
             .attr("fill", color)
             .call(drag(simulation));
+
+        svg.call(d3.zoom()
+            .extent([[0, 0], [width, height]])
+            .scaleExtent([.05, 8])
+            .on("zoom", zoomed)) // Call zoomed() when zooming within the scaleExtent limits
+            .on("wheel", event => event.preventDefault()); // Prevent scrolling when zoom limit reached
+
+        // When zooming, transform the top level group
+        function zoomed({transform}) {
+            g.attr("transform", transform)
+        }
 
         node.append("title")
             .text(d => d.id);
     
-        // Called whenever a node is dragged, i.e. network 'physics' need to be simulated
+        // Called whenever the simulation runs, i.e. network force 'physics' are simulated
         simulation.on("tick", () => {
             link
                 .attr("x1", d => d.source.x)
@@ -112,12 +121,23 @@ Vue.component('graph-network', {
         });
     },
     template: `
-        <div style="
-            border: 1px solid #e8e8e8;
-            box-shadow: rgb(0 0 0 / 9%) 2px 2px 2px 0px;;
-        ">
-            <svg id="mychart">
-            </svg>
-        </div>`
+        <div>
+            <div style="
+                border: 1px solid #e8e8e8;
+                box-shadow: rgb(0 0 0 / 9%) 2px 2px 2px 0px;
+            ">
+                <div v-if="this.isLoading" class="d-flex justify-content-center">
+                    <div class="spinner-grow mt-5 text-light" role="status">
+                    </div>
+                </div>
+                <p v-if="!this.isLoading" class="m-2">
+                    Nodes: <span class="badge bg-secondary">{{ this.data.nodes && this.data.nodes.length }}</span><br/>
+                    Links: <span class="badge bg-secondary">{{ this.data.links && this.data.links.length }}</span>
+                </p>
+                <svg id="network-graph-svg">
+                </svg>
+            </div>
+        </div>
+    `
   })
 
