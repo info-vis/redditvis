@@ -59,8 +59,9 @@ Instead of step 2 above, we do the following:
     poetry run python main.py
     ```
 
-### Without Docker (untested)
+### Without Docker
 
+1. Check that you meet the [prerequisites](#prerequisites) outlined in the beginning of the readme.
 1. Insert data in the dir `src/data/`, optionally converting the CSV to `parquet.gzip` for faster loading.
 1. Copy `.env.dist` and name the copy `.env`. Check if the values are correct.
 1. [Install Poetry](https://python-poetry.org/docs/#installation)
