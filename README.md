@@ -39,7 +39,7 @@ For development it is however recommended to not directly start the webserver wh
 
 Rather, we will start the container without the webserver and then manually start the webserver from inside the container.
 
-Instead of step 2 above, we do the following:
+Instead of step 4 above, we do the following:
 
 1. Start the container without the webserver
    
