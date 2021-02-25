@@ -1,4 +1,4 @@
-# infovis-reddit
+# redditvis
 
 A Visual Analytics dashboard for gaining insights into the [Social Network: Reddit Hyperlink Network](https://snap.stanford.edu/data/soc-RedditHyperlinks.html) data set.
 
