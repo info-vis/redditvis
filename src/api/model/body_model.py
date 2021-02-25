@@ -24,7 +24,7 @@ class BodyModel:
             raise Exception("This class is a singleton. To create an object, call BodyModel.getInstance()")
         else:
             BodyModel.__instance = self
-        self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="fastparquet")
+        self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
 
 
     def get_random_20(self):

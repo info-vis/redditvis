@@ -44,11 +44,10 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 WORKDIR /app
 
 # Install dependencies with Poetry
-COPY pyproject.toml /app
-RUN poetry install
-
-# Copy rest of app
 COPY . .
+
+# Install poetry dependencies
+RUN poetry install
 
 # CMD python3 -m src/app.py
 CMD poetry run python main.py
