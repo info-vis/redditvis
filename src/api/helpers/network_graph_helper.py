@@ -4,9 +4,12 @@ import pandas as pd
 
 
 class NetworkGraphHelper:
+    """This class helps to with data formatting for the network graph.
+    """
     @staticmethod
     def to_network_graph(data: pd.DataFrame) -> str:
-        """Transform the network data to output accepted by the network in the front end.
+        """Transform the network data from a pandas df to the format 
+        accepted by the network in the front end.
 
         Args:
             data (pd.DataFrame): In the format:
@@ -30,7 +33,6 @@ class NetworkGraphHelper:
             }
         """
 
-        # data = data.copy()
         def to_nodes(data):
             unique_sources = pd.DataFrame(data["SOURCE_SUBREDDIT"].unique())
             unique_targets = pd.DataFrame(data["TARGET_SUBREDDIT"].unique())
@@ -50,33 +52,3 @@ class NetworkGraphHelper:
             "nodes": list(nodes), 
             "links": links.values.tolist()
         })
-
-        """
-        graphData: {
-            "nodes":[
-                {"id":"IAmA","group":10},
-                {"id":"abc","group":9},
-                {"id":"abc","group":8},
-                {"id":"abc","group":7},
-                {"id":"abc","group":6},
-                {"id":"abc","group":5},
-                {"id":"abc","group":4},
-                {"id":"Funny","group":1}
-            ],
-            "links":[
-                {"source":"IAmA","target":"Funny","value":1},
-                {"source":"abc","target":"IAmA","value":100}
-            ]
-        },
-
-        graphData: {
-            "nodes":[
-                ["IAmA"],
-                ["pics"],
-            ],
-            "links":[
-                ["IAmA","Funny",1],
-                ["pics","Funny",3],
-            ]
-        },
-        """
