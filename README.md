@@ -14,7 +14,7 @@ This project uses [Poetry](https://python-poetry.org/) as both a package and env
 
 This project can be run in a Docker container, by building the `Dockerfile` into an image and running the image as a container.
 
-1. Insert data in the dir `src/data/`, optionally converting the CSV to `parquet.gzip` for faster loading.
+1. Insert data in the dir `src/data/`. Make sure it is a `parquet.gzip` file.
 
 1. Copy `.env.dist` and name the copy `.env`. Check if the values are correct.
 
@@ -62,7 +62,7 @@ Instead of step 4 above, we do the following:
 ### Without Docker
 
 1. Check that you meet the [prerequisites](#prerequisites) outlined in the beginning of the readme.
-1. Insert data in the dir `src/data/`, optionally converting the CSV to `parquet.gzip` for faster loading.
+1. Insert data in the dir `src/data/`. Make sure it is a `parquet.gzip` file.
 1. Copy `.env.dist` and name the copy `.env`. Check if the values are correct.
 1. [Install Poetry](https://python-poetry.org/docs/#installation)
 1. Create a Poetry environment and install the packages into this environment
