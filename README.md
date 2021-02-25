@@ -5,6 +5,7 @@ A Visual Analytics dashboard for gaining insights into the [Social Network: Redd
 ## Running the app
 
 This project uses [Poetry](https://python-poetry.org/) as both a package and environment manager, essentially replacing pip/conda/pipenv and venv/conda.
+The app will only run with python version 3.8!
 
 ### Docker
 
