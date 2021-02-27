@@ -43,7 +43,7 @@ def topproperties():
 	subreddit = request.args.get('subreddit', default="ps4")
 	data = BodyModel.getInstance().get_top_properties_of_source_subreddit(subreddit)
 
-	p=figure(x_range=list(data['index']), plot_height=300, title="Top properties of subreddit",
+	p=figure(x_range=list(data['index']), plot_height=300, title=f"Top properties of subreddit {subreddit}",
            toolbar_location=None, tools="")
 	
 	p.vbar(x=list(data['index']), top=list(data[subreddit]), width=0.9)

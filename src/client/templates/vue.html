@@ -33,12 +33,13 @@
   
   <div class="row">
     <div class="col-md-8">
-      <properties_plot></properties_plot>
+      <properties-plot></properties-plot>
     </div> 
   </div>
 </div>
 
   
+<script src="{{ url_for('client.static', filename='properties_plot.js') }}"></script>
 
 <script src="{{ url_for('client.static', filename='index.js') }}"></script>
 {% endblock %}
