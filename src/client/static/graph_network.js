@@ -3,7 +3,7 @@ Vue.component('graph-network', {
     data: function () {
         return {
             data: {}, // This contains the nodes and links
-            numberOfNodes: 500,
+            numberOfNodes: 2000,
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
             width: 965 // of the canvas
@@ -38,12 +38,12 @@ Vue.component('graph-network', {
         const canvas = document.getElementById("graph-network-canvas")
         const context = canvas.getContext("2d")
 
-        function setBackgroundColor(color="black") {
-            context.fillStyle = color;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        const clearCanvas = () => context.clearRect(0, 0, width, height);
+        // d3.select(context.canvas).call(drag(simulation)).node();
+        d3.select(context.canvas)
+            .call(d3.zoom()
+                .scaleExtent([0.1, 6])
+                .on("zoom", zoomed))
+            .on("wheel", event => event.preventDefault());
 
         setBackgroundColor()
         
@@ -52,17 +52,42 @@ Vue.component('graph-network', {
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, height / 2));
 
-        // d3-scale, used for coloring nodes
-        const scale = d3.scaleOrdinal(d3.schemeCategory10);
-        color = d => scale(d.group);
+        simulation.on("tick", simulationUpdate);
 
-        function ticked() {
+        let transform = d3.zoomIdentity;
+
+        function simulationUpdate() {
+            context.save();
             clearCanvas()
             setBackgroundColor()
-            drawLinks(links)            
-            for (node of nodes) {
+            context.translate(transform.x, transform.y);
+            context.scale(transform.k, transform.k);
+            drawLinks(links)
+            for (const node of nodes) {
                 drawNode(node) 
             }
+            // context.fill();
+            context.restore();
+        }
+
+        function zoomed(event, d) {
+            transform = event.transform
+            simulationUpdate()
+        }
+
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+
+        function color(d) {
+            return scale(d.group)
+        }
+
+        function clearCanvas () {
+            context.clearRect(0, 0, width, height);
+        }
+
+        function setBackgroundColor(color="black") {
+            context.fillStyle = color;
+            context.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         function drawLinks(links) {
@@ -89,76 +114,58 @@ Vue.component('graph-network', {
             context.stroke();
         }
 
-        simulation.on("tick", ticked);
 
-        drag = simulation => {
-            function dragsubject(event) {
-                const transform = d3.zoomTransform(canvas)
-                let subject = null
-                let distance = 5
-                const x = transform.invertX(event.x)
-                const y = transform.invertY(event.y)
-                for (const node of nodes) {
-                    let d = Math.hypot(x - node.x, y - node.y)
-                    if (d < distance) {
-                        distance = d
-                        subject = node
-                    }
-                }
-                return subject ? simulation.find(event.x, event.y) : null
-            }
+        // drag = simulation => {
+        //     function dragsubject(event) {
+        //         const transform = d3.zoomTransform(canvas)
+        //         let subject = null
+        //         let distance = 5
+        //         const x = transform.invertX(event.x)
+        //         const y = transform.invertY(event.y)
+        //         for (const node of nodes) {
+        //             let d = Math.hypot(x - node.x, y - node.y)
+        //             if (d < distance) {
+        //                 distance = d
+        //                 subject = node
+        //             }
+        //         }
+        //         return subject ? simulation.find(event.x, event.y) : null
+        //     }
           
-            function dragstarted(event) {
-                console.log(event)
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
+        //     function dragstarted(event) {
+        //         console.log(event)
+        //         if (!event.active) simulation.alphaTarget(0.3).restart();
+        //         event.subject.fx = event.subject.x;
+        //         event.subject.fy = event.subject.y;
+        //     }
             
-            function dragged(event) {
-                context.fillRect(event.x,event.y,25,25)
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
+        //     function dragged(event) {
+        //         context.fillRect(event.x,event.y,25,25)
+        //         event.subject.fx = event.x;
+        //         event.subject.fy = event.y;
+        //     }
             
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
+        //     function dragended(event) {
+        //         if (!event.active) simulation.alphaTarget(0);
+        //         event.subject.fx = null;
+        //         event.subject.fy = null;
+        //     }
             
-            return d3.drag()
-                .subject(dragsubject)
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended);
-        }
+        //     return d3.drag()
+        //         .subject(dragsubject)
+        //         .on("start", dragstarted)
+        //         .on("drag", dragged)
+        //         .on("end", dragended);
+        // }
 
-        function zoomed(transform) {
-            context.save();
-            clearCanvas()
-            setBackgroundColor()
-            context.translate(transform.x, transform.y);
-            context.scale(transform.k, transform.k);
-            drawLinks(links)
-            for (const node of nodes) {
-                drawNode(node) 
-            }
-            // for (const [x, y] of data) {
-            //     context.moveTo(x + r, y);
-            //     context.arc(x, y, r, 0, 2 * Math.PI);
-            // }
-            context.fill();
-            context.restore();
-        }
-
-        d3.select(context.canvas).call(drag(simulation)).node();
-        d3.select(context.canvas).call(d3.zoom()
-            .scaleExtent([-1, 8])
-            .on("zoom", ({transform}) => zoomed(transform)))
-            .on("wheel", event => event.preventDefault());
+        // // d3.select(context.canvas).call(drag(simulation)).node();
+        // d3.select(context.canvas)
+        //     .call(d3.zoom()
+        //         .scaleExtent([0.1, 6])
+        //         .on("zoom", ({transform}) => zoomed(transform)))
+        //     .on("wheel", event => event.preventDefault());
         
-        zoomed(d3.zoomIdentity);
+        // zoomed(d3.zoomIdentity);
     },
     template: `
         <div>
