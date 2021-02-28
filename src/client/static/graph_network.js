@@ -3,7 +3,7 @@ Vue.component('graph-network', {
     data: function () {
         return {
             data: {}, // This contains the nodes and links
-            numberOfNodes: 2000,
+            numberOfNodes: 200,
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
             width: 965 // of the canvas
@@ -23,9 +23,8 @@ Vue.component('graph-network', {
         const width = this.width
         const height = this.height
 
-        const w2 = width / 2,
-            h2 = height / 2,
-            nodeRadius = 5;
+        const nodeRadius = 5;
+        let transform = d3.zoomIdentity;
             
         await this.fetchData()
         this.isLoading = false
@@ -34,16 +33,8 @@ Vue.component('graph-network', {
         const links = this.data.links.map(d => ({source: d[0], target: d[1], value: d[2]}))
         const nodes = this.data.nodes.map(d => ({id: d, group: Math.floor(Math.random() * Math.floor(10))}))
       
-        const r = 1.5 // Used for the zoom
         const canvas = document.getElementById("graph-network-canvas")
         const context = canvas.getContext("2d")
-
-        // d3.select(context.canvas).call(drag(simulation)).node();
-        d3.select(context.canvas)
-            .call(d3.zoom()
-                .scaleExtent([0.1, 6])
-                .on("zoom", zoomed))
-            .on("wheel", event => event.preventDefault());
 
         setBackgroundColor()
         
@@ -53,8 +44,6 @@ Vue.component('graph-network', {
             .force("center", d3.forceCenter(width / 2, height / 2));
 
         simulation.on("tick", simulationUpdate);
-
-        let transform = d3.zoomIdentity;
 
         function simulationUpdate() {
             context.save();
@@ -66,11 +55,10 @@ Vue.component('graph-network', {
             for (const node of nodes) {
                 drawNode(node) 
             }
-            // context.fill();
             context.restore();
         }
 
-        function zoomed(event, d) {
+        function zoomed(event) {
             transform = event.transform
             simulationUpdate()
         }
@@ -105,67 +93,80 @@ Vue.component('graph-network', {
             context.strokeStyle = "#fff";
             context.beginPath();
             context.lineWidth = 1;
-            const radius = 5
-            context.moveTo(node.x + radius, node.y);
-            context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+            context.moveTo(node.x + nodeRadius, node.y);
+            context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
 
             context.fillStyle = color(node);
             context.fill();
+
+            // Node outline
+            context.strokeStyle = 'black'
+            context.lineWidth = '1.5'
             context.stroke();
         }
 
-
-        // drag = simulation => {
-        //     function dragsubject(event) {
-        //         const transform = d3.zoomTransform(canvas)
-        //         let subject = null
-        //         let distance = 5
-        //         const x = transform.invertX(event.x)
-        //         const y = transform.invertY(event.y)
-        //         for (const node of nodes) {
-        //             let d = Math.hypot(x - node.x, y - node.y)
-        //             if (d < distance) {
-        //                 distance = d
-        //                 subject = node
-        //             }
-        //         }
-        //         return subject ? simulation.find(event.x, event.y) : null
-        //     }
+        drag = simulation => {
+            function dragsubject(event) {
+                const x = transform.invertX(event.x);
+                const y = transform.invertY(event.y);
+                const node = findNode(nodes, x, y, nodeRadius);
+                if (node) {
+                    node.x =  transform.applyX(node.x);
+                    node.y = transform.applyY(node.y);
+                }
+                // else: No node selected, drag container
+                return node;
+            }
           
-        //     function dragstarted(event) {
-        //         console.log(event)
-        //         if (!event.active) simulation.alphaTarget(0.3).restart();
-        //         event.subject.fx = event.subject.x;
-        //         event.subject.fy = event.subject.y;
-        //     }
+            function dragstarted(event) {
+                if (!event.active) {
+                    simulation.alphaTarget(0.3).restart();
+                }
+                event.subject.fx = transform.invertX(event.x);
+                event.subject.fy = transform.invertY(event.y);
+            }
             
-        //     function dragged(event) {
-        //         context.fillRect(event.x,event.y,25,25)
-        //         event.subject.fx = event.x;
-        //         event.subject.fy = event.y;
-        //     }
+            function dragged(event) {
+                event.subject.fx = transform.invertX(event.x);
+                event.subject.fy = transform.invertY(event.y);
+            }
             
-        //     function dragended(event) {
-        //         if (!event.active) simulation.alphaTarget(0);
-        //         event.subject.fx = null;
-        //         event.subject.fy = null;
-        //     }
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
             
-        //     return d3.drag()
-        //         .subject(dragsubject)
-        //         .on("start", dragstarted)
-        //         .on("drag", dragged)
-        //         .on("end", dragended);
-        // }
+            return d3.drag()
+                .subject(dragsubject)
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
 
-        // // d3.select(context.canvas).call(drag(simulation)).node();
-        // d3.select(context.canvas)
-        //     .call(d3.zoom()
-        //         .scaleExtent([0.1, 6])
-        //         .on("zoom", ({transform}) => zoomed(transform)))
-        //     .on("wheel", event => event.preventDefault());
+        function findNode(nodes, x, y, radius) {
+            const rSq = radius * radius;
+            let i;
+            for (i = nodes.length - 1; i >= 0; --i) {
+              const node = nodes[i],
+                    dx = x - node.x,
+                    dy = y - node.y,
+                    distSq = (dx * dx) + (dy * dy);
+              if (distSq < rSq) {
+                return node;
+              }
+            }
+            // No node selected
+            return undefined; 
+        }
+        d3.select(context.canvas)
+        d3.select(context.canvas)
+            .call(drag(simulation))
+            .call(d3.zoom()
+                .scaleExtent([0.1, 8])
+                .on("zoom", zoomed))
+            .on("wheel", event => event.preventDefault());
         
-        // zoomed(d3.zoomIdentity);
     },
     template: `
         <div>
