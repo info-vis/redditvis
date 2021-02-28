@@ -44,7 +44,9 @@ class BodyModel:
             target_subreddit (str, optional): The target subreddit you wish to get top properties for. Defaults to None.
 
         Returns:
-            [type]: [description]
+            pd.Series: Format:
+            LIWC_Funct      0.256797
+            LIWC_CogMech    0.100940
         """
         data = self.data
         if source_subreddit is not None and target_subreddit is not None:
