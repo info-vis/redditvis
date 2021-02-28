@@ -35,7 +35,7 @@ class BodyModel:
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
 
-    def get_network_data(self, head: Optional[int] = None) -> pd.DataFrame:
+    def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
 
         Args:
@@ -54,6 +54,6 @@ class BodyModel:
                 .reset_index()\
                 .rename(columns={0: "count"})\
                 .sort_values("count", ascending=False)
-        if head is not None:
-            return result.head(head)
+        if n_links is not None:
+            return result.head(n_links)
         return result

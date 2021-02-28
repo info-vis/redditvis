@@ -3,7 +3,7 @@ Vue.component('graph-network', {
     data: function () {
         return {
             data: {}, // This contains the nodes and links
-            numberOfNodes: 200,
+            numberOfLinks: 10000,
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
             width: 965 // of the canvas
@@ -14,7 +14,7 @@ Vue.component('graph-network', {
          * Fetch data and set this.data.
          */
         fetchData: async function() {
-            const response = await fetch(`${apiEndpoint}network?n=${this.numberOfNodes}`);
+            const response = await fetch(`${apiEndpoint}network?n_links=${this.numberOfLinks}`);
             const data = await response.json();
             this.data = await data
         }

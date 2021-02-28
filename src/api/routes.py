@@ -57,7 +57,7 @@ def network():
 	Returns:
 		str: json string
 	"""
-	n = int(request.args.get('n', default="20"))
-	data = BodyModel.getInstance().get_network_data(head=n)
+	n_links = int(request.args.get('n_links', default="20"))
+	data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return network_graph
