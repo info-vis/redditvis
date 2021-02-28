@@ -35,6 +35,27 @@ class BodyModel:
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
 
+    def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
+
+        Args:
+            source_subreddit (str, optional): The source subreddit you wish to get top properties for. Defaults to None.
+            target_subreddit (str, optional): The target subreddit you wish to get top properties for. Defaults to None.
+
+        Returns:
+            pd.Series: Format:
+            LIWC_Funct      0.256797
+            LIWC_CogMech    0.100940
+        """
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
 
