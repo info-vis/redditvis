@@ -1,35 +1,21 @@
 
 {% block vue %}
 <div id="vm" class="container">
-  <div class="row">
-    <!-- Plot -->
-    <div class="col-md-8">
-      <div id='testPlot' class="bk-root"></div>
+  <div class="row mb-3 mt-3">
+    <div class="col-md-9">
+      <graph-network></graph-network>
     </div>
-    <!-- Slider -->
-    <div class="col-md-4">
-      <label for="customRange1" class="form-label">Number of subreddits</label>
-      <input 
-        type="range" 
-        class="form-range" 
-        id="numSubredditsSlider" 
-        v-model="numberOfSubreddits"
-        min="1" 
-        max="50"
-        @click="fetchAPIData"
-      >
-      <p>Number of subreddits selected: [[ numberOfSubreddits ]] </p>
+    <div class="col-md-3">
+      <filters></filters>
     </div>
   </div>
-  <!-- Raw data section -->
-  <div class="row">
-    <div class="card">
-      <div class="card-body">
-        <code>[[ rawData ]]</code>
-      </div>
-    </div>
-  </div>
+  <example-plot></example-plot>
 </div>
 
+<!-- Load the child components here (Put the child components before the root component ) -->
+<script src="{{ url_for('client.static', filename='graph_network.js') }}"></script>
+<script src="{{ url_for('client.static', filename='filters.js') }}"></script>
+<script src="{{ url_for('client.static', filename='example_plot.js') }}"></script>
+<!-- Root Vue component -->
 <script src="{{ url_for('client.static', filename='index.js') }}"></script>
 {% endblock %}
