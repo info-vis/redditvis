@@ -25,8 +25,7 @@ class BodyModel:
             raise Exception("This class is a singleton. To create an object, call BodyModel.getInstance()")
         else:
             BodyModel.__instance = self
-        self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="fastparquet")
-
+        self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
 
     def get_random_20(self):
         min = random.randint(0, len(self.data.index) - 20)
@@ -57,3 +56,25 @@ class BodyModel:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
 
+    def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
+        """Returns the network data.
+
+        Args:
+            head (int, optional): number of links. Defaults to None.
+
+        Returns:
+            pd.DataFrame: Format:
+                    SOURCE_SUBREDDIT    TARGET_SUBREDDIT  count
+            128037  trendingsubreddits        changelog    548
+            114895       streetfighter              sf4    279
+        """
+        if self.data is None:
+            raise ValueError("No data has been loaded in BodyModel.")
+        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+                .size()\
+                .reset_index()\
+                .rename(columns={0: "count"})\
+                .sort_values("count", ascending=False)
+        if n_links is not None:
+            return result.head(n_links)
+        return result
