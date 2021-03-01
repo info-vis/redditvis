@@ -34,3 +34,7 @@ class BodyModel:
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
+
+    def get_sentiments(self, target):
+        tmp = self.data[self.data['TARGET_SUBREDDIT'] == target].sort_values(by=['DATE','TIMEOFDAY'])
+        return list(tmp['LINK_SENTIMENT'].copy())
