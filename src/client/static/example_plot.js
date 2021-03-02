@@ -41,7 +41,7 @@ Vue.component("example-plot", {
         <div class="row">
             <!-- Plot -->
             <div class="col-md-8">
-            <div id='testPlot' class="bk-root"></div>
+                <div id='testPlot' class="bk-root"></div>
             </div>
             <!-- Slider -->
             <div class="col-md-4">

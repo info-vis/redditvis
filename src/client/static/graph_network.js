@@ -1,22 +1,34 @@
 // Define a new component called graph-network
 Vue.component('graph-network', {
     data: function () {
+        // All data prefixed with 'd3' is related to the d3 library.
         return {
+            showSubredditNames: true, // Show a name label next to each node
             data: {}, // This contains the nodes and links
-            numberOfLinks: 200,
+            numberOfLinks: 2000, // This controls the size of the network
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
-            width: 965, // of the canvas
-            selectedSubreddit: null,
+            width: 1000, // of the canvas
+            selectedSubreddit: "books",
+            links: null,
+            nodes: null,
+
             d3Simulation: null,
             d3Canvas: null,
             d3Context: null,
             d3Transform: d3.zoomIdentity,
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
-            links: null,
-            nodes: null,
-            d3NodeRadius: 5
+            d3NodeRadius: 6,
         }   
+    },
+    computed: {
+        subredditLink: function () {
+            return `https://www.reddit.com/r/${this.selectedSubreddit}/`
+        }
+    },
+    watch: {
+        showSubredditNames: "simulationUpdate",
+        selectedSubreddit: "simulationUpdate"
     },
     methods: {
         /**
@@ -30,36 +42,7 @@ Vue.component('graph-network', {
         setSelectedSubreddit(subreddit) {
             this.selectedSubreddit = subreddit
         },
-        handleMouseDown(event) {
-            console.log("mouse down!")
-            var p = d3.pointer(event);
-            closestNode = this.d3Simulation.find(p[0], p[1]);
-            this.setSelectedSubreddit(closestNode)
-            this.drawTooltip(this.selectedSubreddit)
-        },
-        drawTooltip(node, event) {
-            if (!node) {
-                return
-            }
-            this.d3Context.beginPath();
-            this.drawNode(node)
-            this.d3Context.fill();
-            this.d3Context.strokeStyle = "#ff0000";
-            this.d3Context.stroke();
-
-            // d3.select('#tooltip')
-            //     .style('opacity', 0.8)
-            //     // .style('top', event.pageY + 5 + 'px')
-            //     // .style('left', event.pageX + 5 + 'px')
-            //     .html(`Selected: 
-            //     <a class="btn btn-primary" 
-            //         target="_blank" 
-            //         href="https://www.reddit.com/r/${node.id}/" 
-            //         role="button"
-            //     >r/${node.id}</a>`);
-            this.simulationUpdate();
-        },
-        setBackgroundColor(color="black") {
+        setBackgroundColor(color="#f5f5f5") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
         },
@@ -73,9 +56,7 @@ Vue.component('graph-network', {
             for (const node of this.nodes) {
                 this.drawNode(node) 
             }
-            // if (this.selectedSubreddit) {
-            //     drawTooltip(this.selectedSubreddit)
-            // }
+            this.drawSelectedSubreddit()
             this.d3Context.restore();
         },
         zoomed(event) {
@@ -93,25 +74,49 @@ Vue.component('graph-network', {
             links.forEach(link => {
                 this.d3Context.moveTo(link.source.x, link.source.y);
                 this.d3Context.lineTo(link.target.x, link.target.y);
-                this.d3Context.lineWidth = link.value/15;
+                this.d3Context.lineWidth = link.value / 15
             })
             this.d3Context.strokeStyle = "#aaa";
             this.d3Context.stroke();
         },
-        drawNode(node) {
+        drawNode(node, selected=false) {
+            const extraRadius = 5 // When a node is selected
+            const nodeRadius = selected ? this.d3NodeRadius + extraRadius : this.d3NodeRadius
             this.d3Context.strokeStyle = "#fff";
             this.d3Context.beginPath();
             this.d3Context.lineWidth = 1;
-            this.d3Context.moveTo(node.x + this.d3NodeRadius, node.y);
-            this.d3Context.arc(node.x, node.y, this.d3NodeRadius, 0, 2 * Math.PI);
+            this.d3Context.moveTo(node.x + nodeRadius, node.y);
+            this.d3Context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
 
             this.d3Context.fillStyle = this.color(node);
             this.d3Context.fill();
-
-            // Node outline
-            this.d3Context.strokeStyle = 'black'
-            this.d3Context.lineWidth = '1.5'
-            this.d3Context.stroke();
+            
+            if (this.showSubredditNames) {
+                this.d3Context.fillText(node.id, node.x + 8, node.y);
+            }
+        },
+        findNodeById(id) {
+            return this.nodes.filter(node => node.id == id)[0]
+        },
+        panToSelectedSubreddit() {
+            const selectedNode = this.findNodeById(this.selectedSubreddit)
+            const x = selectedNode.x
+            const y = selectedNode.y
+            const zoomLevel = 2
+            const transform = d3.zoomIdentity.translate(this.width / 2, this.height / 2).scale(zoomLevel).translate(-x, -y)
+            this.d3Transform = transform
+            d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
+            this.simulationUpdate()
+        },
+        drawSelectedSubreddit() {
+            if (this.selectedSubreddit) {
+                const node = this.findNodeById(this.selectedSubreddit)
+                this.d3Context.beginPath();
+                this.drawNode(node, selected=true)
+                this.d3Context.fill();
+                this.d3Context.strokeStyle = "#ff0000";
+                this.d3Context.stroke();
+            }
         },
         dragSubject(event) {
             const x = this.d3Transform.invertX(event.x);
@@ -121,15 +126,10 @@ Vue.component('graph-network', {
                 node.x =  this.d3Transform.applyX(node.x);
                 node.y = this.d3Transform.applyY(node.y);
             }
-            // else: No node selected, drag container
-            // var p = d3.pointer(event);
-            // closeNode = simulation.find(p[0], p[1]);
-            // drawTooltip(closeNode)
-            
-            // simulationUpdate();
             return node;
         },
         dragStarted(event) {
+            console.log('dragstarted')
             if (!event.active) {
                 this.d3Simulation.alphaTarget(0.3).restart();
             }
@@ -137,10 +137,14 @@ Vue.component('graph-network', {
             event.subject.fy = this.d3Transform.invertY(event.y);
         },
         dragged(event) {
+            console.log('dragged')
+
             event.subject.fx = this.d3Transform.invertX(event.x);
             event.subject.fy = this.d3Transform.invertY(event.y);
         },
         dragEnded(event) {
+            console.log('dragended')
+            
             if (!event.active) this.d3Simulation.alphaTarget(0);
             event.subject.fx = null;
             event.subject.fy = null;
@@ -185,7 +189,6 @@ Vue.component('graph-network', {
         this.d3Simulation.on("tick", this.simulationUpdate);
 
         d3.select(this.d3Context.canvas)
-            // .on("mousedown", this.handleMouseDown)
             .call(d3.drag()
                 .subject(this.dragSubject)
                 .on("start", this.dragStarted)
@@ -194,31 +197,56 @@ Vue.component('graph-network', {
             .call(d3.zoom()
                 .scaleExtent([0.1, 8])
                 .on("zoom", this.zoomed))
-            .on("wheel", event => event.preventDefault())        
-        
+            .on("wheel", event => event.preventDefault())
     },
     template: `
         <div>
-            <div v-if="this.isLoading" class="d-flex justify-content-center">
-                <div class="spinner-grow mt-5 text-light" role="status">
+            <div class="row">
+                <div class="col mb-2">
+                    <div class="row my-2">
+                        <div v-if="this.isLoading" class="d-flex justify-content-center col">
+                            <div class="spinner-grow mt-5" role="status">
+                            </div>
+                        </div>
+                        <div class="col" v-if="!this.isLoading">
+                            <p class="m-2">
+                                Nodes: <span class="badge bg-secondary">{{ this.data.nodes && this.data.nodes.length }}</span>
+                                Links: <span class="badge bg-secondary">{{ this.data.links && this.data.links.length }}</span>
+                            </p>
+                        </div>
+                        <div class="col" v-if="!this.isLoading">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="showSubredditNames = !showSubredditNames" checked>
+                                <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
+                            </div>
+                        </div>
+                        <div class="col" v-if="!this.isLoading">
+                            <div id="tooltip">
+                                Selected subreddit: 
+                                <a  v-if="selectedSubreddit"
+                                    class="btn btn-primary" 
+                                    target="_blank" 
+                                    v-bind:href="subredditLink"
+                                    role="button"
+                                    v-bind:title="subredditLink"
+                                >
+                                    r/{{ selectedSubreddit }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col" v-if="!this.isLoading">
+                            <button class="btn btn-primary" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
+                                Pan to selection
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <p v-if="!this.isLoading" class="m-2">
-                Nodes: <span class="badge bg-secondary">{{ this.data.nodes && this.data.nodes.length }}</span><br/>
-                Links: <span class="badge bg-secondary">{{ this.data.links && this.data.links.length }}</span>
-            </p>
-            <div>
-                <div id="tooltip" v-if="selectedSubreddit">
-                    Selected: 
-                    <a class="btn btn-primary" 
-                        target="_blank" 
-                        href:"https://www.reddit.com/r/{{ selectedSubreddit.id }}/" 
-                        role="button"
-                    >r/{{ selectedSubreddit.id }}</a>
-                    
+            <div class="">
+                <div class="">
+                    <canvas id="graph-network-canvas" class="shadow-sm rounded border" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
+                    </canvas>
                 </div>
-                <canvas class="shadow-sm rounded border" id="graph-network-canvas" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
-                </canvas>
             </div>
         </div>
     `
