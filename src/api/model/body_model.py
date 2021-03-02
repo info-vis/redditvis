@@ -12,7 +12,7 @@ class BodyModel:
     data = None
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
 
-    @staticmethod 
+    @staticmethod
     def getInstance():
         """ Static access method. """
         if BodyModel.__instance == None:
@@ -36,7 +36,7 @@ class BodyModel:
             .sort_values("counts", ascending=False).head(num)
 
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
+        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
 
         Args:
             source_subreddit (str, optional): The source subreddit you wish to get top properties for. Defaults to None.

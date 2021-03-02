@@ -8,7 +8,7 @@ class NetworkGraphHelper:
     """
     @staticmethod
     def to_network_graph(data: pd.DataFrame) -> str:
-        """Transform the network data from a pandas df to the format 
+        """Transform the network data from a pandas df to the format
         accepted by the network in the front end.
 
         Args:
@@ -16,7 +16,7 @@ class NetworkGraphHelper:
                     SOURCE_SUBREDDIT    TARGET_SUBREDDIT  count
             128037  trendingsubreddits        changelog    548
             114895       streetfighter              sf4    279
-        
+
         Returns:
             str: JSON string in the format:
             {
@@ -49,6 +49,6 @@ class NetworkGraphHelper:
         nodes = to_nodes(data)
         links = to_links(data)
         return json.dumps({
-            "nodes": list(nodes), 
+            "nodes": list(nodes),
             "links": links.values.tolist()
         })

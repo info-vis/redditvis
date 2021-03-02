@@ -46,12 +46,12 @@ Vue.component("example-plot", {
             <!-- Slider -->
             <div class="col-md-4">
             <label for="customRange1" class="form-label">Number of subreddits</label>
-            <input 
-                type="range" 
-                class="form-range" 
-                id="numSubredditsSlider" 
+            <input
+                type="range"
+                class="form-range"
+                id="numSubredditsSlider"
                 v-model="sliderCounter"
-                min="1" 
+                min="1"
                 max="50"
                 @mouseup="updateNumberOfSubreddits"
             >

@@ -2,42 +2,48 @@
 Vue.component('graph-network', {
     data: function () {
         return {
-            data: {}, // This contains the nodes and links
+            // data: {}, // This contains the nodes and links
             numberOfLinks: 10000,
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
             width: 965 // of the canvas
-        }   
+        }
+    },
+    props: {
+      data: Object,
     },
     methods: {
         /**
          * Fetch data and set this.data.
          */
-        fetchData: async function() {
-            const response = await fetch(`${apiEndpoint}network?n_links=${this.numberOfLinks}`);
-            const data = await response.json();
-            this.data = await data
-        }
+        // fetchData: async function() {
+        //     const response = await fetch(`${apiEndpoint}network?n_links=${this.numberOfLinks}`);
+        //     const data = await response.json();
+        //     // this.data = await data
+        // }
     },
-    mounted: async function() {
+
+    beforeUpdate: function() {
+
         const width = this.width
         const height = this.height
+        console.log(this.data)
 
         const nodeRadius = 5;
         let transform = d3.zoomIdentity;
-            
-        await this.fetchData()
+
+        // await this.fetchData()
         this.isLoading = false
-  
+
         // Transform the rows from being arrays of values to objects.
         const links = this.data.links.map(d => ({source: d[0], target: d[1], value: d[2]}))
         const nodes = this.data.nodes.map(d => ({id: d, group: Math.floor(Math.random() * Math.floor(10))}))
-      
+
         const canvas = document.getElementById("graph-network-canvas")
         const context = canvas.getContext("2d")
 
         setBackgroundColor()
-        
+
         const simulation = d3.forceSimulation(nodes)
             .force("link", d3.forceLink(links).id(d => d.id))
             .force("charge", d3.forceManyBody())
@@ -53,7 +59,7 @@ Vue.component('graph-network', {
             context.scale(transform.k, transform.k);
             drawLinks(links)
             for (const node of nodes) {
-                drawNode(node) 
+                drawNode(node)
             }
             context.restore();
         }
@@ -88,7 +94,7 @@ Vue.component('graph-network', {
             context.strokeStyle = "#aaa";
             context.stroke();
         }
-    
+
         function drawNode(node) {
             context.strokeStyle = "#fff";
             context.beginPath();
@@ -117,7 +123,7 @@ Vue.component('graph-network', {
                 // else: No node selected, drag container
                 return node;
             }
-          
+
             function dragstarted(event) {
                 if (!event.active) {
                     simulation.alphaTarget(0.3).restart();
@@ -125,18 +131,18 @@ Vue.component('graph-network', {
                 event.subject.fx = transform.invertX(event.x);
                 event.subject.fy = transform.invertY(event.y);
             }
-            
+
             function dragged(event) {
                 event.subject.fx = transform.invertX(event.x);
                 event.subject.fy = transform.invertY(event.y);
             }
-            
+
             function dragended(event) {
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
             }
-            
+
             return d3.drag()
                 .subject(dragsubject)
                 .on("start", dragstarted)
@@ -157,7 +163,7 @@ Vue.component('graph-network', {
               }
             }
             // No node selected
-            return undefined; 
+            return undefined;
         }
         d3.select(context.canvas)
         d3.select(context.canvas)
@@ -166,7 +172,7 @@ Vue.component('graph-network', {
                 .scaleExtent([0.1, 8])
                 .on("zoom", zoomed))
             .on("wheel", event => event.preventDefault());
-        
+
     },
     template: `
         <div>
@@ -185,4 +191,3 @@ Vue.component('graph-network', {
         </div>
     `
   })
-
