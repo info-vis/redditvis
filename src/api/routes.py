@@ -39,6 +39,25 @@ def plot1():
 
 	return json.dumps(bokeh.embed.json_item(p, "myplot"))
 
+<<<<<<< HEAD
+@bp.route('/sentimentBox')
+def sentimentBox():
+	target = request.args.get('target', default = 'None')
+	sents = list(BodyModel.getInstance().get_sentiments)
+
+	p = figure(plot_width=500, plot_height=50, tools ='') # The width and height may have to change
+	p.axis.visible = False
+
+	for i in range(len(sents)): # Dont know how efficient this will work
+		if sents[i] == 1:
+				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
+		else:  
+				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')  
+	return json.dumps(bokeh.embed.json_item(p, "sentimentBox"))
+
+
+	
+=======
 @bp.route('/top-properties')
 def top_properties():
 	source_subreddit = request.args.get('source-subreddit')
@@ -83,3 +102,4 @@ def network():
 	data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return network_graph
+>>>>>>> master
