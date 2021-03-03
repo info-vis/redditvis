@@ -35,6 +35,12 @@ class BodyModel:
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
 
+    def get_sentiments(self, target):
+        posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
+        posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
+        sentiments = list(posts_for_target['LINK_SENTIMENT'])
+        return sentiments 
+        
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
 
@@ -55,6 +61,18 @@ class BodyModel:
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+    
+    
+    def get_frequency(self, source_subreddit):
+        dict_source_target = {}
+        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+        for target in filtered_by_source['TARGET_SUBREDDIT']:
+            if target not in dict_source_target:
+                dict_source_target[target] = 1
+            else:
+                dict_source_target[target] += 1
+        return dict_source_target
+    
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.

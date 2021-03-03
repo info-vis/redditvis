@@ -105,12 +105,14 @@ Vue.component('graph-network', {
         drawSelectedSubreddit() {
             if (this.selectedSubreddit) {
                 const node = this.findNodeById(this.selectedSubreddit)
-                this.d3Context.beginPath();
-                this.drawNode(node, selected = true)
-                this.d3Context.fill();
-                this.d3Context.strokeStyle = "#0d6efd";
-                this.d3Context.lineWidth = 3;
-                this.d3Context.stroke();
+                if (node) {
+                    this.d3Context.beginPath();
+                    this.drawNode(node, selected = true)
+                    this.d3Context.fill();
+                    this.d3Context.strokeStyle = "#0d6efd";
+                    this.d3Context.lineWidth = 3;
+                    this.d3Context.stroke();
+                }
             }
         },
         dragSubject(event) {
