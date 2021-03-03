@@ -3,8 +3,8 @@ Vue.component('graph-network', {
     data: function () {
         // All data prefixed with 'd3' is related to the d3 library.
         return {
-            height: 500, // of the canvas
-            width: 1050, // of the canvas
+            // height: null, // of the canvas
+            // width: null, // of the canvas
             links: null,
             nodes: null,
 
@@ -15,6 +15,10 @@ Vue.component('graph-network', {
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
             d3NodeRadius: 6,
         }
+    },
+    computed: {
+        width: function() { return this.d3Canvas && this.d3Canvas.width || null },
+        height: function() { return this.d3Canvas && this.d3Canvas.height || null }
     },
     props: {
         networkData: Object,
@@ -37,6 +41,7 @@ Vue.component('graph-network', {
         simulationUpdate() {
             this.d3Context.save();
             this.clearCanvas()
+            this.setDimensions()
             this.setBackgroundColor()
             this.d3Context.translate(this.d3Transform.x, this.d3Transform.y);
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
@@ -62,9 +67,9 @@ Vue.component('graph-network', {
             links.forEach(link => {
                 this.d3Context.moveTo(link.source.x, link.source.y);
                 this.d3Context.lineTo(link.target.x, link.target.y);
-                this.d3Context.lineWidth = link.value / 15
+                this.d3Context.lineWidth = Math.round(Math.sqrt(link.value))
             })
-            this.d3Context.strokeStyle = "#aaa";
+            this.d3Context.strokeStyle = "black";
             this.d3Context.stroke();
         },
         drawNode(node, selected = false) {
@@ -156,10 +161,12 @@ Vue.component('graph-network', {
             // No node selected
             return undefined;
         },
+        setDimensions() {
+            var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
+            this.d3Canvas.width = containerDimensions.width;
+            this.d3Canvas.height = containerDimensions.height;
+        },
         init() {
-            const width = this.width
-            const height = this.height
-
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
             this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
@@ -167,12 +174,13 @@ Vue.component('graph-network', {
             this.d3Canvas = document.getElementById("graph-network-canvas")
             this.d3Context = this.d3Canvas.getContext("2d")
 
+            this.setDimensions()
             this.setBackgroundColor()
 
             this.d3Simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
             this.d3Simulation.on("tick", this.simulationUpdate);
 
@@ -192,8 +200,8 @@ Vue.component('graph-network', {
         this.init()
     },
     template: `
-        <div>
-            <canvas id="graph-network-canvas" class="shadow-sm rounded border" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
+        <div id="graph-network-container">
+            <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
             </canvas>
         </div>
     `
