@@ -1,4 +1,9 @@
 Vue.component('properties-plot', {
+    data: function () {
+        return {
+            isLoading: false
+        }
+    },
     props: {
         sourceSubreddit: String,
         targetSubreddit: String
@@ -9,6 +14,7 @@ Vue.component('properties-plot', {
     },
     methods: {
         async fetchPlot() {
+            this.isLoading = true
             let url = `${apiEndpoint}top-properties`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
@@ -21,8 +27,9 @@ Vue.component('properties-plot', {
             }
             const propertiesResponse = await fetch(url);
             const propertiesPlot = await propertiesResponse.json();
-            document.getElementById("propertiesPlot").innerHTML = "";
-            Bokeh.embed.embed_item(propertiesPlot, 'propertiesPlot')
+            document.getElementById("properties-plot").innerHTML = "";
+            Bokeh.embed.embed_item(propertiesPlot, 'properties-plot')
+            this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
@@ -33,6 +40,10 @@ Vue.component('properties-plot', {
     },
     template: `
     <div>
-        <div id="propertiesPlot" class="bk-root"></div>
+        <div v-if="isLoading" class="d-flex justify-content-center">
+            <div class="spinner-grow my-5" role="status">
+            </div>
+        </div>
+        <div v-show="!isLoading" id="properties-plot" class="bk-root"></div>
     </div> `
 })
