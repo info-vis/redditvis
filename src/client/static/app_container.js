@@ -42,6 +42,10 @@ Vue.component("app-container", {
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
       this.fetchData()
+    },
+    clearFilters: function () {
+      this.filterValue = null
+      this.selectedSubreddit = null
     }
   },
   created: async function () {
@@ -49,10 +53,13 @@ Vue.component("app-container", {
   },
   template: `
     <div id="wrapper">
+
+      <!-- Spinner/Loading icon -->
       <div v-if="isLoadingData" class="d-flex justify-content-center col">
           <div class="spinner-grow mt-5" role="status">
           </div>
       </div>
+
       <!-- Top bar -->
       <div v-if="networkData" class="row">
           <div class="col-md-9 mb-2">
@@ -87,7 +94,7 @@ Vue.component("app-container", {
                           </a>
                       </div>
                   </div>
-                  <div class="col" v-if="!isLoadingData">
+                  <div class="col">
                       <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
                           Pan to selection
                       </button>
@@ -112,7 +119,14 @@ Vue.component("app-container", {
         <!-- Filters -->
         <div class="col-md-3">
           <div id="filters">
-            <h3>Filters</h3>
+            <div class="row">
+              <div class="col">
+                <h3>Filters</h3>
+              </div>
+              <div class="col">
+                <button class="btn btn-danger btn-sm float-end" @click="clearFilters">Clear filters</button>
+              </div>
+            </div>
             <form v-on:submit.prevent="submitFilter">
               <div class="mb-2">
                   <label for="exampleDataList" class="form-label">Subreddit Filter</label>
@@ -128,12 +142,9 @@ Vue.component("app-container", {
 
       </div>
 
+      <div class="row">
+        <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
+      </div>
     </div>
     `
 })
-
-
-/* <div class="col">
-  <graph-filter></graph-filter>
-</div> */
-

@@ -39,6 +39,28 @@ def plot1():
 
 	return json.dumps(bokeh.embed.json_item(p, "myplot"))
 
+@bp.route('/top-properties')
+def top_properties():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
+
+	if source_subreddit and target_subreddit: 
+		plot_title = f"Top properties of the subreddit - {source_subreddit} with target subreddit - {target_subreddit}"
+	elif source_subreddit:
+		plot_title = f"Top properties of the source subreddit - {source_subreddit}"		
+	elif target_subreddit:
+		plot_title = f"Top properties of the target subreddit - {target_subreddit}"
+	else: 
+		plot_title = "Top properties of all subreddits"
+	
+	p=figure(x_range=list(data.index), plot_height=300, y_range=(0, 1), toolbar_location=None, tools="")
+	p.vbar(x=list(data.index), top=list(data.values), width=0.9)
+	p.xaxis.major_label_orientation = math.pi/2
+	p.title.text = plot_title
+
+	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
+	
 @bp.route("/network")
 def network():
 	"""Returns the network graph data.
