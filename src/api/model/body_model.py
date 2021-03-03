@@ -35,11 +35,13 @@ class BodyModel:
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
 
-<<<<<<< HEAD
     def get_sentiments(self, target):
-        tmp = self.data[self.data['TARGET_SUBREDDIT'] == target].sort_values(by=['DATE','TIMEOFDAY'])
-        return list(tmp['LINK_SENTIMENT'].copy())
-=======
+        target = 'aww'
+        tmp = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
+        # tmp = tmp.sort_values(by=['DATE','TIMEOFDAY'])
+        sents = list(tmp['LINK_SENTIMENT'].copy())
+        return sents 
+        
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
 
@@ -83,4 +85,3 @@ class BodyModel:
         if n_links is not None:
             return result.head(n_links)
         return result
->>>>>>> master
