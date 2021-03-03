@@ -55,6 +55,18 @@ class BodyModel:
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+    
+    
+    def get_frequency(self, source_subreddit='leagueoflegends'):
+        dict_source_target = {}
+        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+        for target in filtered_by_source['TARGET_SUBREDDIT']:
+            if target not in dict_source_target:
+                dict_source_target[target] = 1
+            else:
+                dict_source_target[target] += 1
+        return dict_source_target
+    
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
