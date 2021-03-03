@@ -57,7 +57,7 @@ class BodyModel:
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
     
     
-    def get_frequency(self, source_subreddit='leagueoflegends'):
+    def get_frequency(self, source_subreddit: Optional[str] = 'leagueoflegends'):
         dict_source_target = {}
         filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
         for target in filtered_by_source['TARGET_SUBREDDIT']:

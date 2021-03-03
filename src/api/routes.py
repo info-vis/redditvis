@@ -64,12 +64,13 @@ def top_properties():
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
+	num = int(request.args.get('num', default="20"))
 	data = BodyModel.getInstance().get_frequency()
 
 	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
 	target_subreddits, frequencies = zip(*sorted_dict)
 
-	p = figure(x_range=target_subreddits[:20], plot_height=400, title= "Subreddit source: ",
+	p = figure(x_range=target_subreddits[:num], plot_height=400, title= "Subreddit source: how to insert subreddit name here ??",
                toolbar_location=None, tools="")
 	
 	p.vbar(x=target_subreddits, top=frequencies, width=0.9)

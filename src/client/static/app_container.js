@@ -145,6 +145,11 @@ Vue.component("app-container", {
       <div class="row">
         <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
       </div>
+      
+      <div class="row">
+        <plot-source-target-frequencies :source-subreddit="selectedSubreddit"></plot-source-target-frequencies>
+      </div>
+
     </div>
     `
 })
