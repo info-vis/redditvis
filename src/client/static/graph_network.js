@@ -163,7 +163,7 @@ Vue.component('graph-network', {
             this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
 
             this.d3Canvas = document.getElementById("graph-network-canvas")
-            this.d3Context = this.d3Canvas.getContext("2d")
+            this.d3Context = this.d3Canvas.getContext("2d", { alpha: false })
 
             this.setBackgroundColor()
 

@@ -72,32 +72,13 @@ Vue.component("app-container", {
                   </div>
                   <div class="col">
                     <label for="linkSlider" class="form-label">Number of links: {{ numberOfLinksSliderValue }}/137821</label>
-                    <input type="range" class="form-range" min="1" max="137821" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
+                    <input type="range" class="form-range" min="0" max="137821" step="1000" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
                   </div>
                   <div class="col">
                       <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames">
                         <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
                       </div>
-                  </div>
-                  <div class="col">
-                      <div id="tooltip">
-                          Selected subreddit: 
-                          <a  v-if="selectedSubreddit"
-                            class="btn btn-primary btn-sm" 
-                            target="_blank" 
-                            v-bind:href="subredditLink"
-                            role="button"
-                            v-bind:title="subredditLink"
-                          >
-                            r/{{ selectedSubreddit }}
-                          </a>
-                      </div>
-                  </div>
-                  <div class="col">
-                      <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
-                          Pan to selection
-                      </button>
                   </div>
               </div>
           </div>
@@ -116,28 +97,49 @@ Vue.component("app-container", {
           ></graph-network>
         </div>
 
-        <!-- Filters -->
+        <!-- Selection -->
         <div class="col-md-3">
-          <div id="filters">
-            <div class="row">
-              <div class="col">
-                <h3>Filters</h3>
-              </div>
-              <div class="col">
-                <button class="btn btn-danger btn-sm float-end" @click="clearFilters">Clear filters</button>
+          <div class="row pb-2">
+            <div class="col">
+              <div id="tooltip">
+                <strong>Selected subreddit:</strong> 
+                <div>
+                  <a v-if="selectedSubreddit"
+                    class="" 
+                    target="_blank" 
+                    v-bind:href="subredditLink"
+                    role="button"
+                    v-bind:title="subredditLink"
+                  >
+                    r/{{ selectedSubreddit }}
+                  </a>
+                </div>
+                <div v-if="!selectedSubreddit">None</div>
               </div>
             </div>
-            <form v-on:submit.prevent="submitFilter">
-              <div class="mb-2">
-                  <label for="exampleDataList" class="form-label">Subreddit Filter</label>
-                  <input v-on:keyup.enter="submitFilter" v-model="filterValue" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type a subreddit name..">
-                  <datalist v-if="networkData" id="datalistOptions">
-                      <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
-                  </datalist>
-              </div>
-              <button type="submit" class="btn btn-primary">Filter on subreddit</button>
-              </form>
           </div>
+          <div class="row float-end">
+            <div class="col px-0">
+              <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
+                <i class="bi bi-geo-fill"></i>              
+              </button>
+            </div>
+            <div class="col">
+              <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSubreddit" @click="clearFilters">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            </div>
+          </div>
+          <form v-on:submit.prevent="submitFilter">
+            <div class="mb-2">
+                <label for="exampleDataList" class="form-label">Select a subreddit</label>
+                <input v-on:keyup.enter="submitFilter" v-model="filterValue" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type a subreddit name..">
+                <datalist v-if="networkData" id="datalistOptions">
+                    <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
+                </datalist>
+            </div>
+            <button type="submit" class="btn btn-primary">Select subreddit</button>
+          </form>
         </div>
 
       </div>
