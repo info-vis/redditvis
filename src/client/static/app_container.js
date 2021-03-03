@@ -78,8 +78,8 @@ Vue.component("app-container", {
 
           <div class="row border p-1 mb-1 rounded me-2 bg-light">
             <div class="col">
-                <span class="badge bg-secondary mb-1">Nodes: {{ networkData.nodes && networkData.nodes.length }}</span>
-                <span class="badge bg-secondary">Links: {{ networkData.links && networkData.links.length }}</span>
+                <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
+                <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
             </div>
           </div>
 
