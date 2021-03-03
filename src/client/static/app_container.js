@@ -150,6 +150,11 @@ Vue.component("app-container", {
           <sentiment-box :target-subreddit="selectedSubreddit"></sentiment-box>
         </div>
       </div>
+      
+      <div class="row">
+        <plot-source-target :source-subreddit="selectedSubreddit" v-if="selectedSubreddit"></plot-source-target>
+      </div>
+
     </div>
     `
 })

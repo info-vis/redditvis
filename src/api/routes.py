@@ -8,6 +8,7 @@ from flask import request
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
+from math import pi
 
 
 # Currently unused
@@ -84,7 +85,29 @@ def top_properties():
 	p.title.text = plot_title
 
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
+
+@bp.route('/source-target-frequencies')
+def plot_source_target_frequencies():
+	num = int(request.args.get('num', default="20"))
+	source_subreddit = request.args.get('source-subreddit')
+	data = BodyModel.getInstance().get_frequency(source_subreddit)
 	
+	if source_subreddit is None:
+		raise ValueError("Cannot load sentiments for the entire data set. A source_subreddit as a query parameter is mandatory.")
+
+	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
+	target_subreddits, frequencies = zip(*sorted_dict)
+
+	p = figure(x_range=target_subreddits[:num], plot_height=400, title=f"Subreddit source: {source_subreddit}",
+               toolbar_location=None, tools="")
+	
+	p.vbar(x=target_subreddits, top=frequencies, width=0.9)
+	p.xgrid.grid_line_color = None
+	p.y_range.start = 0
+	p.xaxis.major_label_orientation = pi/4
+	
+	return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
+
 @bp.route("/network")
 def network():
 	"""Returns the network graph data.
