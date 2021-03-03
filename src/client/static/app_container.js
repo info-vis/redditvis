@@ -142,8 +142,13 @@ Vue.component("app-container", {
 
       </div>
 
-      <div class="row">
-        <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
+      <div class="row rounded shadow-sm border mx-1 my-2">
+        <div class="col">
+          <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
+        </div>
+        <div class="col">
+          <sentiment-box :target-subreddit="selectedSubreddit"></sentiment-box>
+        </div>
       </div>
       
       <div class="row">
