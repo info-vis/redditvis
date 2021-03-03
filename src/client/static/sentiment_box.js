@@ -50,4 +50,4 @@ Vue.component('sentiment-box', {
         <div v-show="!isLoading" id="sentiment-box" class="bk-root"></div>
     </div> `
 
-}) 
+})
