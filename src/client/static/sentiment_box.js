@@ -1,9 +1,14 @@
 Vue.component('sentiment-box', {
     data: function() {
         return {
-            targetSubreddit: null,
             isLoading: false
         }
+    },
+    props: {
+        targetSubreddit: {
+            type: String,
+            default: null
+        },
     },
     watch: {
         targetSubreddit: "fetchAPIData"

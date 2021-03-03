@@ -1,188 +1,200 @@
 // Define a new component called graph-network
 Vue.component('graph-network', {
     data: function () {
+        // All data prefixed with 'd3' is related to the d3 library.
         return {
-            data: {}, // This contains the nodes and links
-            numberOfLinks: 200,
-            isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
-            width: 965 // of the canvas
-        }   
+            width: 1050, // of the canvas
+            links: null,
+            nodes: null,
+
+            d3Simulation: null,
+            d3Canvas: null,
+            d3Context: null,
+            d3Transform: d3.zoomIdentity,
+            d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
+            d3NodeRadius: 6,
+        }
+    },
+    props: {
+        networkData: Object,
+        selectedSubreddit: String,
+        showSubredditNames: Boolean, // Show a name label next to each node
+    },
+    watch: {
+        showSubredditNames: "simulationUpdate",
+        selectedSubreddit: "simulationUpdate",
+        networkData: "init"
     },
     methods: {
-        /**
-         * Fetch data and set this.data.
-         */
-        fetchData: async function() {
-            const response = await fetch(`${apiEndpoint}network?n_links=${this.numberOfLinks}`);
-            const data = await response.json();
-            this.data = await data
-        }
-    },
-    mounted: async function() {
-        const width = this.width
-        const height = this.height
-
-        const nodeRadius = 5;
-        let transform = d3.zoomIdentity;
-            
-        await this.fetchData()
-        this.isLoading = false
-  
-        // Transform the rows from being arrays of values to objects.
-        const links = this.data.links.map(d => ({source: d[0], target: d[1], value: d[2]}))
-        const nodes = this.data.nodes.map(d => ({id: d, group: Math.floor(Math.random() * Math.floor(10))}))
-      
-        const canvas = document.getElementById("graph-network-canvas")
-        const context = canvas.getContext("2d")
-
-        setBackgroundColor()
-        
-        const simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(links).id(d => d.id))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(width / 2, height / 2));
-
-        simulation.on("tick", simulationUpdate);
-
-        function simulationUpdate() {
-            context.save();
-            clearCanvas()
-            setBackgroundColor()
-            context.translate(transform.x, transform.y);
-            context.scale(transform.k, transform.k);
-            drawLinks(links)
-            for (const node of nodes) {
-                drawNode(node) 
+        setSelectedSubreddit(subreddit) {
+            this.selectedSubreddit = subreddit
+        },
+        setBackgroundColor(color = "#f5f5f5") {
+            this.d3Context.fillStyle = color;
+            this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
+        },
+        simulationUpdate() {
+            this.d3Context.save();
+            this.clearCanvas()
+            this.setBackgroundColor()
+            this.d3Context.translate(this.d3Transform.x, this.d3Transform.y);
+            this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
+            this.drawLinks(this.links)
+            for (const node of this.nodes) {
+                this.drawNode(node)
             }
-            context.restore();
-        }
-
-        function zoomed(event) {
-            transform = event.transform
-            simulationUpdate()
-        }
-
-        const scale = d3.scaleOrdinal(d3.schemeCategory10);
-
-        function color(d) {
-            return scale(d.group)
-        }
-
-        function clearCanvas () {
-            context.clearRect(0, 0, width, height);
-        }
-
-        function setBackgroundColor(color="black") {
-            context.fillStyle = color;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function drawLinks(links) {
-            context.beginPath();
+            this.drawSelectedSubreddit()
+            this.d3Context.restore();
+        },
+        zoomed(event) {
+            this.d3Transform = event.transform
+            this.simulationUpdate()
+        },
+        color(d) {
+            return this.d3Scale(d.group)
+        },
+        clearCanvas() {
+            this.d3Context.clearRect(0, 0, this.width, this.height);
+        },
+        drawLinks(links) {
+            this.d3Context.beginPath();
             links.forEach(link => {
-                context.moveTo(link.source.x, link.source.y);
-                context.lineTo(link.target.x, link.target.y);
-                context.lineWidth = link.value/15;
+                this.d3Context.moveTo(link.source.x, link.source.y);
+                this.d3Context.lineTo(link.target.x, link.target.y);
+                this.d3Context.lineWidth = link.value / 15
             })
-            context.strokeStyle = "#aaa";
-            context.stroke();
-        }
-    
-        function drawNode(node) {
-            context.strokeStyle = "#fff";
-            context.beginPath();
-            context.lineWidth = 1;
-            context.moveTo(node.x + nodeRadius, node.y);
-            context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+            this.d3Context.strokeStyle = "#aaa";
+            this.d3Context.stroke();
+        },
+        drawNode(node, selected = false) {
+            const extraRadius = 2 // When a node is selected
+            const nodeRadius = selected ? this.d3NodeRadius + extraRadius : this.d3NodeRadius
+            this.d3Context.strokeStyle = "#fff";
+            this.d3Context.beginPath();
+            this.d3Context.lineWidth = 1;
+            this.d3Context.moveTo(node.x + nodeRadius, node.y);
+            this.d3Context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
 
-            context.fillStyle = color(node);
-            context.fill();
+            this.d3Context.fillStyle = this.color(node);
+            this.d3Context.fill();
 
-            // Node outline
-            context.strokeStyle = 'black'
-            context.lineWidth = '1.5'
-            context.stroke();
-        }
-
-        drag = simulation => {
-            function dragsubject(event) {
-                const x = transform.invertX(event.x);
-                const y = transform.invertY(event.y);
-                const node = findNode(nodes, x, y, nodeRadius);
+            const nodeIsSelected = node.id == this.selectedSubreddit
+            if (nodeIsSelected) {
+                this.drawNodeName(node, offset = 12)
+            } else if (this.showSubredditNames) {
+                this.drawNodeName(node)
+            }
+        },
+        drawNodeName(node, offset = 8) {
+            this.d3Context.fillText(node.id, node.x + offset, node.y);
+        },
+        findNodeById(id) {
+            return this.nodes.filter(node => node.id == id)[0]
+        },
+        panToSelectedSubreddit() {
+            const selectedNode = this.findNodeById(this.selectedSubreddit)
+            const x = selectedNode.x
+            const y = selectedNode.y
+            const zoomLevel = 2
+            const transform = d3.zoomIdentity.translate(this.width / 2, this.height / 2).scale(zoomLevel).translate(-x, -y)
+            this.d3Transform = transform
+            d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
+            this.simulationUpdate()
+        },
+        drawSelectedSubreddit() {
+            if (this.selectedSubreddit) {
+                const node = this.findNodeById(this.selectedSubreddit)
                 if (node) {
-                    node.x =  transform.applyX(node.x);
-                    node.y = transform.applyY(node.y);
+                    this.d3Context.beginPath();
+                    this.drawNode(node, selected = true)
+                    this.d3Context.fill();
+                    this.d3Context.strokeStyle = "#0d6efd";
+                    this.d3Context.lineWidth = 3;
+                    this.d3Context.stroke();
                 }
-                // else: No node selected, drag container
-                return node;
             }
-          
-            function dragstarted(event) {
-                if (!event.active) {
-                    simulation.alphaTarget(0.3).restart();
-                }
-                event.subject.fx = transform.invertX(event.x);
-                event.subject.fy = transform.invertY(event.y);
+        },
+        dragSubject(event) {
+            const x = this.d3Transform.invertX(event.x);
+            const y = this.d3Transform.invertY(event.y);
+            const node = this.findNode(this.nodes, x, y, this.d3NodeRadius);
+            if (node) {
+                node.x = this.d3Transform.applyX(node.x);
+                node.y = this.d3Transform.applyY(node.y);
             }
-            
-            function dragged(event) {
-                event.subject.fx = transform.invertX(event.x);
-                event.subject.fy = transform.invertY(event.y);
+            return node;
+        },
+        dragStarted(event) {
+            if (!event.active) {
+                this.d3Simulation.alphaTarget(0.3).restart();
             }
-            
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-            
-            return d3.drag()
-                .subject(dragsubject)
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended);
-        }
-
-        function findNode(nodes, x, y, radius) {
+            event.subject.fx = this.d3Transform.invertX(event.x);
+            event.subject.fy = this.d3Transform.invertY(event.y);
+        },
+        dragged(event) {
+            event.subject.fx = this.d3Transform.invertX(event.x);
+            event.subject.fy = this.d3Transform.invertY(event.y);
+        },
+        dragEnded(event) {
+            if (!event.active) this.d3Simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        },
+        findNode(nodes, x, y, radius) {
             const rSq = radius * radius;
             let i;
             for (i = nodes.length - 1; i >= 0; --i) {
-              const node = nodes[i],
+                const node = nodes[i],
                     dx = x - node.x,
                     dy = y - node.y,
                     distSq = (dx * dx) + (dy * dy);
-              if (distSq < rSq) {
-                return node;
-              }
+                if (distSq < rSq) {
+                    return node;
+                }
             }
             // No node selected
-            return undefined; 
+            return undefined;
+        },
+        init() {
+            const width = this.width
+            const height = this.height
+
+            // Transform the rows from being arrays of values to objects.
+            this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
+            this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
+
+            this.d3Canvas = document.getElementById("graph-network-canvas")
+            this.d3Context = this.d3Canvas.getContext("2d")
+
+            this.setBackgroundColor()
+
+            this.d3Simulation = d3.forceSimulation(this.nodes)
+                .force("link", d3.forceLink(this.links).id(d => d.id))
+                .force("charge", d3.forceManyBody())
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            this.d3Simulation.on("tick", this.simulationUpdate);
+
+            d3.select(this.d3Context.canvas)
+                .call(d3.drag()
+                    .subject(this.dragSubject)
+                    .on("start", this.dragStarted)
+                    .on("drag", this.dragged)
+                    .on("end", this.dragEnded))
+                .call(d3.zoom()
+                    .scaleExtent([0.1, 8])
+                    .on("zoom", this.zoomed))
+                .on("wheel", event => event.preventDefault())
         }
-        d3.select(context.canvas)
-        d3.select(context.canvas)
-            .call(drag(simulation))
-            .call(d3.zoom()
-                .scaleExtent([0.1, 8])
-                .on("zoom", zoomed))
-            .on("wheel", event => event.preventDefault());
-        
+    },
+    mounted: async function () {
+        this.init()
     },
     template: `
         <div>
-            <div v-if="this.isLoading" class="d-flex justify-content-center">
-                <div class="spinner-grow mt-5 text-light" role="status">
-                </div>
-            </div>
-            <p v-if="!this.isLoading" class="m-2">
-                Nodes: <span class="badge bg-secondary">{{ this.data.nodes && this.data.nodes.length }}</span><br/>
-                Links: <span class="badge bg-secondary">{{ this.data.links && this.data.links.length }}</span>
-            </p>
-            <div>
-                <canvas class="shadow-sm rounded border" id="graph-network-canvas" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
-                </canvas>
-            </div>
+            <canvas id="graph-network-canvas" class="shadow-sm rounded border" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
+            </canvas>
         </div>
     `
-  })
-
+})

@@ -1,23 +1,14 @@
 
 {% block vue %}
-<div id="vm" class="container">
-  <div class="row mb-3 mt-3">
-    <div class="col-md-9">
-      <graph-network></graph-network>
-    </div>
-    <div class="col-md-3">
-      <filters></filters>
-    </div>
-  </div>
-  <example-plot></example-plot>
-  <properties-plot></properties-plot>
-  <sentiment-box></sentiment-box>
+<div id="vm" class="container-fluid">
+  <app-container></app-container>
 </div>
 
 <!-- Load the child components here (Put the child components before the root component ) -->
 <script src="{{ url_for('client.static', filename='graph_network.js') }}"></script>
-<script src="{{ url_for('client.static', filename='filters.js') }}"></script>
 <script src="{{ url_for('client.static', filename='example_plot.js') }}"></script>
+<script src="{{ url_for('client.static', filename='app_container.js') }}"></script>
+<script src="{{ url_for('client.static', filename='filters.js') }}"></script>
 <script src="{{ url_for('client.static', filename='properties_plot.js') }}"></script>
 <script src="{{ url_for('client.static', filename='sentiment_box.js') }}"></script>
 <!-- Root Vue component -->
