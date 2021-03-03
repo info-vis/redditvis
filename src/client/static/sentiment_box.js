@@ -17,12 +17,13 @@ Vue.component('sentiment-box', {
         //  },
         async fetchPlot() {
             let url = `${apiEndpoint}sentiment-box`
+            let targetSubredditQuery = ""
             // If it is not null, add the query param
             if (this.targetSubreddit) {
-                const targetSubredditQuery = `target=${this.targetSubreddit}`
+                targetSubredditQuery = `target=${this.targetSubreddit}`
             }
             
-            let url = url + "?" + targetSubredditQuery
+            url = url + "?" + targetSubredditQuery
 
             console.log(url)
             const sentimentResponse = await fetch(url);
