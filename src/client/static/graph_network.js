@@ -3,7 +3,7 @@ Vue.component('graph-network', {
     data: function () {
         return {
             data: {}, // This contains the nodes and links
-            numberOfLinks: 10000,
+            numberOfLinks: 200,
             isLoading: true, // When the data is loading, this will be true
             height: 500, // of the canvas
             width: 965 // of the canvas

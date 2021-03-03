@@ -36,7 +36,6 @@ class BodyModel:
             .sort_values("counts", ascending=False).head(num)
 
     def get_sentiments(self, target):
-        target = 'aww'
         tmp = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
         # tmp = tmp.sort_values(by=['DATE','TIMEOFDAY'])
         sents = list(tmp['LINK_SENTIMENT'].copy())

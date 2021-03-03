@@ -1,46 +1,47 @@
 Vue.component('sentiment-box', {
     data: function() {
         return {
-            targetSubreddit: null
+            targetSubreddit: null,
+            isLoading: false
         }
     },
     watch: {
         targetSubreddit: "fetchAPIData"
     },
     methods: {
-        // async handleFilter(event) {
-        //     this.filterCounter(event.target.value)
-        // },
-        // updatesubreddit(){
-        //      this.targetSubreddit = this.filterCounter
-        //      this.fetchAPIData()
-        //  },
         async fetchPlot() {
-            let url = `${apiEndpoint}sentiment-box`
-            let targetSubredditQuery = ""
-            // If it is not null, add the query param
-            if (this.targetSubreddit) {
-                targetSubredditQuery = `target=${this.targetSubreddit}`
-            }
-            
-            url = url + "?" + targetSubredditQuery
-
-            console.log(url)
-            const sentimentResponse = await fetch(url);
-            const sentimentObject = await sentimentResponse.json();
-
             document.getElementById("sentiment-box").innerHTML = "";
-            window.Bokeh.embed.embed_item(sentimentObject, 'sentiment-box')
+            if (this.targetSubreddit) {
+                this.isLoading = true
+                let url = `${apiEndpoint}sentiment-box`
+                let targetSubredditQuery = ""
+                // If it is not null, add the query param
+                if (this.targetSubreddit) {
+                    targetSubredditQuery = `target=${this.targetSubreddit}`
+                }
+                
+                url = url + "?" + targetSubredditQuery
+
+                const sentimentResponse = await fetch(url);
+                const sentimentObject = await sentimentResponse.json();
+
+                window.Bokeh.embed.embed_item(sentimentObject, 'sentiment-box')
+                this.isLoading = false
+            }
         },
         async fetchAPIData() {
             this.fetchPlot()
         }
     },
-    created: async function(){
+    mounted: async function(){
         this.fetchAPIData()
     },
     template: `
     <div>
+        <div v-if="isLoading" class="d-flex justify-content-center">
+            <div class="spinner-grow mt-5" role="status">
+            </div>
+        </div>
         <div id="sentiment-box" class="bk-root"></div>
     </div> `
 

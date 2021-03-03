@@ -45,7 +45,7 @@ def sentiment_box():
 	sents = list(BodyModel.getInstance().get_sentiments(target))
 
 	p = figure(plot_width=700, plot_height=100, tools ='') # The width and height may have to change
-	# p.title.text = 'Sentiment per post for ' + target 
+	p.title.text = 'Sentiment per post for ' + target 
 	p.axis.visible = False
 	p.toolbar.logo = None
 	p.toolbar_location = None
