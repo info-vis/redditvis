@@ -78,7 +78,7 @@ def plot_source_target_frequencies():
 	p.y_range.start = 0
 	p.xaxis.major_label_orientation = pi/4
 	
-	return json.dumps(bokeh.embed.json_item(p, "source_target_frequencis"))
+	return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
 
 @bp.route("/network")
 def network():
