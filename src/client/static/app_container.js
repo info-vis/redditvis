@@ -147,7 +147,7 @@ Vue.component("app-container", {
       </div>
       
       <div class="row">
-        <plot-source-target-frequencies :source-subreddit="selectedSubreddit"></plot-source-target-frequencies>
+        <plot-source-target :source-subreddit="selectedSubreddit" v-if="selectedSubreddit"></plot-source-target>
       </div>
 
     </div>

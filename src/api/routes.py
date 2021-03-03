@@ -65,12 +65,16 @@ def top_properties():
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
 	num = int(request.args.get('num', default="20"))
-	data = BodyModel.getInstance().get_frequency()
+	source_subreddit = request.args.get('source-subreddit')
+	data = BodyModel.getInstance().get_frequency(source_subreddit)
+	
+	if source_subreddit is None:
+		raise ValueError("Cannot load sentiments for the entire data set. A source_subreddit as a query parameter is mandatory.")
 
 	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
 	target_subreddits, frequencies = zip(*sorted_dict)
 
-	p = figure(x_range=target_subreddits[:num], plot_height=400, title= "Subreddit source: how to insert subreddit name here ??",
+	p = figure(x_range=target_subreddits[:num], plot_height=400, title=f"Subreddit source: {source_subreddit}",
                toolbar_location=None, tools="")
 	
 	p.vbar(x=target_subreddits, top=frequencies, width=0.9)

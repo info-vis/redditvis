@@ -1,8 +1,8 @@
-Vue.component('plot-source-target-frequencies', {
-    data: function() {
-        return {
-            sourceSubreddit: null,
-            targetSubreddit: null
+Vue.component('plot-source-target', {
+    props: {
+        sourceSubreddit: {
+            default: null,
+            type: String
         }
     },
     watch: {
@@ -32,8 +32,8 @@ Vue.component('plot-source-target-frequencies', {
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
             
-            document.getElementById("plotSourceTargetFreq").innerHTML = "";
-            window.Bokeh.embed.embed_item(freqObject, 'plotSourceTargetFreq')
+            document.getElementById("plot-source-target").innerHTML = "";
+            window.Bokeh.embed.embed_item(freqObject, 'plot-source-target')
         },
         async fetchAPIData() {
             this.fetchPlot()
@@ -44,7 +44,7 @@ Vue.component('plot-source-target-frequencies', {
     },
     template: `
     <div>
-        <div id="plotSourceTargetFreq" class="bk-root"></div>
+        <div id="plot-source-target" class="bk-root"></div>
     </div> `
     
 })
