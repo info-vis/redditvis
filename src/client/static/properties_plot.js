@@ -1,22 +1,13 @@
 Vue.component('properties-plot', {
-    data: function() {
-        return {
-            sourceSubreddit: null,
-            targetSubreddit: null
-        }
+    props: {
+        sourceSubreddit: String,
+        targetSubreddit: String
     },
     watch: {
         sourceSubreddit: "fetchAPIData",
         targetSubreddit: "fetchAPIData"
     },
     methods: {
-        // async handleFilter(event) {
-        //     this.filterCounter(event.target.value)
-        // },
-        // updatesubreddit(){
-        //     this.sourceSubreddit = this.filterCounter
-        //     this.fetchAPIData()
-        // },
         async fetchPlot() {
             let url = `${apiEndpoint}top-properties`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
@@ -28,12 +19,10 @@ Vue.component('properties-plot', {
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
-            console.log(url)
             const propertiesResponse = await fetch(url);
-            const propertiesObject = await propertiesResponse.json();
-            
+            const propertiesPlot = await propertiesResponse.json();
             document.getElementById("propertiesPlot").innerHTML = "";
-            window.Bokeh.embed.embed_item(propertiesObject, 'propertiesPlot')
+            Bokeh.embed.embed_item(propertiesPlot, 'propertiesPlot')
         },
         async fetchAPIData() {
             this.fetchPlot()
@@ -46,5 +35,4 @@ Vue.component('properties-plot', {
     <div>
         <div id="propertiesPlot" class="bk-root"></div>
     </div> `
-    
 })
