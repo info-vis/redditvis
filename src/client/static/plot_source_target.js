@@ -1,4 +1,9 @@
 Vue.component('plot-source-target', {
+    data: function () {
+        return {
+            isLoading: false
+        }
+    },
     props: {
         sourceSubreddit: {
             default: null,
@@ -10,14 +15,8 @@ Vue.component('plot-source-target', {
         targetSubreddit: "fetchAPIData"
     },
     methods: {
-        // async handleFilter(event) {
-        //     this.filterCounter(event.target.value)
-        // },
-        // updatesubreddit(){
-        //     this.sourceSubreddit = this.filterCounter
-        //     this.fetchAPIData()
-        // },
         async fetchPlot() {
+            this.isLoading = true
             let url = `${apiEndpoint}source-target-frequencies`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
@@ -28,12 +27,12 @@ Vue.component('plot-source-target', {
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
-            console.log(url)
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
             
             document.getElementById("plot-source-target").innerHTML = "";
             window.Bokeh.embed.embed_item(freqObject, 'plot-source-target')
+            this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
@@ -44,7 +43,11 @@ Vue.component('plot-source-target', {
     },
     template: `
     <div>
-        <div id="plot-source-target" class="bk-root"></div>
+        <div v-if="isLoading" class="d-flex justify-content-center">
+            <div class="spinner-grow my-5" role="status">
+            </div>
+        </div>
+        <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
     </div> `
     
 })
