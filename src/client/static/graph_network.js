@@ -3,8 +3,6 @@ Vue.component('graph-network', {
     data: function () {
         // All data prefixed with 'd3' is related to the d3 library.
         return {
-            // height: null, // of the canvas
-            // width: null, // of the canvas
             links: null,
             nodes: null,
 
