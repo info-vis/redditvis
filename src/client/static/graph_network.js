@@ -64,9 +64,9 @@ Vue.component('graph-network', {
             links.forEach(link => {
                 this.d3Context.moveTo(link.source.x, link.source.y);
                 this.d3Context.lineTo(link.target.x, link.target.y);
-                this.d3Context.lineWidth = Math.round(Math.sqrt(link.value))
+                this.d3Context.lineWidth = Math.round(link.value / 15)
             })
-            this.d3Context.strokeStyle = "black";
+            this.d3Context.strokeStyle = "#aaa";
             this.d3Context.stroke();
         },
         drawNode(node, selected = false) {
