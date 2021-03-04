@@ -94,8 +94,8 @@ Vue.component('graph-network', {
         findNodeById(id) {
             return this.nodes.filter(node => node.id == id)[0]
         },
-        panToSelectedSourceSubreddit() {
-            const selectedNode = this.findNodeById(this.selectedSubreddit)
+        panToSubreddit(subredditName) {
+            const selectedNode = this.findNodeById(subredditName)
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2

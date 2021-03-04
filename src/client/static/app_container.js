@@ -11,11 +11,11 @@ Vue.component("app-container", {
       filterValue: null
     }
   },
-  computed: {
-    subredditLink: function () {
-      return `https://www.reddit.com/r/${this.selectedSourceSubreddit}/`
-    }
-  },
+  // computed: {
+  //   subredditLink: function () {
+  //     return `https://www.reddit.com/r/${this.selectedSourceSubreddit}/`
+  //   }
+  // },
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
@@ -27,11 +27,20 @@ Vue.component("app-container", {
     toggleShowSubredditNames: function () {
       this.showSubredditNames = !this.showSubredditNames
     },
-    selectSubreddit: function (subredditName) {
-      this.selectSubreddit = subredditName
+    handleSelectSubreddit: function (payload) {
+      if (payload.type == "source") {
+        this.selectedSourceSubreddit = payload.selectedSubredditInput
+      }
     },
-    panToSelectedSourceSubreddit: function () {
-      this.$refs.graphNetwork.panToSelectedSourceSubreddit()
+    handlePanToSubreddit: function (payload) {
+      if (payload == "source") {
+        this.$refs.graphNetwork.panToSubreddit(this.selectedSourceSubreddit)
+      }
+    },
+    handleClearSubreddit: function (payload) {
+      if (payload == "source") {
+        this.selectedSourceSubreddit = null
+      }
     },
     submitFilter: function (event) {
       const input = event.target.value
@@ -83,60 +92,14 @@ Vue.component("app-container", {
             </div>
           </div>
 
-          <!-- Selection -->
-          <div class="row border p-1 my-1 rounded me-2 bg-light">
-            <div class="col">
-
-              <!-- Source selection -->
-              <div class="row pb-2">
-                <div class="col">
-                  <div id="select-source-subreddit">
-                    <strong>Selected source subreddit:</strong> 
-                    <div>
-                      <a v-if="selectedSourceSubreddit"
-                        class="" 
-                        target="_blank" 
-                        v-bind:href="subredditLink"
-                        role="button"
-                        v-bind:title="subredditLink"
-                      >
-                        r/{{ selectedSourceSubreddit }}
-                      </a>
-                    </div>
-                    <div v-if="!selectedSourceSubreddit">None</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row float-end">
-                <div class="col px-0">
-                  <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="panToSelectedSourceSubreddit">
-                    <i class="bi bi-geo-fill"></i>              
-                  </button>
-                </div>
-                <div class="col">
-                  <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="clearFilters">
-                    <i class="bi bi-x-circle"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="row">
-                <form v-on:submit.prevent="submitFilter">
-                  <div class="mb-2">
-                      <label for="exampleDataList" class="form-label">Select a subreddit</label>
-                      <input v-on:keyup.enter="submitFilter" v-model="filterValue" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type a subreddit name..">
-                      <datalist v-if="networkData" id="datalistOptions">
-                          <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
-                      </datalist>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Select source subreddit</button>
-                </form>
-              </div>
-
-            </div>
-          </div>
-          <!-- End Selection -->
+          <select-subreddit
+            type="source"
+            :selectedSubreddit="selectedSourceSubreddit"
+            :subredditOptions="networkData && networkData.nodes"
+            v-on:select-subreddit="handleSelectSubreddit"
+            v-on:pan-to-subreddit="handlePanToSubreddit"
+            v-on:clear-subreddit="handleClearSubreddit"
+          ></select-subreddit>
 
           <!-- Graph Controls -->
           <div class="row border p-1 my-1 rounded me-2 bg-light">
@@ -181,3 +144,59 @@ Vue.component("app-container", {
     </div>
     `
 })
+
+
+// <!-- Selection -->
+//           <div class="row border p-1 my-1 rounded me-2 bg-light">
+//             <div class="col">
+
+//               <!-- Source selection -->
+//               <div class="row pb-2">
+//                 <div class="col">
+//                   <div id="select-source-subreddit">
+//                     <strong>Selected source subreddit:</strong> 
+//                     <div>
+//                       <a v-if="selectedSourceSubreddit"
+//                         class="" 
+//                         target="_blank" 
+//                         v-bind:href="subredditLink"
+//                         role="button"
+//                         v-bind:title="subredditLink"
+//                       >
+//                         r/{{ selectedSourceSubreddit }}
+//                       </a>
+//                     </div>
+//                     <div v-if="!selectedSourceSubreddit">None</div>
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div class="row float-end">
+//                 <div class="col px-0">
+//                   <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="panToSelectedSourceSubreddit">
+//                     <i class="bi bi-geo-fill"></i>              
+//                   </button>
+//                 </div>
+//                 <div class="col">
+//                   <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="clearFilters">
+//                     <i class="bi bi-x-circle"></i>
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div class="row">
+//                 <form v-on:submit.prevent="submitFilter">
+//                   <div class="mb-2">
+//                       <label for="exampleDataList" class="form-label">Select a subreddit</label>
+//                       <input v-on:keyup.enter="submitFilter" v-model="filterValue" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type a subreddit name..">
+//                       <datalist v-if="networkData" id="datalistOptions">
+//                           <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
+//                       </datalist>
+//                   </div>
+//                   <button type="submit" class="btn btn-primary">Select source subreddit</button>
+//                 </form>
+//               </div>
+
+//             </div>
+//           </div>
+//           <!-- End Selection -->
