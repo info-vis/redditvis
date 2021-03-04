@@ -41,7 +41,6 @@ Vue.component('graph-network', {
         simulationUpdate() {
             this.d3Context.save();
             this.clearCanvas()
-            this.setDimensions()
             this.setBackgroundColor()
             this.d3Context.translate(this.d3Transform.x, this.d3Transform.y);
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
@@ -161,10 +160,11 @@ Vue.component('graph-network', {
             // No node selected
             return undefined;
         },
-        setDimensions() {
+        setDimensionsOfCanvas() {
             var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
-            this.d3Canvas.width = containerDimensions.width;
-            this.d3Canvas.height = containerDimensions.height;
+            this.d3Canvas.width = containerDimensions.width; // The width of the parent div of the canvas
+            this.d3Canvas.height = window.innerHeight / 1.8; // A fraction of the height of the screen
+            this.simulationUpdate()
         },
         init() {
             // Transform the rows from being arrays of values to objects.
@@ -174,7 +174,7 @@ Vue.component('graph-network', {
             this.d3Canvas = document.getElementById("graph-network-canvas")
             this.d3Context = this.d3Canvas.getContext("2d", { alpha: false })
 
-            this.setDimensions()
+            this.setDimensionsOfCanvas()
             this.setBackgroundColor()
 
             this.d3Simulation = d3.forceSimulation(this.nodes)
@@ -196,8 +196,14 @@ Vue.component('graph-network', {
                 .on("wheel", event => event.preventDefault())
         }
     },
+    created() {
+        window.addEventListener("resize", this.setDimensionsOfCanvas);
+    },
     mounted: async function () {
         this.init()
+    },
+    destroyed() {
+        window.removeEventListener("resize", this.setDimensionsOfCanvas);
     },
     template: `
         <div id="graph-network-container">
