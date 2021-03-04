@@ -1,5 +1,6 @@
 import json
 import math
+from math import pi
 
 import bokeh
 import numpy as np
@@ -8,7 +9,6 @@ from flask import request
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
-from math import pi
 
 
 # Currently unused
@@ -38,7 +38,7 @@ def sentiment_box():
 		else:  
 				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')  
 	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
-	
+
 @bp.route('/top-properties')
 def top_properties():
 	source_subreddit = request.args.get('source-subreddit')
