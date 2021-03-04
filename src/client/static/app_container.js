@@ -6,14 +6,14 @@ Vue.component("app-container", {
       numberOfLinks: 200,
       numberOfLinksSliderValue: 200,
       isLoadingData: false,
-      selectedSubreddit: null,
+      selectedSourceSubreddit: null,
       showSubredditNames: false,
       filterValue: null
     }
   },
   computed: {
     subredditLink: function () {
-      return `https://www.reddit.com/r/${this.selectedSubreddit}/`
+      return `https://www.reddit.com/r/${this.selectedSourceSubreddit}/`
     }
   },
   methods: {
@@ -30,13 +30,13 @@ Vue.component("app-container", {
     selectSubreddit: function (subredditName) {
       this.selectSubreddit = subredditName
     },
-    panToSelectedSubreddit: function () {
-      this.$refs.graphNetwork.panToSelectedSubreddit()
+    panToSelectedSourceSubreddit: function () {
+      this.$refs.graphNetwork.panToSelectedSourceSubreddit()
     },
     submitFilter: function (event) {
       const input = event.target.value
       if (this.networkData.nodes.includes(this.filterValue)) {
-        this.selectedSubreddit = this.filterValue
+        this.selectedSourceSubreddit = this.filterValue
       }
     },
     changeNumberOfLinks: function () {
@@ -45,7 +45,7 @@ Vue.component("app-container", {
     },
     clearFilters: function () {
       this.filterValue = null
-      this.selectedSubreddit = null
+      this.selectedSourceSubreddit = null
     }
   },
   created: async function () {
@@ -67,7 +67,7 @@ Vue.component("app-container", {
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
-            v-bind:selected-subreddit="selectedSubreddit"
+            v-bind:selected-subreddit="selectedSourceSubreddit"
             v-bind:show-subreddit-names="showSubredditNames"
             ref="graphNetwork"
           ></graph-network>
@@ -87,34 +87,35 @@ Vue.component("app-container", {
           <div class="row border p-1 my-1 rounded me-2 bg-light">
             <div class="col">
 
+              <!-- Source selection -->
               <div class="row pb-2">
                 <div class="col">
-                  <div id="tooltip">
-                    <strong>Selected subreddit:</strong> 
+                  <div id="select-source-subreddit">
+                    <strong>Selected source subreddit:</strong> 
                     <div>
-                      <a v-if="selectedSubreddit"
+                      <a v-if="selectedSourceSubreddit"
                         class="" 
                         target="_blank" 
                         v-bind:href="subredditLink"
                         role="button"
                         v-bind:title="subredditLink"
                       >
-                        r/{{ selectedSubreddit }}
+                        r/{{ selectedSourceSubreddit }}
                       </a>
                     </div>
-                    <div v-if="!selectedSubreddit">None</div>
+                    <div v-if="!selectedSourceSubreddit">None</div>
                   </div>
                 </div>
               </div>
 
               <div class="row float-end">
                 <div class="col px-0">
-                  <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
+                  <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="panToSelectedSourceSubreddit">
                     <i class="bi bi-geo-fill"></i>              
                   </button>
                 </div>
                 <div class="col">
-                  <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSubreddit" @click="clearFilters">
+                  <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSourceSubreddit" @click="clearFilters">
                     <i class="bi bi-x-circle"></i>
                   </button>
                 </div>
@@ -129,7 +130,7 @@ Vue.component("app-container", {
                           <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
                       </datalist>
                   </div>
-                  <button type="submit" class="btn btn-primary">Select subreddit</button>
+                  <button type="submit" class="btn btn-primary">Select source subreddit</button>
                 </form>
               </div>
 
@@ -168,13 +169,13 @@ Vue.component("app-container", {
       <!-- Plots section -->
       <div class="row my-3 border rounded mx-1">
         <div class="col">
-          <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
+          <properties-plot :source-subreddit="selectedSourceSubreddit"></properties-plot>
         </div>
         <div class="col">
-          <sentiment-box :source-subreddit="selectedSubreddit"></sentiment-box>
+          <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
         </div>
         <div class="col">
-          <plot-source-target :source-subreddit="selectedSubreddit" v-if="selectedSubreddit"></plot-source-target>
+          <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
         </div>    
       </div>
     </div>
