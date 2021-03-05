@@ -35,10 +35,6 @@ Vue.component("app-container", {
       if (!this.selectedSourceSubreddit && !this.selectedSourceSubreddit) {
         return this.networkData && this.networkData.nodes
       }
-      if (this.selectedSourceSubreddit && this.selectedSourceSubreddit) {
-        console.log('dunno what to do now')
-        return []
-      }
     },
   },
   methods: {
