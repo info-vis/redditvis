@@ -7,15 +7,11 @@ Vue.component("app-container", {
       numberOfLinksSliderValue: 200,
       isLoadingData: false,
       selectedSourceSubreddit: null,
+      selectedTargetSubreddit: null,
       showSubredditNames: false,
       filterValue: null
     }
   },
-  // computed: {
-  //   subredditLink: function () {
-  //     return `https://www.reddit.com/r/${this.selectedSourceSubreddit}/`
-  //   }
-  // },
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
@@ -31,15 +27,24 @@ Vue.component("app-container", {
       if (payload.type == "source") {
         this.selectedSourceSubreddit = payload.selectedSubredditInput
       }
+      if (payload.type == "target") {
+        this.selectedTargetSubreddit = payload.selectedSubredditInput
+      }
     },
     handlePanToSubreddit: function (payload) {
       if (payload == "source") {
         this.$refs.graphNetwork.panToSubreddit(this.selectedSourceSubreddit)
       }
+      if (payload == "target") {
+        this.$refs.graphNetwork.panToSubreddit(this.selectedTargetSubreddit)
+      }
     },
     handleClearSubreddit: function (payload) {
       if (payload == "source") {
         this.selectedSourceSubreddit = null
+      }
+      if (payload == "target") {
+        this.selectedTargetSubreddit = null
       }
     },
     submitFilter: function (event) {
@@ -72,11 +77,13 @@ Vue.component("app-container", {
       <div class="row my-3">
 
         <!-- Graph network -->
-        <div class="col-md-9">
+        <div class="col-md-9 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
             v-bind:selected-subreddit="selectedSourceSubreddit"
+            v-bind:selected-source-subreddit="selectedSourceSubreddit"
+            v-bind:selected-target-subreddit="selectedTargetSubreddit"
             v-bind:show-subreddit-names="showSubredditNames"
             ref="graphNetwork"
           ></graph-network>
@@ -94,7 +101,18 @@ Vue.component("app-container", {
 
           <select-subreddit
             type="source"
+            backgroundColor="#81d4fa"
             :selectedSubreddit="selectedSourceSubreddit"
+            :subredditOptions="networkData && networkData.nodes"
+            v-on:select-subreddit="handleSelectSubreddit"
+            v-on:pan-to-subreddit="handlePanToSubreddit"
+            v-on:clear-subreddit="handleClearSubreddit"
+          ></select-subreddit>
+
+          <select-subreddit
+            type="target"
+            backgroundColor="#ffcc80"
+            :selectedSubreddit="selectedTargetSubreddit"
             :subredditOptions="networkData && networkData.nodes"
             v-on:select-subreddit="handleSelectSubreddit"
             v-on:pan-to-subreddit="handlePanToSubreddit"
