@@ -12,31 +12,6 @@ Vue.component("app-container", {
       filterValue: null
     }
   },
-  computed: {
-    subredditSelectOptions(x) {
-      if (this.selectedSourceSubreddit && !this.selectedTargetSubreddit) {
-        const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
-          const source = link[0]
-          if (source == this.selectedSourceSubreddit) {
-            return link
-          }
-        }).map(link => link[1])
-        return targetsOfSelectedSourceSubreddit
-      }
-      if (!this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
-        const sourcesOfSelectedTargetSubreddit = this.networkData.links.filter((link) => {
-          const target = link[1]
-          if (target == this.selectedTargetSubreddit) {
-            return link
-          }
-        }).map(link => link[0])
-        return sourcesOfSelectedTargetSubreddit
-      }
-      if (!this.selectedSourceSubreddit && !this.selectedSourceSubreddit) {
-        return this.networkData && this.networkData.nodes
-      }
-    },
-  },
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
@@ -85,6 +60,29 @@ Vue.component("app-container", {
     clearFilters: function () {
       this.filterValue = null
       this.selectedSourceSubreddit = null
+    },
+    subredditSelectOptions(type) {
+      if ((this.selectedSourceSubreddit && !this.selectedTargetSubreddit && type == 'target')
+          || (this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'target')) {
+        const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
+          const source = link[0]
+          if (source == this.selectedSourceSubreddit) {
+            return link
+          }
+        }).map(link => link[1])
+        return targetsOfSelectedSourceSubreddit
+      }
+      if ((!this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'source')
+          || (this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'source')) {
+        const sourcesOfSelectedTargetSubreddit = this.networkData.links.filter((link) => {
+          const target = link[1]
+          if (target == this.selectedTargetSubreddit) {
+            return link
+          }
+        }).map(link => link[0])
+        return sourcesOfSelectedTargetSubreddit
+      }
+      return this.networkData && this.networkData.nodes
     }
   },
   created: async function () {
@@ -128,7 +126,7 @@ Vue.component("app-container", {
             type="source"
             backgroundColor="#81d4fa"
             :selectedSubreddit="selectedSourceSubreddit"
-            :subredditOptions="subredditSelectOptions"
+            :subredditOptions="subredditSelectOptions('source')"
             v-on:select-subreddit="handleSelectSubreddit"
             v-on:pan-to-subreddit="handlePanToSubreddit"
             v-on:clear-subreddit="handleClearSubreddit"
@@ -138,7 +136,7 @@ Vue.component("app-container", {
             type="target"
             backgroundColor="#ffcc80"
             :selectedSubreddit="selectedTargetSubreddit"
-            :subredditOptions="subredditSelectOptions"
+            :subredditOptions="subredditSelectOptions('target')"
             v-on:select-subreddit="handleSelectSubreddit"
             v-on:pan-to-subreddit="handlePanToSubreddit"
             v-on:clear-subreddit="handleClearSubreddit"
