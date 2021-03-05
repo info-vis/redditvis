@@ -150,7 +150,10 @@ Vue.component("app-container", {
       <!-- Plots section -->
       <div class="row my-3 border rounded mx-1">
         <div class="col">
-          <properties-plot :source-subreddit="selectedSourceSubreddit"></properties-plot>
+          <properties-plot 
+            :source-subreddit="selectedSourceSubreddit"
+            :target-subreddit="selectedTargetSubreddit"
+          ></properties-plot>
         </div>
         <div class="col">
           <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
