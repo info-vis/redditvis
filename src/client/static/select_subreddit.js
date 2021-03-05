@@ -15,8 +15,11 @@ Vue.component('select-subreddit', {
         subredditLink: function () {
             return `https://www.reddit.com/r/${this.selectedSubreddit}/`
         },
-        style () {
+        style() {
             return `background-color: ${this.backgroundColor}`;
+        },
+        subredditOptionsId() {
+            return `subreddit-options-${this.type}`
         }
     },
     methods: {
@@ -77,12 +80,12 @@ Vue.component('select-subreddit', {
                         </div>
                         <input
                             class="form-control" 
-                            list="subredditOptions"
+                            :list="subredditOptionsId"
                             placeholder="Type a subreddit name.."
                             v-on:keyup.enter="selectSubreddit"
                             v-model="selectedSubredditInput"
                         >
-                        <datalist id="subredditOptions">
+                        <datalist :id="subredditOptionsId">
                             <option v-for="subreddit in subredditOptions">{{ subreddit }}</li></option>
                         </datalist>
                     </div>        

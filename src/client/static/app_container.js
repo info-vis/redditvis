@@ -12,6 +12,20 @@ Vue.component("app-container", {
       filterValue: null
     }
   },
+  computed: {
+    subredditSelectOptions() {
+      if (!this.selectedSourceSubreddit) {
+        return this.networkData && this.networkData.nodes
+      }
+      const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
+        const source = link[0]
+        if (source == this.selectedSourceSubreddit) {
+          return link
+        }
+      }).map(link => link[1])
+      return targetsOfSelectedSourceSubreddit
+    },
+  },
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
@@ -113,7 +127,7 @@ Vue.component("app-container", {
             type="target"
             backgroundColor="#ffcc80"
             :selectedSubreddit="selectedTargetSubreddit"
-            :subredditOptions="networkData && networkData.nodes"
+            :subredditOptions="subredditSelectOptions"
             v-on:select-subreddit="handleSelectSubreddit"
             v-on:pan-to-subreddit="handlePanToSubreddit"
             v-on:clear-subreddit="handleClearSubreddit"
