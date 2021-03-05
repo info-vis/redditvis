@@ -62,27 +62,27 @@ Vue.component("app-container", {
       this.selectedSourceSubreddit = null
     },
     subredditSelectOptions(type) {
-      if ((this.selectedSourceSubreddit && !this.selectedTargetSubreddit && type == 'target')
-          || (this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'target')) {
-        const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
-          const source = link[0]
-          if (source == this.selectedSourceSubreddit) {
-            return link
-          }
-        }).map(link => link[1])
-        return targetsOfSelectedSourceSubreddit
+      if (this.networkData && this.networkData.nodes) {
+        if (this.selectedSourceSubreddit && type == 'target') {
+          const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
+            const source = link[0]
+            if (source == this.selectedSourceSubreddit) {
+              return link
+            }
+          }).map(link => link[1])
+          return targetsOfSelectedSourceSubreddit
+        }
+        if (this.selectedTargetSubreddit && type == 'source') {
+          const sourcesOfSelectedTargetSubreddit = this.networkData.links.filter((link) => {
+            const target = link[1]
+            if (target == this.selectedTargetSubreddit) {
+              return link
+            }
+          }).map(link => link[0])
+          return sourcesOfSelectedTargetSubreddit
+        }
+        return this.networkData && this.networkData.nodes
       }
-      if ((!this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'source')
-          || (this.selectedSourceSubreddit && this.selectedTargetSubreddit && type == 'source')) {
-        const sourcesOfSelectedTargetSubreddit = this.networkData.links.filter((link) => {
-          const target = link[1]
-          if (target == this.selectedTargetSubreddit) {
-            return link
-          }
-        }).map(link => link[0])
-        return sourcesOfSelectedTargetSubreddit
-      }
-      return this.networkData && this.networkData.nodes
     }
   },
   created: async function () {
