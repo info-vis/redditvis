@@ -57,7 +57,7 @@ def top_properties():
 	
 	p=figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 1), toolbar_location=None, tools="")
 	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
-	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="red", legend_label="Avg. of all subreddits",)
+	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
 	p.ygrid.grid_line_color = None
 	p.legend.location = "bottom_right"
 	p.title.text = plot_title
