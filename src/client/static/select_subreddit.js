@@ -91,7 +91,7 @@ Vue.component('select-subreddit', {
                             v-model="selectedSubredditInput"
                         >
                         <datalist :id="subredditOptionsId">
-                            <option v-for="subreddit in subredditOptions">{{ subreddit }}</li></option>
+                            <option v-for="subreddit in subredditOptions">{{ subreddit }}</option>
                         </datalist>
                     </div>        
                 </div>
