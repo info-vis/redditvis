@@ -8,15 +8,21 @@ Vue.component('select-subreddit', {
         type: String,
         selectedSubreddit: String,
         subredditOptions: Array,
-        backgroundColor: String
+        borderColor: {
+            type: String, 
+            default: "#dee2e6"
+        }
     },
 
     computed: {
         subredditLink: function () {
             return `https://www.reddit.com/r/${this.selectedSubreddit}/`
         },
-        style() {
-            return `background-color: ${this.backgroundColor}`;
+        styleObject() {
+            return {
+                border: `1px solid ${this.borderColor}`,
+                "background-color": "#eeeeee"
+            }
         },
         subredditOptionsId() {
             return `subreddit-options-${this.type}`
@@ -38,9 +44,8 @@ Vue.component('select-subreddit', {
     },
     template: `
     <!-- Selection -->
-    <div class="row border p-1 my-1 rounded me-2" :style="style">
+    <div class="row p-1 rounded me-2" :style="styleObject">
         <div class="col">
-
             <!-- Source selection -->
             <div class="row">
                 <div class="col">

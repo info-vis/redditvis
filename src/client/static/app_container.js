@@ -98,7 +98,6 @@ Vue.component("app-container", {
       </div>
 
       <div class="row my-3">
-
         <!-- Graph network -->
         <div class="col-md-9 mb-2">
           <graph-network
@@ -115,35 +114,33 @@ Vue.component("app-container", {
         <!-- Side bar -->
         <div class="col-md-3">
 
-          <div class="row border p-1 mb-1 rounded me-2 bg-light">
-            <div class="col">
-                <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
-                <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
-            </div>
+          <div class="mb-1">
+            <select-subreddit
+              class=""
+              type="source"
+              borderColor="#03a9f4"
+              :selectedSubreddit="selectedSourceSubreddit"
+              :subredditOptions="subredditSelectOptions('source')"
+              v-on:select-subreddit="handleSelectSubreddit"
+              v-on:pan-to-subreddit="handlePanToSubreddit"
+              v-on:clear-subreddit="handleClearSubreddit"
+            ></select-subreddit>
+          </div>
+          <div class="my-1">
+            <select-subreddit
+              type="target"
+              borderColor="#ff9800"
+              :selectedSubreddit="selectedTargetSubreddit"
+              :subredditOptions="subredditSelectOptions('target')"
+              v-on:select-subreddit="handleSelectSubreddit"
+              v-on:pan-to-subreddit="handlePanToSubreddit"
+              v-on:clear-subreddit="handleClearSubreddit"
+            ></select-subreddit>
           </div>
 
-          <select-subreddit
-            type="source"
-            backgroundColor="#81d4fa"
-            :selectedSubreddit="selectedSourceSubreddit"
-            :subredditOptions="subredditSelectOptions('source')"
-            v-on:select-subreddit="handleSelectSubreddit"
-            v-on:pan-to-subreddit="handlePanToSubreddit"
-            v-on:clear-subreddit="handleClearSubreddit"
-          ></select-subreddit>
-
-          <select-subreddit
-            type="target"
-            backgroundColor="#ffcc80"
-            :selectedSubreddit="selectedTargetSubreddit"
-            :subredditOptions="subredditSelectOptions('target')"
-            v-on:select-subreddit="handleSelectSubreddit"
-            v-on:pan-to-subreddit="handlePanToSubreddit"
-            v-on:clear-subreddit="handleClearSubreddit"
-          ></select-subreddit>
-
           <!-- Graph Controls -->
-          <div class="row border p-1 my-1 rounded me-2 bg-light">
+
+          <div class="row border p-1 my-1 rounded me-2" style="background-color: #eeeeee">
             <div class="col">
 
               <div class="row">
@@ -162,6 +159,13 @@ Vue.component("app-container", {
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          <div class="row border p-1 mb-1 rounded me-2" style="background-color: #eeeeee">
+            <div class="col">
+                <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
+                <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
             </div>
           </div>
           <!-- End Graph Controls -->
