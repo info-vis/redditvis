@@ -40,21 +40,21 @@ def top_properties():
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
 	dataavg = BodyModel.getInstance().get_top_properties_average()
 
-	if source_subreddit and target_subreddit: 
-		plot_title = f"Top properties of the subreddit - {source_subreddit} with target subreddit - {target_subreddit}"
-	elif source_subreddit:
-		plot_title = f"Top properties of the source subreddit - {source_subreddit}"		
-	elif target_subreddit:
-		plot_title = f"Top properties of the target subreddit - {target_subreddit}"
-	else: 
-		plot_title = "Top properties of all subreddits"
+	# if source_subreddit and target_subreddit: 
+	# 	plot_title = f"Top properties of the subreddit - {source_subreddit} with target subreddit - {target_subreddit}"
+	# elif source_subreddit:
+	# 	plot_title = f"Top properties of the source subreddit - {source_subreddit}"		
+	# elif target_subreddit:
+	# 	plot_title = f"Top properties of the target subreddit - {target_subreddit}"
+	# else: 
+	# 	plot_title = "Top properties of all subreddits"
 	
 	p=figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
 	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
 	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
 	p.ygrid.grid_line_color = None
 	p.legend.location = "bottom_right"
-	p.title.text = plot_title
+	# p.title.text = plot_title
 
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 

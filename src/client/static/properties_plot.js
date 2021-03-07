@@ -51,7 +51,7 @@ Vue.component('properties-plot', {
         </div>
         <div v-show="!isLoading">
             <p class="mb-0 mt-1" >
-            <small> {{plotTitle}} </strong></small>
+            <small> <strong> {{plotTitle}} </strong></small>
             </p>
         </div>
         <div v-show="!isLoading" id="properties-plot" class="bk-root"></div>
