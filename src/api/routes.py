@@ -21,7 +21,7 @@ def sentiment_box():
 	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
 
 	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
-	p.title.text = 'Sentiment per post for ' + source_subreddit 
+	# p.title.text = 'Sentiment per post for ' + source_subreddit 
 	p.axis.visible = False
 	p.toolbar.logo = None
 	p.toolbar_location = None
@@ -40,15 +40,6 @@ def top_properties():
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
 	dataavg = BodyModel.getInstance().get_top_properties_average()
 
-	# if source_subreddit and target_subreddit: 
-	# 	plot_title = f"Top properties of the subreddit - {source_subreddit} with target subreddit - {target_subreddit}"
-	# elif source_subreddit:
-	# 	plot_title = f"Top properties of the source subreddit - {source_subreddit}"		
-	# elif target_subreddit:
-	# 	plot_title = f"Top properties of the target subreddit - {target_subreddit}"
-	# else: 
-	# 	plot_title = "Top properties of all subreddits"
-	
 	p=figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
 	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
 	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
@@ -70,7 +61,7 @@ def plot_source_target_frequencies():
 	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
 	target_subreddits, frequencies = zip(*sorted_dict)
 
-	p = figure(x_range=target_subreddits[:num], plot_height=300, plot_width=350, title=f"Subreddit source: {source_subreddit}",
+	p = figure(x_range=target_subreddits[:num], plot_height=300, plot_width=350,
                toolbar_location=None, tools="")
 	
 	p.vbar(x=target_subreddits, top=frequencies, width=0.9)

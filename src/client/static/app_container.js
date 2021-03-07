@@ -111,7 +111,7 @@ Vue.component("app-container", {
 
       <div class="row my-3">
         <!-- Graph network -->
-        <div class="col-md-9 mb-2">
+        <div class="col-md-9 pe-0 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -125,35 +125,44 @@ Vue.component("app-container", {
 
         <!-- Side bar -->
         <div class="col-md-3">
-
-          <div class="mb-1">
-            <select-subreddit
-              class=""
-              type="source"
-              borderColor="#03a9f4"
-              :selectedSubreddit="selectedSourceSubreddit"
-              :subredditOptions="subredditSelectOptions('source')"
-              v-on:select-subreddit="handleSelectSubreddit"
-              v-on:pan-to-subreddit="handlePanToSubreddit"
-              v-on:clear-subreddit="handleClearSubreddit"
-            ></select-subreddit>
+          <div class="row"> 
+            <div class="col">
+              <div class="mb-1">
+                <select-subreddit
+                  class=""
+                  type="source"
+                  borderColor="#03a9f4"
+                  :selectedSubreddit="selectedSourceSubreddit"
+                  :subredditOptions="subredditSelectOptions('source')"
+                  v-on:select-subreddit="handleSelectSubreddit"
+                  v-on:pan-to-subreddit="handlePanToSubreddit"
+                  v-on:clear-subreddit="handleClearSubreddit"
+                ></select-subreddit>
+              </div>
+            </div>
           </div>
-          <div class="my-1">
-            <select-subreddit
-              type="target"
-              borderColor="#ff9800"
-              :selectedSubreddit="selectedTargetSubreddit"
-              :subredditOptions="subredditSelectOptions('target')"
-              v-on:select-subreddit="handleSelectSubreddit"
-              v-on:pan-to-subreddit="handlePanToSubreddit"
-              v-on:clear-subreddit="handleClearSubreddit"
-            ></select-subreddit>
+          <div class="row"> 
+           <div class="col">
+              <div class="my-1">
+                <select-subreddit
+                  type="target"
+                  borderColor="#ff9800"
+                  :selectedSubreddit="selectedTargetSubreddit"
+                  :subredditOptions="subredditSelectOptions('target')"
+                  v-on:select-subreddit="handleSelectSubreddit"
+                  v-on:pan-to-subreddit="handlePanToSubreddit"
+                  v-on:clear-subreddit="handleClearSubreddit"
+                ></select-subreddit>
+              </div>
+            </div>
           </div>
 
           <!-- Graph Controls -->
 
-          <div class="row border p-1 my-1 rounded me-2" style="background-color: #eeeeee">
+          <div class="row">
+
             <div class="col">
+            <div class="p-2 rounded my-1" style="background-color: #eeeeee">
 
               <div class="row">
                 <div class="input-group mb-3">
@@ -171,13 +180,16 @@ Vue.component("app-container", {
                 </div>
               </div>
 
+              </div>
             </div>
           </div>
 
-          <div class="row border p-1 mb-1 rounded me-2" style="background-color: #eeeeee">
+          <div class="row">
             <div class="col">
+            <div class="border p-2 rounded my-1" style="background-color: #eeeeee">
                 <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
                 <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
+            </div>
             </div>
           </div>
           <!-- End Graph Controls -->
@@ -200,7 +212,7 @@ Vue.component("app-container", {
                   </properties-plot>
                 </div>
                 <div class="col">
-                  <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
                 <div class="col">
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
