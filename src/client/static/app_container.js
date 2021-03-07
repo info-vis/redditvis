@@ -9,9 +9,21 @@ Vue.component("app-container", {
       selectedSourceSubreddit: null,
       selectedTargetSubreddit: null,
       showSubredditNames: false,
-      filterValue: null
+      filterValue: null 
     }
   },
+
+  computed: {
+    detailsOnDemandCardTitle: function () {
+      if (this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
+        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`}    
+      else if (this.selectedSourceSubreddit) {
+        return `Details for the subreddit: ${this.selectedSourceSubreddit}`}
+      else if (this.selectedTargetSubreddit) {
+        return `Details for the target subreddit: ${this.selectedTargetSubreddit}`}
+      return "Details for all subreddits"}
+  },
+
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
@@ -175,20 +187,29 @@ Vue.component("app-container", {
       </div>
 
       <!-- Plots section -->
-      <div class="row my-3 border rounded mx-1">
+      <div class="row">
         <div class="col">
-          <properties-plot 
-            :source-subreddit="selectedSourceSubreddit"
-            :target-subreddit="selectedTargetSubreddit"
-          ></properties-plot>
-        </div>
-        <div class="col">
-          <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
-        </div>
-        <div class="col">
-          <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
-        </div>    
+          <div class="card">
+            <div class="card-header">
+              <strong> {{detailsOnDemandCardTitle}} </strong>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
+                  </properties-plot>
+                </div>
+                <div class="col">
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
+                </div>
+                <div class="col">
+                  <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
+                </div>    
+              </div>
+            </div>
+          </div>
+       </div>
       </div>
     </div>
-    `
+  `
 })
