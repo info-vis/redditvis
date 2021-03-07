@@ -7,29 +7,28 @@ import pandas as pd
 
 class BodyModel:
     """Singleton object that can obtain data from the Reddit Body data set.
+    This object should not be created using BodyModel() but via BodyModel.getInstance().
+    This returns a reference to the singleton object.
     """
-    __instance = None
-    data = None
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
+
+    __instance = None # A reference to an instance of itself
+    data = None       # The data loaded from BODY_DATA_PATH
 
     @staticmethod 
     def getInstance():
-        """ Static access method. """
+        """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
             BodyModel()
         return BodyModel.__instance
 
     def __init__(self):
-        """ Virtually private constructor. """
+        """Virtually private constructor. """
         if BodyModel.__instance != None:
             raise Exception("This class is a singleton. To create an object, call BodyModel.getInstance()")
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
-
-    def get_random_20(self):
-        min = random.randint(0, len(self.data.index) - 20)
-        return self.data[min:min + 20]
 
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \

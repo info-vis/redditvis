@@ -6,14 +6,10 @@ Vue.component("app-container", {
       numberOfLinks: 200,
       numberOfLinksSliderValue: 200,
       isLoadingData: false,
-      selectedSubreddit: null,
+      selectedSourceSubreddit: null,
+      selectedTargetSubreddit: null,
       showSubredditNames: false,
       filterValue: null
-    }
-  },
-  computed: {
-    subredditLink: function () {
-      return `https://www.reddit.com/r/${this.selectedSubreddit}/`
     }
   },
   methods: {
@@ -27,16 +23,34 @@ Vue.component("app-container", {
     toggleShowSubredditNames: function () {
       this.showSubredditNames = !this.showSubredditNames
     },
-    selectSubreddit: function (subredditName) {
-      this.selectSubreddit = subredditName
+    handleSelectSubreddit: function (payload) {
+      if (payload.type == "source") {
+        this.selectedSourceSubreddit = payload.selectedSubredditInput
+      }
+      if (payload.type == "target") {
+        this.selectedTargetSubreddit = payload.selectedSubredditInput
+      }
     },
-    panToSelectedSubreddit: function () {
-      this.$refs.graphNetwork.panToSelectedSubreddit()
+    handlePanToSubreddit: function (payload) {
+      if (payload == "source") {
+        this.$refs.graphNetwork.panToSubreddit(this.selectedSourceSubreddit)
+      }
+      if (payload == "target") {
+        this.$refs.graphNetwork.panToSubreddit(this.selectedTargetSubreddit)
+      }
+    },
+    handleClearSubreddit: function (payload) {
+      if (payload == "source") {
+        this.selectedSourceSubreddit = null
+      }
+      if (payload == "target") {
+        this.selectedTargetSubreddit = null
+      }
     },
     submitFilter: function (event) {
       const input = event.target.value
       if (this.networkData.nodes.includes(this.filterValue)) {
-        this.selectedSubreddit = this.filterValue
+        this.selectedSourceSubreddit = this.filterValue
       }
     },
     changeNumberOfLinks: function () {
@@ -45,7 +59,30 @@ Vue.component("app-container", {
     },
     clearFilters: function () {
       this.filterValue = null
-      this.selectedSubreddit = null
+      this.selectedSourceSubreddit = null
+    },
+    subredditSelectOptions(type) {
+      if (this.networkData && this.networkData.nodes) {
+        if (this.selectedSourceSubreddit && type == 'target') {
+          const targetsOfSelectedSourceSubreddit = this.networkData.links.filter((link) => {
+            const source = link[0]
+            if (source == this.selectedSourceSubreddit) {
+              return link
+            }
+          }).map(link => link[1])
+          return targetsOfSelectedSourceSubreddit
+        }
+        if (this.selectedTargetSubreddit && type == 'source') {
+          const sourcesOfSelectedTargetSubreddit = this.networkData.links.filter((link) => {
+            const target = link[1]
+            if (target == this.selectedTargetSubreddit) {
+              return link
+            }
+          }).map(link => link[0])
+          return sourcesOfSelectedTargetSubreddit
+        }
+        return this.networkData && this.networkData.nodes
+      }
     }
   },
   created: async function () {
@@ -61,13 +98,14 @@ Vue.component("app-container", {
       </div>
 
       <div class="row my-3">
-
         <!-- Graph network -->
-        <div class="col-md-9">
+        <div class="col-md-9 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
-            v-bind:selected-subreddit="selectedSubreddit"
+            v-bind:selected-subreddit="selectedSourceSubreddit"
+            v-bind:selected-source-subreddit="selectedSourceSubreddit"
+            v-bind:selected-target-subreddit="selectedTargetSubreddit"
             v-bind:show-subreddit-names="showSubredditNames"
             ref="graphNetwork"
           ></graph-network>
@@ -76,69 +114,33 @@ Vue.component("app-container", {
         <!-- Side bar -->
         <div class="col-md-3">
 
-          <div class="row border p-1 mb-1 rounded me-2 bg-light">
-            <div class="col">
-                <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
-                <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
-            </div>
+          <div class="mb-1">
+            <select-subreddit
+              class=""
+              type="source"
+              borderColor="#03a9f4"
+              :selectedSubreddit="selectedSourceSubreddit"
+              :subredditOptions="subredditSelectOptions('source')"
+              v-on:select-subreddit="handleSelectSubreddit"
+              v-on:pan-to-subreddit="handlePanToSubreddit"
+              v-on:clear-subreddit="handleClearSubreddit"
+            ></select-subreddit>
           </div>
-
-          <!-- Selection -->
-          <div class="row border p-1 my-1 rounded me-2 bg-light">
-            <div class="col">
-
-              <div class="row pb-2">
-                <div class="col">
-                  <div id="tooltip">
-                    <strong>Selected subreddit:</strong> 
-                    <div>
-                      <a v-if="selectedSubreddit"
-                        class="" 
-                        target="_blank" 
-                        v-bind:href="subredditLink"
-                        role="button"
-                        v-bind:title="subredditLink"
-                      >
-                        r/{{ selectedSubreddit }}
-                      </a>
-                    </div>
-                    <div v-if="!selectedSubreddit">None</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row float-end">
-                <div class="col px-0">
-                  <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="panToSelectedSubreddit">
-                    <i class="bi bi-geo-fill"></i>              
-                  </button>
-                </div>
-                <div class="col">
-                  <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSubreddit" @click="clearFilters">
-                    <i class="bi bi-x-circle"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="row">
-                <form v-on:submit.prevent="submitFilter">
-                  <div class="mb-2">
-                      <label for="exampleDataList" class="form-label">Select a subreddit</label>
-                      <input v-on:keyup.enter="submitFilter" v-model="filterValue" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type a subreddit name..">
-                      <datalist v-if="networkData" id="datalistOptions">
-                          <option v-for="subreddit in networkData.nodes">{{ subreddit }}</li></option>
-                      </datalist>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Select subreddit</button>
-                </form>
-              </div>
-
-            </div>
+          <div class="my-1">
+            <select-subreddit
+              type="target"
+              borderColor="#ff9800"
+              :selectedSubreddit="selectedTargetSubreddit"
+              :subredditOptions="subredditSelectOptions('target')"
+              v-on:select-subreddit="handleSelectSubreddit"
+              v-on:pan-to-subreddit="handlePanToSubreddit"
+              v-on:clear-subreddit="handleClearSubreddit"
+            ></select-subreddit>
           </div>
-          <!-- End Selection -->
 
           <!-- Graph Controls -->
-          <div class="row border p-1 my-1 rounded me-2 bg-light">
+
+          <div class="row border p-1 my-1 rounded me-2" style="background-color: #eeeeee">
             <div class="col">
 
               <div class="row">
@@ -159,6 +161,13 @@ Vue.component("app-container", {
 
             </div>
           </div>
+
+          <div class="row border p-1 mb-1 rounded me-2" style="background-color: #eeeeee">
+            <div class="col">
+                <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
+                <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
+            </div>
+          </div>
           <!-- End Graph Controls -->
 
         </div>
@@ -168,13 +177,16 @@ Vue.component("app-container", {
       <!-- Plots section -->
       <div class="row my-3 border rounded mx-1">
         <div class="col">
-          <properties-plot :source-subreddit="selectedSubreddit"></properties-plot>
+          <properties-plot 
+            :source-subreddit="selectedSourceSubreddit"
+            :target-subreddit="selectedTargetSubreddit"
+          ></properties-plot>
         </div>
         <div class="col">
-          <sentiment-box :source-subreddit="selectedSubreddit"></sentiment-box>
+          <sentiment-box :source-subreddit="selectedSourceSubreddit"></sentiment-box>
         </div>
         <div class="col">
-          <plot-source-target :source-subreddit="selectedSubreddit" v-if="selectedSubreddit"></plot-source-target>
+          <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
         </div>    
       </div>
     </div>

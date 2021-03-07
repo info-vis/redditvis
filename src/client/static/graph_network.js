@@ -20,18 +20,17 @@ Vue.component('graph-network', {
     },
     props: {
         networkData: Object,
-        selectedSubreddit: String,
+        selectedSourceSubreddit: String,
+        selectedTargetSubreddit: String,
         showSubredditNames: Boolean, // Show a name label next to each node
     },
     watch: {
         showSubredditNames: "simulationUpdate",
-        selectedSubreddit: "simulationUpdate",
+        selectedSourceSubreddit: "simulationUpdate",
+        selectedTargetSubreddit: "simulationUpdate",
         networkData: "init"
     },
     methods: {
-        setSelectedSubreddit(subreddit) {
-            this.selectedSubreddit = subreddit
-        },
         setBackgroundColor(color = "#f5f5f5") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
@@ -46,7 +45,7 @@ Vue.component('graph-network', {
             for (const node of this.nodes) {
                 this.drawNode(node)
             }
-            this.drawSelectedSubreddit()
+            this.drawSelectedSubreddits()
             this.d3Context.restore();
         },
         zoomed(event) {
@@ -81,8 +80,12 @@ Vue.component('graph-network', {
             this.d3Context.fillStyle = this.color(node);
             this.d3Context.fill();
 
-            const nodeIsSelected = node.id == this.selectedSubreddit
-            if (nodeIsSelected) {
+            const nodeIsSelectedSourceSubreddit = node.id == this.selectedSourceSubreddit
+            const nodeIsSelectedTargetSubreddit = node.id == this.selectedTargetSubreddit
+
+            if (nodeIsSelectedSourceSubreddit) {
+                this.drawNodeName(node, offset = 12)
+            } else if (nodeIsSelectedTargetSubreddit) {
                 this.drawNodeName(node, offset = 12)
             } else if (this.showSubredditNames) {
                 this.drawNodeName(node)
@@ -94,8 +97,8 @@ Vue.component('graph-network', {
         findNodeById(id) {
             return this.nodes.filter(node => node.id == id)[0]
         },
-        panToSelectedSubreddit() {
-            const selectedNode = this.findNodeById(this.selectedSubreddit)
+        panToSubreddit(subredditName) {
+            const selectedNode = this.findNodeById(subredditName)
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2
@@ -104,16 +107,25 @@ Vue.component('graph-network', {
             d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
             this.simulationUpdate()
         },
-        drawSelectedSubreddit() {
-            if (this.selectedSubreddit) {
-                const node = this.findNodeById(this.selectedSubreddit)
+        drawSelectedSubreddits() {
+            const drawSelection = (node, color) => {
+                this.d3Context.beginPath();
+                this.drawNode(node, selected = true)
+                this.d3Context.fill();
+                this.d3Context.strokeStyle = color;
+                this.d3Context.lineWidth = 3;
+                this.d3Context.stroke();
+            }
+            if (this.selectedSourceSubreddit) {
+                const node = this.findNodeById(this.selectedSourceSubreddit)
                 if (node) {
-                    this.d3Context.beginPath();
-                    this.drawNode(node, selected = true)
-                    this.d3Context.fill();
-                    this.d3Context.strokeStyle = "#0d6efd";
-                    this.d3Context.lineWidth = 3;
-                    this.d3Context.stroke();
+                    drawSelection(node, "#03a9f4")
+                }
+            }
+            if (this.selectedTargetSubreddit) {
+                const node = this.findNodeById(this.selectedTargetSubreddit)
+                if (node) {
+                    drawSelection(node, "#ff9800")
                 }
             }
         },
