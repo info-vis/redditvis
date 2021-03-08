@@ -64,14 +64,8 @@ class BodyModel:
     
     
     def get_frequency(self, source_subreddit):
-        dict_source_target = {}
-        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
-        for target in filtered_by_source['TARGET_SUBREDDIT']:
-            if target not in dict_source_target:
-                dict_source_target[target] = 1
-            else:
-                dict_source_target[target] += 1
-        return dict_source_target
+        return self.data.loc[self.data['SOURCE_SUBREDDIT'] == 'leagueoflegends'].groupby(['TARGET_SUBREDDIT']) \
+            .size().sort_values(ascending=False).to_dict()
     
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
