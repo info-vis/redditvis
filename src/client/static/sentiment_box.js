@@ -5,27 +5,27 @@ Vue.component('sentiment-box', {
         }
     },
     props: {
-        targetSubreddit: {
+        sourceSubreddit: {
             type: String,
             default: null
         },
     },
     watch: {
-        targetSubreddit: "fetchAPIData"
+        sourceSubreddit: "fetchAPIData"
     },
     methods: {
         async fetchPlot() {
             document.getElementById("sentiment-box").innerHTML = "";
-            if (this.targetSubreddit) {
+            if (this.sourceSubreddit) {
                 this.isLoading = true
                 let url = `${apiEndpoint}sentiment-box`
-                let targetSubredditQuery = ""
+                let sourceSubredditQuery = ""
                 // If it is not null, add the query param
-                if (this.targetSubreddit) {
-                    targetSubredditQuery = `target=${this.targetSubreddit}`
+                if (this.sourceSubreddit) {
+                    sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
                 }
                 
-                url = url + "?" + targetSubredditQuery
+                url = url + "?" + sourceSubredditQuery
 
                 const sentimentResponse = await fetch(url);
                 const sentimentObject = await sentimentResponse.json();
@@ -44,10 +44,14 @@ Vue.component('sentiment-box', {
     template: `
     <div>
         <div v-if="isLoading" class="d-flex justify-content-center">
-            <div class="spinner-grow mt-5" role="status">
+            <div class="spinner-grow my-5" role="status">
             </div>
         </div>
-        <div id="sentiment-box" class="bk-root"></div>
+        <div v-show="!isLoading">
+            <p class="mb-0 mt-1" >
+            <small> <strong> Post sentiment per time </strong></small>
+            </p>
+        </div>
+        <div v-show="!isLoading" id="sentiment-box" class="bk-root"></div>
     </div> `
-
-}) 
+})

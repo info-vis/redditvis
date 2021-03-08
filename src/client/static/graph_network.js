@@ -3,8 +3,6 @@ Vue.component('graph-network', {
     data: function () {
         // All data prefixed with 'd3' is related to the d3 library.
         return {
-            height: 500, // of the canvas
-            width: 1050, // of the canvas
             links: null,
             nodes: null,
 
@@ -16,20 +14,23 @@ Vue.component('graph-network', {
             d3NodeRadius: 6,
         }
     },
+    computed: {
+        width: function() { return this.d3Canvas && this.d3Canvas.width || null },
+        height: function() { return this.d3Canvas && this.d3Canvas.height || null }
+    },
     props: {
         networkData: Object,
-        selectedSubreddit: String,
+        selectedSourceSubreddit: String,
+        selectedTargetSubreddit: String,
         showSubredditNames: Boolean, // Show a name label next to each node
     },
     watch: {
         showSubredditNames: "simulationUpdate",
-        selectedSubreddit: "simulationUpdate",
+        selectedSourceSubreddit: "simulationUpdate",
+        selectedTargetSubreddit: "simulationUpdate",
         networkData: "init"
     },
     methods: {
-        setSelectedSubreddit(subreddit) {
-            this.selectedSubreddit = subreddit
-        },
         setBackgroundColor(color = "#f5f5f5") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
@@ -44,7 +45,7 @@ Vue.component('graph-network', {
             for (const node of this.nodes) {
                 this.drawNode(node)
             }
-            this.drawSelectedSubreddit()
+            this.drawSelectedSubreddits()
             this.d3Context.restore();
         },
         zoomed(event) {
@@ -62,7 +63,7 @@ Vue.component('graph-network', {
             links.forEach(link => {
                 this.d3Context.moveTo(link.source.x, link.source.y);
                 this.d3Context.lineTo(link.target.x, link.target.y);
-                this.d3Context.lineWidth = link.value / 15
+                this.d3Context.lineWidth = Math.round(link.value / 15)
             })
             this.d3Context.strokeStyle = "#aaa";
             this.d3Context.stroke();
@@ -79,8 +80,12 @@ Vue.component('graph-network', {
             this.d3Context.fillStyle = this.color(node);
             this.d3Context.fill();
 
-            const nodeIsSelected = node.id == this.selectedSubreddit
-            if (nodeIsSelected) {
+            const nodeIsSelectedSourceSubreddit = node.id == this.selectedSourceSubreddit
+            const nodeIsSelectedTargetSubreddit = node.id == this.selectedTargetSubreddit
+
+            if (nodeIsSelectedSourceSubreddit) {
+                this.drawNodeName(node, offset = 12)
+            } else if (nodeIsSelectedTargetSubreddit) {
                 this.drawNodeName(node, offset = 12)
             } else if (this.showSubredditNames) {
                 this.drawNodeName(node)
@@ -92,8 +97,8 @@ Vue.component('graph-network', {
         findNodeById(id) {
             return this.nodes.filter(node => node.id == id)[0]
         },
-        panToSelectedSubreddit() {
-            const selectedNode = this.findNodeById(this.selectedSubreddit)
+        panToSubreddit(subredditName) {
+            const selectedNode = this.findNodeById(subredditName)
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2
@@ -102,16 +107,25 @@ Vue.component('graph-network', {
             d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
             this.simulationUpdate()
         },
-        drawSelectedSubreddit() {
-            if (this.selectedSubreddit) {
-                const node = this.findNodeById(this.selectedSubreddit)
+        drawSelectedSubreddits() {
+            const drawSelection = (node, color) => {
+                this.d3Context.beginPath();
+                this.drawNode(node, selected = true)
+                this.d3Context.fill();
+                this.d3Context.strokeStyle = color;
+                this.d3Context.lineWidth = 3;
+                this.d3Context.stroke();
+            }
+            if (this.selectedSourceSubreddit) {
+                const node = this.findNodeById(this.selectedSourceSubreddit)
                 if (node) {
-                    this.d3Context.beginPath();
-                    this.drawNode(node, selected = true)
-                    this.d3Context.fill();
-                    this.d3Context.strokeStyle = "#0d6efd";
-                    this.d3Context.lineWidth = 3;
-                    this.d3Context.stroke();
+                    drawSelection(node, "#03a9f4")
+                }
+            }
+            if (this.selectedTargetSubreddit) {
+                const node = this.findNodeById(this.selectedTargetSubreddit)
+                if (node) {
+                    drawSelection(node, "#ff9800")
                 }
             }
         },
@@ -156,23 +170,27 @@ Vue.component('graph-network', {
             // No node selected
             return undefined;
         },
+        setDimensionsOfCanvas() {
+            var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
+            this.d3Canvas.width = containerDimensions.width; // The width of the parent div of the canvas
+            this.d3Canvas.height = window.innerHeight / 1.8; // A fraction of the height of the screen
+            this.simulationUpdate()
+        },
         init() {
-            const width = this.width
-            const height = this.height
-
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
             this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
 
             this.d3Canvas = document.getElementById("graph-network-canvas")
-            this.d3Context = this.d3Canvas.getContext("2d")
+            this.d3Context = this.d3Canvas.getContext("2d", { alpha: false })
 
+            this.setDimensionsOfCanvas()
             this.setBackgroundColor()
 
             this.d3Simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
             this.d3Simulation.on("tick", this.simulationUpdate);
 
@@ -188,12 +206,18 @@ Vue.component('graph-network', {
                 .on("wheel", event => event.preventDefault())
         }
     },
+    created() {
+        window.addEventListener("resize", this.setDimensionsOfCanvas);
+    },
     mounted: async function () {
         this.init()
     },
+    destroyed() {
+        window.removeEventListener("resize", this.setDimensionsOfCanvas);
+    },
     template: `
-        <div>
-            <canvas id="graph-network-canvas" class="shadow-sm rounded border" v-bind:style="{width: width, height: height}" :width="this.width + 'px'" :height="this.height + 'px'">
+        <div id="graph-network-container">
+            <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
             </canvas>
         </div>
     `
