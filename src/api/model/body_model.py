@@ -61,15 +61,20 @@ class BodyModel:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
     
-    
     def get_top_properties_average(self):
         data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
         return data
-    
-    def get_frequency(self, source_subreddit):
-        return self.data.loc[self.data['SOURCE_SUBREDDIT'] == 'leagueoflegends'].groupby(['TARGET_SUBREDDIT']) \
+
+    def get_frequency(self, source_subreddit: Optional[str] = None):
+        if source_subreddit is None:
+            return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size() \
+                .sort_values(ascending=False).to_dict()
+        return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
             .size().sort_values(ascending=False).to_dict()
     
+    # def get_frequency2(self):
+    #     return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size() \
+    #         .sort_values(ascending=False).to_dict()
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.

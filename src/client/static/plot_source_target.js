@@ -1,12 +1,9 @@
 Vue.component('plot-source-target', {
-<<<<<<< HEAD
-=======
     data: function () {
         return {
             isLoading: false
         }
     },
->>>>>>> origin/master
     props: {
         sourceSubreddit: {
             default: null,
@@ -18,19 +15,8 @@ Vue.component('plot-source-target', {
         targetSubreddit: "fetchAPIData"
     },
     methods: {
-<<<<<<< HEAD
-        // async handleFilter(event) {
-        //     this.filterCounter(event.target.value)
-        // },
-        // updatesubreddit(){
-        //     this.sourceSubreddit = this.filterCounter
-        //     this.fetchAPIData()
-        // },
-        async fetchPlot() {
-=======
         async fetchPlot() {
             this.isLoading = true
->>>>>>> origin/master
             let url = `${apiEndpoint}source-target-frequencies`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
@@ -41,19 +27,11 @@ Vue.component('plot-source-target', {
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
-<<<<<<< HEAD
-            console.log(url)
-=======
->>>>>>> origin/master
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
-            
             document.getElementById("plot-source-target").innerHTML = "";
             window.Bokeh.embed.embed_item(freqObject, 'plot-source-target')
-<<<<<<< HEAD
-=======
             this.isLoading = false
->>>>>>> origin/master
         },
         async fetchAPIData() {
             this.fetchPlot()
@@ -64,9 +42,6 @@ Vue.component('plot-source-target', {
     },
     template: `
     <div>
-<<<<<<< HEAD
-        <div id="plot-source-target" class="bk-root"></div>
-=======
         <div v-if="isLoading" class="d-flex justify-content-center">
             <div class="spinner-grow my-5" role="status">
             </div>
@@ -77,7 +52,6 @@ Vue.component('plot-source-target', {
             </p>
         </div>
         <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
->>>>>>> origin/master
     </div> `
     
 })
