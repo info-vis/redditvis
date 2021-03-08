@@ -40,7 +40,7 @@ def top_properties():
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
 	dataavg = BodyModel.getInstance().get_top_properties_average()
 
-	p=figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
+	p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
 	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
 	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
 	p.ygrid.grid_line_color = None
