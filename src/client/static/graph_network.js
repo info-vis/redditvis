@@ -31,7 +31,7 @@ Vue.component('graph-network', {
         networkData: "init"
     },
     methods: {
-        setBackgroundColor(color = "#f5f5f5") {
+        setBackgroundColor(color = "white") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
         },

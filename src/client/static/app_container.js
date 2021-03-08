@@ -111,7 +111,7 @@ Vue.component("app-container", {
 
       <div class="row my-3">
         <!-- Graph network -->
-        <div class="col-md-9 pe-0 mb-2">
+        <div class="col-md-10 pe-0 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -124,7 +124,7 @@ Vue.component("app-container", {
         </div>
 
         <!-- Side bar -->
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="row"> 
             <div class="col">
               <div class="mb-1">
@@ -161,10 +161,10 @@ Vue.component("app-container", {
           <div class="row">
 
             <div class="col">
-            <div class="p-2 rounded my-1" style="background-color: #eeeeee">
+            <div class="p-2 rounded my-1 border shadow-sm" style="background-color: white">
 
               <div class="row">
-                <div class="input-group mb-3">
+                <div class="input-group">
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames">
                     <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
@@ -185,7 +185,7 @@ Vue.component("app-container", {
 
           <div class="row">
             <div class="col">
-            <div class="border p-2 rounded my-1" style="background-color: #eeeeee">
+            <div class="border p-2 rounded my-1 border shadow-sm" style="background-color: white">
                 <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
                 <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
             </div>
