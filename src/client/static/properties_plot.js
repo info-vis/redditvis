@@ -52,9 +52,3 @@ Vue.component('properties-plot', {
         <div v-show="!isLoading" id="properties-plot" class="bk-root"></div>
     </div> `
 })
-
-/**
- * 1. Display some arbitrary title that is not dynamic but just in the right position (only when the plot is loaded)
- * 2. Display the title based on what is in plotTitle
- * 3. Change the value of plotTitle based on the fetch
- */
