@@ -129,7 +129,6 @@ Vue.component("app-container", {
             <div class="col">
               <div class="mb-1">
                 <select-subreddit
-                  class=""
                   type="source"
                   borderColor="#03a9f4"
                   :selectedSubreddit="selectedSourceSubreddit"
