@@ -5,10 +5,8 @@ Vue.component('plot-source-target', {
         }
     },
     props: {
-        sourceSubreddit: {
-            default: null,
-            type: String
-        }
+        sourceSubreddit: String,
+        targetSubreddit: String
     },
     watch: {
         sourceSubreddit: "fetchAPIData",

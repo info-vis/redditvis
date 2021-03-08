@@ -65,16 +65,19 @@ class BodyModel:
         data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
         return data
 
-    def get_frequency(self, source_subreddit: Optional[str] = None):
-        if source_subreddit is None:
-            return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size() \
-                .sort_values(ascending=False).to_dict()
-        return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
-            .size().sort_values(ascending=False).to_dict()
-    
-    # def get_frequency2(self):
-    #     return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size() \
-    #         .sort_values(ascending=False).to_dict()
+    def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        if source_subreddit is not None and target_subreddit is not None:
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif source_subreddit is not None:
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif target_subreddit is not None:
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
+
+            
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
