@@ -44,7 +44,6 @@ def top_properties():
 	p.asterisk(y=list(dataavg.index), x=list(dataavg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
 	p.ygrid.grid_line_color = None
 	p.legend.location = "bottom_right"
-	# p.title.text = plot_title
 
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 
