@@ -61,6 +61,9 @@ class BodyModel:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
     
+    def get_top_properties_average(self):
+        data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
+        return data
     
     def get_frequency(self, source_subreddit):
         dict_source_target = {}

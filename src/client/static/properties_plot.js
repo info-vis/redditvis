@@ -44,6 +44,11 @@ Vue.component('properties-plot', {
             <div class="spinner-grow my-5" role="status">
             </div>
         </div>
+        <div v-show="!isLoading">
+            <p class="mb-0 mt-1" >
+            <small> <strong> Top semantic properties </strong></small>
+            </p>
+        </div>
         <div v-show="!isLoading" id="properties-plot" class="bk-root"></div>
     </div> `
 })

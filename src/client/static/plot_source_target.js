@@ -47,6 +47,11 @@ Vue.component('plot-source-target', {
             <div class="spinner-grow my-5" role="status">
             </div>
         </div>
+        <div v-show="!isLoading">
+            <p class="mb-0 mt-1" >
+            <small> <strong> Top target subreddits </strong></small>
+            </p>
+        </div>
         <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
     </div> `
     

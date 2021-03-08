@@ -47,6 +47,11 @@ Vue.component('sentiment-box', {
             <div class="spinner-grow my-5" role="status">
             </div>
         </div>
+        <div v-show="!isLoading">
+            <p class="mb-0 mt-1" >
+            <small> <strong> Post sentiment per time </strong></small>
+            </p>
+        </div>
         <div v-show="!isLoading" id="sentiment-box" class="bk-root"></div>
     </div> `
 })
