@@ -43,9 +43,9 @@ Vue.component('graph-network', {
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
             this.drawLinks(this.links)
             this.drawArrows(this.links)
-            for (const node of this.nodes) {
-                this.drawNode(node)
-            }
+            
+            this.nodes.forEach(this.drawNode)
+
             this.drawSelectedSubreddits()
             this.d3Context.restore();
         },
