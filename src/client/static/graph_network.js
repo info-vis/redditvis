@@ -41,7 +41,7 @@ Vue.component('graph-network', {
             this.setBackgroundColor()
             this.d3Context.translate(this.d3Transform.x, this.d3Transform.y);
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
-            this.drawLinks2(this.links)
+            this.drawLinks(this.links)
             this.drawArrows(this.links)
             for (const node of this.nodes) {
                 this.drawNode(node)
@@ -53,101 +53,51 @@ Vue.component('graph-network', {
             this.d3Transform = event.transform
             this.simulationUpdate()
         },
-        color(d) {
+        colorNode(d) {
             return this.d3Scale(d.group)
         },
         clearCanvas() {
             this.d3Context.clearRect(0, 0, this.width, this.height);
         },
         drawLinks(links) {
-            this.d3Context.beginPath();
-            links.forEach(link => {
-                this.d3Context.moveTo(link.source.x, link.source.y);
-                this.d3Context.lineTo(link.target.x, link.target.y);
-                this.d3Context.lineWidth = Math.round(link.value / 15)
-            })
-            this.d3Context.strokeStyle = "#aaa";
-            this.d3Context.stroke();
-        },
-        drawLinks2(links) {
-            const getVisibility = () => true;
             const getColor = () => "gray";
             const getWidth = () => 1;
-            const getLineDash = () => [-1];
-            const getCurvature = () => .35;
-            const getLinkCanvasObjectMode = () => false;
-            
-            const globalScale = 1
-            const padAmount = 1
+            const getCurvature = () => .3;
 
-            // const visibleLinks = links.filter(getVisibility);
-            const visibleLinks = links
+            links.forEach(calcLinkControlPoints); // calculate curvature control points for all visible links
 
-            visibleLinks.forEach(calcLinkControlPoints); // calculate curvature control points for all visible links
-            let beforeCustomLinks = []
-            let afterCustomLinks = []
-            let defaultPaintLinks = visibleLinks;
-            // if (state.linkCanvasObject) {
-            //     const replaceCustomLinks = [], otherCustomLinks = [];
-
-            //     visibleLinks.forEach(d =>
-            //         ({
-            //             before: beforeCustomLinks,
-            //             after: afterCustomLinks,
-            //             replace: replaceCustomLinks
-            //         }[getLinkCanvasObjectMode(d)] || otherCustomLinks).push(d)
-            //     );
-            //     defaultPaintLinks = [...beforeCustomLinks, ...afterCustomLinks, ...otherCustomLinks];
-            //     beforeCustomLinks = beforeCustomLinks.concat(replaceCustomLinks);
-            // }
-
-            // Custom link before paints
-            // this.d3Context.save();
-            // beforeCustomLinks.forEach(link => state.linkCanvasObject(link, this.d3Context, state.globalScale));
-            // this.d3Context.restore();
-
-            // Bundle strokes per unique color/width/dash for performance optimization
-            const linksPerColor = indexBy(defaultPaintLinks, [getColor, getWidth, getLineDash]);
+            // Bundle strokes per unique color/width for performance optimization
+            const linksPerColor = indexBy(links, [getColor, getWidth]);
 
             this.d3Context.save();
             Object.entries(linksPerColor).forEach(([color, linksPerWidth]) => {
                 const lineColor = !color || color === 'undefined' ? 'rgba(0,0,0,0.15)' : color;
-                Object.entries(linksPerWidth).forEach(([width, linesPerLineDash]) => {
-                    const lineWidth = (width || 1) / globalScale + padAmount;
-                    Object.entries(linesPerLineDash).forEach(([dashSegments, links]) => {
-                        const lineDashSegments = getLineDash(links[0]);
-                        this.d3Context.beginPath();
-                        links.forEach(link => {
-                            const start = link.source;
-                            const end = link.target;
-                            
-                            // if (!start || !end || !start.hasOwnProperty('x') || !end.hasOwnProperty('x')) return; // skip invalid link
+                Object.entries(linksPerWidth).forEach(([width, links]) => {
+                    this.d3Context.beginPath();
+                    links.forEach(link => {
+                        const start = link.source;
+                        const end = link.target;
+                        
+                        if (!start || !end || !start.hasOwnProperty('x') || !end.hasOwnProperty('x')) return; // skip invalid link
 
-                            this.d3Context.moveTo(start.x, start.y);
+                        this.d3Context.moveTo(start.x, start.y);
 
-                            const controlPoints = link.__controlPoints;
-
-                            if (!controlPoints) { // Straight line
-                                this.d3Context.lineTo(end.x, end.y);
-                            } else {
-                                // Use quadratic curves for regular lines and bezier for loops
-                                this.d3Context[controlPoints.length === 2 ? 'quadraticCurveTo' : 'bezierCurveTo'](...controlPoints, end.x, end.y);
-                            }
-                        });
-                        this.d3Context.strokeStyle = lineColor;
-                        this.d3Context.lineWidth = lineWidth;
-                        this.d3Context.setLineDash(lineDashSegments || []);
-                        this.d3Context.stroke();
+                        const controlPoints = link.__controlPoints;
+                        if (!controlPoints) { // Straight line
+                            this.d3Context.lineTo(end.x, end.y);
+                        } else {
+                            // Use quadratic curves for regular lines and bezier for loops
+                            this.d3Context[controlPoints.length === 2 ? 'quadraticCurveTo' : 'bezierCurveTo'](...controlPoints, end.x, end.y);
+                        }
                     });
+                    this.d3Context.strokeStyle = lineColor;
+                    this.d3Context.lineWidth = width;
+                    this.d3Context.stroke();
                 });
             });
             this.d3Context.restore();
 
-            // Custom link after paints
-            this.d3Context.save();
-            afterCustomLinks.forEach(link => state.linkCanvasObject(link, this.d3Context, state.globalScale));
-            this.d3Context.restore();
-
+            // Used for creating curved lines
             function calcLinkControlPoints(link) {
                 const curvature = getCurvature(link);
 
@@ -160,11 +110,11 @@ Vue.component('graph-network', {
                 const end = link.target;
                 if (!start || !end || !start.hasOwnProperty('x') || !end.hasOwnProperty('x')) return; // skip invalid link
 
-                const l = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)); // line length
+                const lineLen = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)); // line length
 
-                if (l > 0) {
+                if (lineLen > 0) {
                     const a = Math.atan2(end.y - start.y, end.x - start.x); // line angle
-                    const d = l * curvature; // control point distance
+                    const d = lineLen * curvature; // control point distance
 
                     const cp = { // control point
                         x: (start.x + end.x) / 2 + d * Math.cos(a - Math.PI / 2),
@@ -180,10 +130,9 @@ Vue.component('graph-network', {
         },
         drawArrows(links) {
             const ARROW_WH_RATIO = 1;
-            const ARROW_VLEN_RATIO = .1;
+            const ARROW_VLEN_RATIO = .2;
             links.forEach(link => {
-                // const arrowLength = getLength(link);
-                const arrowLength = 5
+                const arrowLength = 6
 
                 this.d3Context.beginPath();
 
@@ -192,29 +141,25 @@ Vue.component('graph-network', {
 
                 if (!start || !end || !start.hasOwnProperty('x') || !end.hasOwnProperty('x')) return; // skip invalid link
 
-                // const startR = Math.sqrt(Math.max(0, getNodeVal(start) || 1)) * state.nodeRelSize;
-                // const endR = Math.sqrt(Math.max(0, getNodeVal(end) || 1)) * state.nodeRelSize;
                 const startR = 2
                 const endR = 2
-                // const relPos = getRelPos(link)
-                const relPos = 0.5 // Changes based on angle of line
+                const relPos = .50 // Changes based on angle of line
                 const arrowRelPos = Math.min(1, Math.max(0, relPos));
-                const arrowColor = 'rgba(50,0,0,.9)';
+                const arrowColor = 'rgba(100,100,100,1)';
                 const arrowHalfWidth = arrowLength / ARROW_WH_RATIO / 2;
 
-                const d = 50
                 const bzLine = new Bezier(start.x, start.y, ...link.__controlPoints, end.x, end.y);
 
                 const getCoordsAlongLine = bzLine
                     ? t => bzLine.get(t) // get position along bezier line
                     : t => ({            // straight line: interpolate linearly
-                    x: start.x + (end.x - start.x) * t || 0,
-                    y: start.y + (end.y - start.y) * t || 0
+                        x: start.x + (end.x - start.x) * t || 0,
+                        y: start.y + (end.y - start.y) * t || 0
                     });
 
                 const lineLen = bzLine
-                ? bzLine.length()
-                : Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                    ? bzLine.length()
+                    : Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
 
                 const posAlongLine = startR + arrowLength + (lineLen - startR - endR - arrowLength) * arrowRelPos;
 
@@ -234,9 +179,6 @@ Vue.component('graph-network', {
                 this.d3Context.fillStyle = arrowColor;
                 this.d3Context.fill();
             })
-     
-
-            // this.d3Context.restore();
         },
         drawNode(node, selected = false) {
             const extraRadius = 2 // When a node is selected
@@ -247,7 +189,7 @@ Vue.component('graph-network', {
             this.d3Context.moveTo(node.x + nodeRadius, node.y);
             this.d3Context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
 
-            this.d3Context.fillStyle = this.color(node);
+            this.d3Context.fillStyle = this.colorNode(node);
             this.d3Context.fill();
 
             const nodeIsSelectedSourceSubreddit = node.id == this.selectedSourceSubreddit
