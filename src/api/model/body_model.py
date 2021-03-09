@@ -98,3 +98,14 @@ class BodyModel:
         if n_links is not None:
             return result.head(n_links)
         return result
+
+
+    def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()

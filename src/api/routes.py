@@ -99,3 +99,10 @@ def network():
 	data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return network_graph
+
+@bp.route("/properties-radar")
+def properties_radar():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
+	return data.to_json(orient='table')
