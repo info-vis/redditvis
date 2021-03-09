@@ -60,6 +60,50 @@ Vue.component('graph-network', {
         },
         drawLinks(links) {
             this.d3Context.beginPath();
+
+            // const start = link.source
+            // const end = link.target
+
+            // const startR = Math.sqrt(Math.max(0, getNodeVal(start) || 1)) * state.nodeRelSize;
+            // const endR = Math.sqrt(Math.max(0, getNodeVal(end) || 1)) * state.nodeRelSize;
+            // const startR = 2
+            // const endR = 2
+
+            // const arrowRelPos = Math.min(1, Math.max(0, getRelPos(link)));
+            // const arrowColor = getColor(link) || 'rgba(0,0,0,0.28)';
+            // const arrowHalfWidth = arrowLength / ARROW_WH_RATIO / 2;
+
+            // const bzLine = new Bezier(start.x, start.y, ...link.__controlPoints, end.x, end.y);
+
+            // const getCoordsAlongLine = bzLine
+            //     ? t => bzLine.get(t) // get position along bezier line
+            //     : t => ({            // straight line: interpolate linearly
+            //     x: start.x + (end.x - start.x) * t || 0,
+            //     y: start.y + (end.y - start.y) * t || 0
+            //     });
+
+            // const lineLen = bzLine
+            // ? bzLine.length()
+            // : Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+
+            // const posAlongLine = startR + arrowLength + (lineLen - startR - endR - arrowLength) * arrowRelPos;
+
+            // const arrowHead = getCoordsAlongLine(posAlongLine / lineLen);
+            // const arrowTail = getCoordsAlongLine((posAlongLine - arrowLength) / lineLen);
+            // const arrowTailVertex = getCoordsAlongLine((posAlongLine - arrowLength * (1 - ARROW_VLEN_RATIO)) / lineLen);
+
+            // const arrowTailAngle = Math.atan2(arrowHead.y - arrowTail.y, arrowHead.x - arrowTail.x) - Math.PI / 2;
+
+            // ctx.beginPath();
+
+            // ctx.moveTo(arrowHead.x, arrowHead.y);
+            // ctx.lineTo(arrowTail.x + arrowHalfWidth * Math.cos(arrowTailAngle), arrowTail.y + arrowHalfWidth * Math.sin(arrowTailAngle));
+            // ctx.lineTo(arrowTailVertex.x, arrowTailVertex.y);
+            // ctx.lineTo(arrowTail.x - arrowHalfWidth * Math.cos(arrowTailAngle), arrowTail.y - arrowHalfWidth * Math.sin(arrowTailAngle));
+
+            // ctx.fillStyle = arrowColor;
+            // ctx.fill();
+
             links.forEach(link => {
                 this.d3Context.moveTo(link.source.x, link.source.y);
                 this.d3Context.lineTo(link.target.x, link.target.y);
