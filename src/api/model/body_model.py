@@ -59,7 +59,7 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+        return data.loc[:,['LIWC_Family', 'LIWC_Friends', 'LIWC_Humans', 'LIWC_Posemo', 'LIWC_Negemo', 'LIWC_Anx', 'LIWC_Anger', 'LIWC_Sad', 'LIWC_Insight', 'LIWC_Cause', 'LIWC_Discrep', 'LIWC_Tentat', 'LIWC_Certain', 'LIWC_Inhib', 'LIWC_Incl', 'LIWC_Excl', 'LIWC_See', 'LIWC_Hear', 'LIWC_Feel', 'LIWC_Body', 'LIWC_Health', 'LIWC_Sexual', 'LIWC_Ingest', 'LIWC_Motion', 'LIWC_Space', 'LIWC_Time', 'LIWC_Work', 'LIWC_Achiev', 'LIWC_Leisure', 'LIWC_Home', 'LIWC_Money', 'LIWC_Relig', 'LIWC_Death']].mean().sort_values(ascending=False).head(10)
     
     def get_top_properties_average(self):
         data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)

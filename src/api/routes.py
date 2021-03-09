@@ -9,6 +9,8 @@ from flask import request
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
+from bokeh.models import NumeralTickFormatter
+
 
 
 @bp.route('/sentiment-box')
@@ -39,12 +41,18 @@ def top_properties():
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
 	data_avg = BodyModel.getInstance().get_top_properties_average()
 
-	p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
+	p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.10), toolbar_location=None, tools="")
 	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
 	p.asterisk(y=list(data_avg.index), x=list(data_avg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
 	p.ygrid.grid_line_color = None
 	p.legend.location = "bottom_right"
-
+	p.legend.background_fill_alpha = 0.2
+	p.legend.border_line_alpha = 0.5
+	p.legend.label_text_font_size = '8pt'
+	p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
+	p.xaxis.minor_tick_line_color = None
+	p.xaxis.axis_label = "% of all words in the post"
+	
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 
 @bp.route('/source-target-frequencies')
