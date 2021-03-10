@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 
 
@@ -7,7 +5,7 @@ class NetworkGraphHelper:
     """This class helps to with data formatting for the network graph.
     """
     @staticmethod
-    def to_network_graph(data: pd.DataFrame) -> str:
+    def to_network_graph(data: pd.DataFrame) -> dict:
         """Transform the network data from a pandas df to the format 
         accepted by the network in the front end.
 
@@ -48,7 +46,7 @@ class NetworkGraphHelper:
 
         nodes = to_nodes(data)
         links = to_links(data)
-        return json.dumps({
+        return {
             "nodes": list(nodes), 
             "links": links.values.tolist()
-        })
+        }
