@@ -128,7 +128,7 @@ def properties_radar():
 	))
 
 	fig.update_layout(
-	polar=dict(
+	polar = dict(
 		radialaxis=dict(
 			visible=True,
 			range=[0, 0.15],),
