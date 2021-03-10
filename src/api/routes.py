@@ -1,15 +1,18 @@
 import json
-import math
 from math import pi
 
 import bokeh
 import numpy as np
 from bokeh.plotting import figure
-from flask import request
+from flask import abort, jsonify, request
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
 
+
+@bp.errorhandler(404)
+def resource_not_found(e):
+    return jsonify(error=str(e)), 404
 
 @bp.route('/sentiment-box')
 def sentiment_box():
@@ -88,6 +91,13 @@ def network():
 		str: json string
 	"""
 	n_links = int(request.args.get('n_links', default="20"))
-	data = BodyModel.getInstance().get_network_data(n_links=n_links)
+	subreddit = request.args.get('subreddit')
+	if subreddit:
+		try:
+			data = BodyModel.getInstance().get_subgraph_for_subreddit(subreddit)
+		except KeyError as e:
+			abort(404, description="Resource not found")
+	else:
+		data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return network_graph

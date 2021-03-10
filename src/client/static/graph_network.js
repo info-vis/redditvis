@@ -11,7 +11,8 @@ Vue.component('graph-network', {
             d3Context: null,
             d3Transform: d3.zoomIdentity,
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
-            d3NodeRadius: 6,
+            d3NodeRadius: 2,
+            d3LinkWidth: .1,
         }
     },
     computed: {
@@ -44,7 +45,7 @@ Vue.component('graph-network', {
             this.drawLinks(this.links)
             this.drawArrows(this.links)
             
-            this.nodes.forEach(this.drawNode)
+            this.nodes.forEach(node => this.drawNode(node, this.d3NodeRadius))
 
             this.drawSelectedSubreddits()
             this.d3Context.restore();
@@ -61,7 +62,7 @@ Vue.component('graph-network', {
         },
         drawLinks(links) {
             const getColor = () => "gray";
-            const getWidth = () => 1;
+            const getWidth = () => this.d3LinkWidth;
             const getCurvature = () => .3;
 
             links.forEach(calcLinkControlPoints); // calculate curvature control points for all visible links
@@ -129,10 +130,10 @@ Vue.component('graph-network', {
             }
         },
         drawArrows(links) {
-            const ARROW_WH_RATIO = 1;
-            const ARROW_VLEN_RATIO = .2;
+            const ARROW_WH_RATIO = 1.75;
+            const ARROW_VLEN_RATIO = .01;
             links.forEach(link => {
-                const arrowLength = 6
+                const arrowLength = 3
 
                 this.d3Context.beginPath();
 
@@ -145,7 +146,7 @@ Vue.component('graph-network', {
                 const endR = 2
                 const relPos = .50 // Changes based on angle of line
                 const arrowRelPos = Math.min(1, Math.max(0, relPos));
-                const arrowColor = 'rgba(100,100,100,1)';
+                const arrowColor = "#9e9e9e";
                 const arrowHalfWidth = arrowLength / ARROW_WH_RATIO / 2;
 
                 const bzLine = new Bezier(start.x, start.y, ...link.__controlPoints, end.x, end.y);
@@ -180,9 +181,7 @@ Vue.component('graph-network', {
                 this.d3Context.fill();
             })
         },
-        drawNode(node, selected = false) {
-            const extraRadius = 2 // When a node is selected
-            const nodeRadius = selected ? this.d3NodeRadius + extraRadius : this.d3NodeRadius
+        drawNode(node, nodeRadius) {
             this.d3Context.strokeStyle = "#fff";
             this.d3Context.beginPath();
             this.d3Context.lineWidth = 1;
@@ -204,6 +203,7 @@ Vue.component('graph-network', {
             }
         },
         drawNodeName(node, offset = 8) {
+            this.d3Context.font = "5px Verdana";
             this.d3Context.fillText(node.id, node.x + offset, node.y);
         },
         findNodeById(id) {
@@ -222,10 +222,10 @@ Vue.component('graph-network', {
         drawSelectedSubreddits() {
             const drawSelection = (node, color) => {
                 this.d3Context.beginPath();
-                this.drawNode(node, selected = true)
+                this.drawNode(node, this.d3NodeRadius * 2)
                 this.d3Context.fill();
                 this.d3Context.strokeStyle = color;
-                this.d3Context.lineWidth = 3;
+                this.d3Context.lineWidth = .7;
                 this.d3Context.stroke();
             }
             if (this.selectedSourceSubreddit) {

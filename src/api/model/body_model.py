@@ -1,5 +1,5 @@
 import os
-import random
+import networkx as nx
 from typing import Optional
 
 import pandas as pd
@@ -14,6 +14,7 @@ class BodyModel:
 
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
+    graph = None
 
     @staticmethod 
     def getInstance():
@@ -29,6 +30,13 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
+        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+                .size()\
+                .reset_index()\
+                .rename(columns={0: "count"})\
+                .sort_values("count", ascending=False)
+        self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
+
 
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
@@ -80,7 +88,7 @@ class BodyModel:
         """Returns the network data.
 
         Args:
-            head (int, optional): number of links. Defaults to None.
+            n_links (int, optional): number of links. Defaults to None.
 
         Returns:
             pd.DataFrame: Format:
@@ -90,11 +98,70 @@ class BodyModel:
         """
         if self.data is None:
             raise ValueError("No data has been loaded in BodyModel.")
+
         result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
                 .size()\
                 .reset_index()\
                 .rename(columns={0: "count"})\
                 .sort_values("count", ascending=False)
+
+        
         if n_links is not None:
             return result.head(n_links)
         return result
+
+    def get_subgraph_for_subreddit(self, subreddit: str) -> pd.DataFrame:
+        """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
+        outgoing edges of the subreddit.
+
+        Args:
+            subreddit (str): The subreddit to retrieve the subgraph for
+
+        Returns:
+            pd.DataFrame: Format (subreddit = "changelog"):
+                    SOURCE_SUBREDDIT    TARGET_SUBREDDIT  count
+                    117	trendingsubreddits	changelog	548
+                    17	changelog	beta	7
+                    30	changelog	redditdev	7
+        """
+        ######## v3 begin ########
+        df = self.data
+        def get_neighbors(subreddit, network):
+            outgoing_subreddits = list(network[subreddit])
+            _incoming = list(network.in_edges('ducks'))
+            incoming_subreddits = list(map(lambda x: x[0], _incoming))
+
+            unique_subreddits = outgoing_subreddits + incoming_subreddits
+            return set(unique_subreddits)
+
+        neighbors = get_neighbors(subreddit, self.graph)
+        
+        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        # Reduce size
+        neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > 2]
+
+        return pd.concat([subreddit_neighbors_df, neighbors_neighbors_df])
+        ######## v3 end ########
+
+        ######## v2 begin ########
+        # if self.data is None:
+        #     raise ValueError("No data has been loaded in BodyModel.")
+
+        # return self.data[(self.data["SOURCE_SUBREDDIT"] == subreddit) | (self.data["TARGET_SUBREDDIT"] == subreddit)]\
+        #     .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+        #     .size()\
+        #     .reset_index()\
+        #     .rename(columns={0: "count"})\
+        #     .sort_values("count", ascending=False)
+        ######## v2 end ########

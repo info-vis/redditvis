@@ -30,12 +30,10 @@ Vue.component('select-subreddit', {
     },
     methods: {
         selectSubreddit() {
-            if (this.subredditOptions.includes(this.selectedSubredditInput)) {
-                this.$emit("select-subreddit", {
-                    type: this.type,
-                    selectedSubredditInput: this.selectedSubredditInput
-                })
-            }
+            this.$emit("select-subreddit", {
+                type: this.type,
+                selectedSubredditInput: this.selectedSubredditInput
+            })
         },
         clearSubreddit() {
             this.$emit('clear-subreddit', this.type)
