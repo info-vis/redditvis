@@ -133,7 +133,7 @@ def properties_radar():
 			visible=True,
 			range=[0, 0.15],),
 		),
-	dragmode = False,
+	dragmode=False,
 	showlegend=True,
 	legend=dict(
 		orientation="h",
