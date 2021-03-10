@@ -27,7 +27,7 @@ Vue.component('properties-radar', {
             }
             const propertiesResponse = await fetch(url);
             const propertiesRadar = await propertiesResponse.json();
-            let graphDiv = document.getElementById("properties-radar")
+            const graphDiv = document.getElementById("properties-radar")
             Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, {displayModeBar: false})
             this.isLoading = false
         },
