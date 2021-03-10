@@ -1,3 +1,14 @@
+function d3ForceInitialState() {
+    return {
+        d3ForceChargeStrength: -30,
+        d3ForceChargeTheta: 0.9,
+        d3ForceChargeDistanceMin: 1,
+        d3ForceChargeDistanceMax: Infinity,
+        d3ForceLinkDistance: 30,
+        d3ForceCenterStrength: 1
+    }
+}
+
 // Define a new component called graph-network
 Vue.component('graph-network', {
     data: function () {
@@ -13,11 +24,12 @@ Vue.component('graph-network', {
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
             d3NodeRadius: 5,
             d3LinkWidth: 1,
+            ...d3ForceInitialState(),
         }
     },
     computed: {
-        width: function() { return this.d3Canvas && this.d3Canvas.width || null },
-        height: function() { return this.d3Canvas && this.d3Canvas.height || null }
+        width: function () { return this.d3Canvas && this.d3Canvas.width || null },
+        height: function () { return this.d3Canvas && this.d3Canvas.height || null }
     },
     props: {
         networkData: Object,
@@ -29,14 +41,32 @@ Vue.component('graph-network', {
         showSubredditNames: "simulationUpdate",
         selectedSourceSubreddit: "simulationUpdate",
         selectedTargetSubreddit: "simulationUpdate",
-        networkData: "init"
+        networkData: "updateData",
+        d3ForceChargeStrength: function () {
+            this.setForceSimulation()
+        },
+        d3ForceChargeTheta: function () {
+            this.setForceSimulation()
+        },
+        d3ForceLinkDistance: function () {
+            this.setForceSimulation()
+        },
+        d3ForceChargeDistanceMin: function () {
+            this.setForceSimulation()
+        },
+        d3ForceChargeDistanceMin: function () {
+            this.setForceSimulation()
+        },
+        d3ForceCenterStrength: function () {
+            this.setForceSimulation()
+        },
     },
     methods: {
         setBackgroundColor(color = "white") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
         },
-        simulationUpdate() {
+        simulationUpdate() { // Runs on each 'tick' of the simulation
             this.d3Context.save();
             this.clearCanvas()
             this.setBackgroundColor()
@@ -44,7 +74,7 @@ Vue.component('graph-network', {
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
             this.drawLinks(this.links)
             this.drawArrows(this.links)
-            
+
             this.nodes.forEach(node => this.drawNode(node, this.d3NodeRadius))
 
             this.drawSelectedSubreddits()
@@ -61,7 +91,7 @@ Vue.component('graph-network', {
             this.d3Context.clearRect(0, 0, this.width, this.height);
         },
         drawLinks(links) {
-            const getColor = () => "gray";
+            const getColor = () => "#bdbdbd";
             const getWidth = () => this.d3LinkWidth;
             const getCurvature = () => .3;
 
@@ -78,7 +108,7 @@ Vue.component('graph-network', {
                     links.forEach(link => {
                         const start = link.source;
                         const end = link.target;
-                        
+
                         if (!start || !end || !start.hasOwnProperty('x') || !end.hasOwnProperty('x')) return; // skip invalid link
 
                         this.d3Context.moveTo(start.x, start.y);
@@ -206,7 +236,7 @@ Vue.component('graph-network', {
             this.d3Context.font = "5px Verdana";
             this.d3Context.fillText(node.id, node.x + offset, node.y);
         },
-        findNodeById(id) {
+        findNodeById(id) { // id = subreddit
             return this.nodes.filter(node => node.id == id)[0]
         },
         panToSubreddit(subredditName) {
@@ -288,6 +318,67 @@ Vue.component('graph-network', {
             this.d3Canvas.height = window.innerHeight / 1.8; // A fraction of the height of the screen
             this.simulationUpdate()
         },
+        burstSimulation() {
+            this.d3Simulation.alpha(1)
+            this.d3Simulation.restart()
+        },
+        updateData() {
+            // Transform the rows from being arrays of values to objects.
+            this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
+            this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
+
+            this.d3Simulation.nodes(this.nodes)
+            this.d3Simulation.force("link").links(this.links)
+            this.burstSimulation()
+        },
+        resetForceData() {
+            Object.assign(this.$data, { ...this.$data, ...d3ForceInitialState() })
+        },
+        setForceSimulation() {
+            this.d3Simulation.force("link", d3.forceLink(this.links).id(d => d.id)
+                .distance(this.d3ForceLinkDistance)
+            )
+            this.d3Simulation.force("charge", d3.forceManyBody()
+                .strength(this.d3ForceChargeStrength)
+                .theta(this.d3ForceChargeTheta)
+                .distanceMin(this.d3ForceChargeDistanceMin)
+                .distanceMax(this.d3ForceChargeDistanceMax)
+            )
+            this.d3Simulation.force("center", d3.forceCenter(this.width / 2, this.height / 2)
+                .strength(this.d3ForceCenterStrength)
+            )
+            this.burstSimulation()
+        },
+        initForceSimulation() {
+            this.d3Simulation = d3.forceSimulation(this.nodes)
+                .force("link", d3.forceLink(this.links).id(d => d.id)
+                    .distance(this.d3ForceLinkDistance)
+                )
+                .force("charge", d3.forceManyBody()
+                    .strength(this.d3ForceChargeStrength)
+                    .theta(this.d3ForceChargeTheta)
+                    .distanceMin(this.d3ForceChargeDistanceMin)
+                    .distanceMax(this.d3ForceChargeDistanceMax)
+                )
+                .force("center", d3.forceCenter(this.width / 2, this.height / 2)
+                    .strength(this.d3ForceCenterStrength)
+                );
+            this.d3Simulation.on("tick", this.simulationUpdate);
+        },
+        showFpsCounter() {
+            var stats = new Stats();
+            stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            document.body.appendChild(stats.dom);
+
+            function animate() {
+                stats.begin();
+                // monitored code goes here
+                stats.end();
+                requestAnimationFrame(animate);
+            }
+            requestAnimationFrame(animate);
+        },
+
         init() {
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
@@ -303,12 +394,7 @@ Vue.component('graph-network', {
             this.setDimensionsOfCanvas()
             this.setBackgroundColor()
 
-            this.d3Simulation = d3.forceSimulation(this.nodes)
-                .force("link", d3.forceLink(this.links).id(d => d.id))
-                .force("charge", d3.forceManyBody())
-                .force("center", d3.forceCenter(this.width / 2, this.height / 2));
-
-            this.d3Simulation.on("tick", this.simulationUpdate);
+            this.initForceSimulation()
 
             d3.select(this.d3Context.canvas)
                 .call(d3.drag()
@@ -325,16 +411,51 @@ Vue.component('graph-network', {
     created() {
         window.addEventListener("resize", this.setDimensionsOfCanvas);
     },
-    mounted: async function () {
+    mounted() {
         this.init()
     },
     destroyed() {
         window.removeEventListener("resize", this.setDimensionsOfCanvas);
     },
     template: `
-        <div id="graph-network-container">
-            <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
-            </canvas>
+    <div>
+        <div class="row">
+            <div class="col-md-2">
+                <p><strong>Force controls</strong></p>
+                <div class="row">
+                    <div class="col">
+                        <button title="Reset force controls" class="btn btn-primary btn-sm mb-2" @click="resetForceData" @click.middle="showFpsCounter"><i class="bi bi-sliders"></i></button><br/>
+                    </div>
+                    <div class="col">
+                        <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="updateData"><i class="bi bi-tropical-storm"></i></button><br/>
+                    </div>
+                </div>
+                <label for="customRange1" class="form-label">Force strength</label>: <strong>{{ d3ForceChargeStrength }}</strong>
+                <input type="range" class="form-range" min="-100" max="10" step="1" id="customRange1" v-model="d3ForceChargeStrength">
+
+                <label for="customRange2" class="form-label">Theta</label>: <strong>{{ d3ForceChargeTheta }}</strong>
+                <input type="range" class="form-range" min="-5" max="5" step=".1" id="customRange2" v-model="d3ForceChargeTheta">
+
+                <label for="customRange2" class="form-label">Min force distance</label>: <strong>{{ d3ForceChargeDistanceMin }}</strong>
+                <input type="range" class="form-range" min="-5" max="30" step=".1" id="customRange2" v-model="d3ForceChargeDistanceMin">
+
+                <label for="customRange2" class="form-label">Max force distance</label>: <strong>{{ d3ForceChargeDistanceMax }}</strong>
+                <input type="range" class="form-range" min="-5" max="30" step=".1" id="customRange2" v-model="d3ForceChargeDistanceMax">
+
+                <label for="customRange2" class="form-label">Link distance</label>: <strong>{{ d3ForceLinkDistance }}</strong>
+                <input type="range" class="form-range" min=1 max="500" step="1" id="customRange2" v-model="d3ForceLinkDistance">
+
+                <label for="customRange2" class="form-label">Center Strength</label>: <strong>{{ d3ForceCenterStrength }}</strong>
+                <input type="range" class="form-range" min="0" max="2" step=".01" id="customRange2" v-model="d3ForceCenterStrength">
+
+            </div>
+            <div class="col">
+                <div id="graph-network-container">
+                    <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
+                    </canvas>
+                </div>
+            </div>
         </div>
+    </div>
     `
 })

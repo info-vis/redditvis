@@ -48,7 +48,6 @@ Vue.component("app-container", {
       if (this.selectedSourceSubreddit) {
         this.showAlert = false
       }
-      console.log(response)
       const data = await response.json();
       this.networkData = await data
       this.isLoadingData = false
@@ -196,7 +195,7 @@ Vue.component("app-container", {
               <div class="row">
                 <div class="col">
                   <label for="linkSlider" class="form-label">Number of links: {{ numberOfLinksSliderValue }}/137821</label>
-                  <input type="range" class="form-range" min="0" max="137821" step="1000" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
+                  <input type="range" class="form-range" min="0" max="25000" step="50" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
                 </div>
               </div>
 
@@ -228,7 +227,7 @@ Vue.component("app-container", {
             <div class="card-body">
               <div class="row">
                 <div class="col">
-                  <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
+                  <properties-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </properties-plot>
                 </div>
                 <div class="col">
