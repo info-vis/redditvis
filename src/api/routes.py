@@ -106,7 +106,7 @@ def properties_radar():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
-	data_avg=BodyModel.getInstance().get_properties_radar_average()
+	data_avg = BodyModel.getInstance().get_properties_radar_average()
 	
 	data_close_line=data.append(data.head(1))
 	data_avg_close_line=data_avg.append(data_avg.head(1))
