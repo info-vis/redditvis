@@ -16,8 +16,8 @@ Vue.component('properties-radar', {
         async fetchPlot() {
             this.isLoading = true
             let url = `${apiEndpoint}properties-radar`
-            let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-            let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
+            const sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
+            const targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
             if (this.sourceSubreddit && this.targetSubreddit) {
                 url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery 
             } else if (this.sourceSubreddit) {
