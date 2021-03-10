@@ -44,13 +44,13 @@ Vue.component('properties-radar', {
     <div>
         <div v-if="isLoading" class="d-flex justify-content-center">
             <div class="spinner-grow my-5" role="status">
-            </div>
+        </div>        
         </div>
         <div v-show="!isLoading">
             <p class="mb-0 mt-1" >
             <small> <strong> Psychological properties of posts </strong></small>
             </p>
         </div>
-        <div v-show="!isLoading" id="properties-radar" class="bk-root"></div>
+        <div v-show="!isLoading" id="properties-radar" class="chart"></div>
     </div> `
 })

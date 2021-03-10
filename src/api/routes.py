@@ -130,20 +130,20 @@ def properties_radar():
 	fig.update_layout(
 	polar=dict(
 		radialaxis=dict(
-		visible=True,
-			range=[0, 0.15]
+			visible=True,
+			range=[0, 0.15],),
 		),
-	),
+	dragmode = False,
 	showlegend=True,
-		legend=dict(
+	legend=dict(
 		orientation="h",
 		yanchor="bottom",
 		y=-0.2,
 		xanchor="right",
-		x=1.2),    
+		x=1.2
+		), 
 	)
-
-	fig.update_polars(radialaxis_tickformat="0.1%")
-	fig.update_polars(radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
+	
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
