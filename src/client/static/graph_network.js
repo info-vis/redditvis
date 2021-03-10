@@ -11,8 +11,8 @@ Vue.component('graph-network', {
             d3Context: null,
             d3Transform: d3.zoomIdentity,
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
-            d3NodeRadius: 2,
-            d3LinkWidth: .1,
+            d3NodeRadius: 5,
+            d3LinkWidth: 1,
         }
     },
     computed: {
@@ -130,10 +130,10 @@ Vue.component('graph-network', {
             }
         },
         drawArrows(links) {
-            const ARROW_WH_RATIO = 1.75;
-            const ARROW_VLEN_RATIO = .01;
+            const ARROW_WH_RATIO = 1;
+            const ARROW_VLEN_RATIO = .2;
             links.forEach(link => {
-                const arrowLength = 3
+                const arrowLength = 5
 
                 this.d3Context.beginPath();
 
