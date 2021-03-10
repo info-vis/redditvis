@@ -217,7 +217,7 @@ Vue.component("app-container", {
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></plot-source-target>
                 </div>   
                 <div class="col"> 
-                  <properties-radar :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
+                  <properties-radar :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </properties-radar>
                 </div>
               </div>
