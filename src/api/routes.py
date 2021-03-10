@@ -58,25 +58,16 @@ def top_properties():
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
-	num = int(request.args.get('num', default="20"))
-	source_subreddit = request.args.get('source-subreddit')
-	data = BodyModel.getInstance().get_frequency(source_subreddit)
-	
-	if source_subreddit is None:
-		raise ValueError("Cannot load frequency plot for the entire data set. A source_subreddit as a query parameter is mandatory.")
+    source_subreddit = request.args.get('source-subreddit')
+    target_subreddit = request.args.get('target-subreddit')
+    data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
 
-	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
-	target_subreddits, frequencies = zip(*sorted_dict)
+    p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=500,
+	    toolbar_location=None, tools="")
+    p.hbar(y=list(data.index), right=data.values, height=0.9)
+    p.xaxis.axis_label = "Number of times linked"
 
-	p = figure(x_range=target_subreddits[:num], plot_height=300, plot_width=350,
-               toolbar_location=None, tools="")
-	
-	p.vbar(x=target_subreddits, top=frequencies, width=0.9)
-	p.xgrid.grid_line_color = None
-	p.y_range.start = 0
-	p.xaxis.major_label_orientation = pi/4
-	
-	return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
+    return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
 
 @bp.route("/network")
 def network():

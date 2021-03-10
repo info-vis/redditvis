@@ -1,5 +1,4 @@
 import os
-import random
 from typing import Optional
 
 import pandas as pd
@@ -29,10 +28,6 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
-
-    def get_top_target_subreddits(self, num):
-        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
-            .sort_values("counts", ascending=False).head(num)
 
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
@@ -64,17 +59,17 @@ class BodyModel:
     def get_top_properties_average(self):
         data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
         return data
-    
-    def get_frequency(self, source_subreddit):
-        dict_source_target = {}
-        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
-        for target in filtered_by_source['TARGET_SUBREDDIT']:
-            if target not in dict_source_target:
-                dict_source_target[target] = 1
-            else:
-                dict_source_target[target] += 1
-        return dict_source_target
-    
+
+    def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        if source_subreddit is not None:
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif target_subreddit is not None:
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
+
+            
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
