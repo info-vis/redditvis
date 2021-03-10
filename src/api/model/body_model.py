@@ -109,3 +109,8 @@ class BodyModel:
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+        # return result.append(result.head(1))
+
+    def get_properties_radar_average(self):
+        data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+        return data

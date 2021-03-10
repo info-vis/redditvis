@@ -4,14 +4,15 @@ from math import pi
 
 import bokeh
 import numpy as np
+import plotly.graph_objects as go
+from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
 from flask import request
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
-from bokeh.models import NumeralTickFormatter
-
-
+import plotly.io as pio
+from plotly import utils
 
 @bp.route('/sentiment-box')
 def sentiment_box():
@@ -105,4 +106,44 @@ def properties_radar():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
-	return data.to_json(orient='table')
+	data_avg=BodyModel.getInstance().get_properties_radar_average()
+	
+	data_close_line=data.append(data.head(1))
+	data_avg_close_line=data_avg.append(data_avg.head(1))
+
+	fig = go.Figure(layout=go.Layout(height=400, width=400))
+
+	fig.add_trace(go.Scatterpolar(
+		r=data_close_line.values,
+		theta=data_close_line.index,
+		line_color="blue",
+		showlegend=False
+	))
+
+	fig.add_trace(go.Scatterpolar(
+		r=data_avg_close_line.values,
+		theta=data_avg_close_line.index,
+		line_color="red",
+		name='Avg. of all subreddits'
+	))
+
+	fig.update_layout(
+	polar=dict(
+		radialaxis=dict(
+		visible=True,
+			range=[0, 0.15]
+		),
+	),
+	showlegend=True,
+		legend=dict(
+		orientation="h",
+		yanchor="bottom",
+		y=-0.2,
+		xanchor="right",
+		x=1.2),    
+	)
+
+	fig.update_polars(radialaxis_tickformat="0.1%")
+	fig.update_polars(radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
