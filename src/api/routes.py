@@ -52,20 +52,12 @@ def plot_source_target_frequencies():
     source_subreddit = request.args.get('source-subreddit')
     target_subreddit = request.args.get('target-subreddit')
     data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
-	
-    if source_subreddit is not None and target_subreddit is not None:
-        plot_title = f"Subreddit target: {target_subreddit}"
-    elif source_subreddit is not None:
-        plot_title = f"Subreddit source: {source_subreddit}"
-    elif target_subreddit is not None:
-        plot_title = f"Subreddit target: {target_subreddit}"
-    else:
-        plot_title = "Top targeted subreddits"
 
-    p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=500, title=plot_title,
-               toolbar_location=None, tools="")
+    p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=500,
+	    toolbar_location=None, tools="")
     p.hbar(y=list(data.index), right=data.values, height=0.9)
-    
+    p.xaxis.axis_label = "Number of times linked"
+
     return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
 
 @bp.route("/network")
