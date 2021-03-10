@@ -1,5 +1,4 @@
 import os
-import random
 from typing import Optional
 
 import pandas as pd
@@ -29,10 +28,6 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
-
-    def get_top_target_subreddits(self, num):
-        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
-            .sort_values("counts", ascending=False).head(num)
 
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
