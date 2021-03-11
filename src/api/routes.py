@@ -96,10 +96,6 @@ def plot_source_target_frequencies():
     target_subreddit = request.args.get('target-subreddit')
     data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
 
-    # p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=500,
-	#     toolbar_location=None, tools="")
-    # p.hbar(y=list(data.index), right=data.values, height=0.9)
-    # p.xaxis.axis_label = "Number of times linked"
 
     fig = go.Figure([go.Bar(
         x=data.values,
