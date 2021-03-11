@@ -88,7 +88,8 @@ def top_properties():
 			"bordercolor":"LightSteelBlue",
 			"borderwidth":0.5
 			},
-		font={"size": 9}
+		font={"size": 9},
+		margin={"t": 0}
 	)
 		
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -114,7 +115,8 @@ def plot_source_target_frequencies():
         height=400,
         dragmode=False,
         xaxis={"title": 'Number of posts'}, 
-        font={"size": 9}
+        font={"size": 9},
+		margin={"t": 0}
 	)
 
     return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -183,7 +185,8 @@ def properties_radar():
 			"y":-0.2,
 			"xanchor":"right",
 			"x":1.2
-		}, 
+		},
+		margin={"t": 0}
 	)
 	
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
