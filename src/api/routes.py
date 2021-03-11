@@ -63,7 +63,8 @@ def top_properties():
 			y=data.index, 
 			mode="markers",
 			name='Avg. of all subreddits',
-			marker_color='rgb(0, 62, 120)'
+			marker_color='rgb(0, 62, 120)',
+			marker_symbol="diamond"
 		))
 
 	fig.update_yaxes(autorange="reversed")
@@ -71,21 +72,23 @@ def top_properties():
 		width=400,
 		height=400,
 		dragmode=False,
-		xaxis=dict(
-			tickformat = '0.1%',
-			title = '% of all words in the post',
-			range=[0,0.1],
-			dtick=0.025
-			),
-		legend=dict(
-			orientation="h",
-			yanchor="bottom",
-			y=-0,
-			xanchor="right",
-			x=1,
-			bgcolor='rgba(0,0,0,0)'),
-		font=dict(
-            size=9)
+		xaxis={
+			"tickformat":'0.1%',
+			"title":'% of all words in the post',
+			"range":[0,0.1],
+			"dtick":0.025
+		},
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":0.01,
+			"xanchor":"right",
+			"x":0.99,
+			"bgcolor":'rgba(0,0,0,0)',
+			"bordercolor":"LightSteelBlue",
+			"borderwidth":0.5
+			},
+		font={"size": 9}
 	)
 		
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -110,7 +113,7 @@ def plot_source_target_frequencies():
         width=500,
         height=400,
         dragmode=False,
-        xaxis={"title": 'Number of posts',}, 
+        xaxis={"title": 'Number of posts'}, 
         font={"size": 9}
 	)
 
@@ -166,20 +169,21 @@ def properties_radar():
 	))
 
 	fig.update_layout(
-		polar=dict(
-			radialaxis=dict(
-				visible=True,
-				range=[0, 0.15],),
-			),
+		polar =
+			{"radialaxis": {
+				"visible":True,
+				"range":[0, 0.15]
+				}
+		},
 		dragmode=False,
 		showlegend=True,
-		legend=dict(
-			orientation="h",
-			yanchor="bottom",
-			y=-0.2,
-			xanchor="right",
-			x=1.2
-			), 
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":-0.2,
+			"xanchor":"right",
+			"x":1.2
+		}, 
 	)
 	
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
