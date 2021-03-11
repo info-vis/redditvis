@@ -70,7 +70,7 @@ def top_properties():
 	fig.update_yaxes(autorange="reversed")
 	fig.update_layout(
 		width=400,
-		height=400,
+		height=300,
 		dragmode=False,
 		xaxis={
 			"tickformat":'0.1%',
@@ -111,8 +111,8 @@ def plot_source_target_frequencies():
 
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
-        width=500,
-        height=400,
+        width=400,
+        height=300,
         dragmode=False,
         xaxis={"title": 'Number of posts'}, 
         font={"size": 9},
@@ -154,7 +154,7 @@ def properties_radar():
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
-	fig = go.Figure(layout=go.Layout(height=400, width=400))
+	fig = go.Figure(layout=go.Layout(height=300, width=300))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
@@ -182,10 +182,11 @@ def properties_radar():
 		legend={
 			"orientation":"h",
 			"yanchor":"bottom",
-			"y":-0.2,
+			"y":0,
 			"xanchor":"right",
 			"x":1.2
 		},
+		font={"size": 9},
 		margin={"t": 0}
 	)
 	
@@ -199,14 +200,15 @@ def correlation_plot():
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_correlation_data(source_subreddit, target_subreddit)
 
-	fig = px.scatter(data, x=data['FRACTION_OF_ALPHABETICAL_CHARS'], y=data['AUTOMATED_READIBILITY_INDEX'], opacity=0.4, trendline="ols", trendline_color_override="red")
+	fig = px.scatter(data, x=data['FRACTION_OF_ALPHABETICAL_CHARS'], y=data['AUTOMATED_READIBILITY_INDEX'], opacity=0.4, trendline="ols", trendline_color_override="rgb(0, 62, 120)")
 
-	fig.update_traces(marker={"color":"green"})
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(
 		width=400,
-		height=400,
+		height=300,
 		dragmode=False,
-		font={'size':9})
+		font={'size':9},
+		margin={"t": 0})
 		
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
