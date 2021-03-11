@@ -13,6 +13,7 @@ from src.api.model.body_model import BodyModel
 
 @bp.route('/sentiment-box')
 def sentiment_box():
+	
 	source_subreddit = request.args.get('source-subreddit')
 
 	if source_subreddit is None:
@@ -20,17 +21,9 @@ def sentiment_box():
 	
 	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
 
-	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
-	p.axis.visible = False
-	p.toolbar.logo = None
-	p.toolbar_location = None
-
-	for i in range(len(sentiments)):
-		if sentiments[i] == 1:
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
-		else:  
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')  
-	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
+	#TODO merge sentbox data into JSON 
+  
+	return json.dumps(sentiments)
 
 @bp.route('/top-properties')
 def top_properties():

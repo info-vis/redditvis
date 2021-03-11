@@ -1,6 +1,11 @@
 Vue.component('sentiment-box', {
     data: function() {
         return {
+            data: null,
+            width: 400,
+            barWidth: null,
+            barHeight: 50,
+            colors: ['#00ff00','#ff0900'],
             isLoading: false
         }
     },
@@ -11,10 +16,10 @@ Vue.component('sentiment-box', {
         },
     },
     watch: {
-        sourceSubreddit: "fetchAPIData"
+        sourceSubreddit: "createPlot"
     },
     methods: {
-        async fetchPlot() {
+        async fetchAPIData() {
             document.getElementById("sentiment-box").innerHTML = "";
             if (this.sourceSubreddit) {
                 this.isLoading = true
@@ -29,17 +34,51 @@ Vue.component('sentiment-box', {
 
                 const sentimentResponse = await fetch(url);
                 const sentimentObject = await sentimentResponse.json();
+                this.data = sentimentObject
 
-                window.Bokeh.embed.embed_item(sentimentObject, 'sentiment-box')
                 this.isLoading = false
             }
+        
         },
-        async fetchAPIData() {
-            this.fetchPlot()
-        }
+        
+        createPlot: async function(){
+            await this.fetchAPIData()
+            if (!this.data) {
+                return
+            }
+            this.barWidth = this.width / this.data.length
+            console.log(this.barWidth)
+            console.log(this.width)
+            console.log(this.data.length)
+            var graph = d3.select("#sentiment-box")
+                      .append("svg")
+                      .attr("width", this.width)
+                      .attr("height", this.barHeight);
+    
+            var bar = graph.selectAll("g")
+                      .data(this.data)
+                      .enter()
+                      .append("g")
+                      .attr("transform", (d, i) => {
+                            return "translate(" + i * this.barWidth + ",0)";
+                      });
+    
+            bar.append("rect")
+            .attr("width", this.barWidth)
+            .attr("height", this.barHeight)
+            .attr("fill", (d)=>{
+                if (d < 1) {
+                    return this.colors[1];
+                } else {return this.colors[0];}
+            });
+        },
+        
     },
+    
+
     mounted: async function(){
-        this.fetchAPIData()
+        this.createPlot()
+        
     },
     template: `
     <div>
@@ -52,6 +91,6 @@ Vue.component('sentiment-box', {
             <small> <strong> Post sentiment per time </strong></small>
             </p>
         </div>
-        <div v-show="!isLoading" id="sentiment-box" class="bk-root"></div>
+        <div v-show="!isLoading" id="sentiment-box"></div>
     </div> `
 })
