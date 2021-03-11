@@ -26,9 +26,9 @@ Vue.component('plot-source-target', {
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
             if (!(this.sourceSubreddit && this.targetSubreddit)) {
-                window.Bokeh.embed.embed_item(freqObject, 'plot-source-target')
+                Plotly.react(document.getElementById("plot-source-target"), freqObject.data, freqObject.layout, {displayModeBar: false})
             }
-            document.getElementById("plot-source-target").innerHTML = "";
+            // document.getElementById("plot-source-target").innerHTML = "";
             this.isLoading = false
         },
         async fetchAPIData() {
