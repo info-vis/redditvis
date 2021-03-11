@@ -1,7 +1,7 @@
 import os
-import networkx as nx
 from typing import Optional
 
+import networkx as nx
 import pandas as pd
 
 
@@ -38,10 +38,6 @@ class BodyModel:
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
 
-    def get_top_target_subreddits(self, num):
-        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
-            .sort_values("counts", ascending=False).head(num)
-
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
         posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
@@ -67,22 +63,22 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+        return data.loc[:,['LIWC_Family', 'LIWC_Friends', 'LIWC_Humans', 'LIWC_Posemo', 'LIWC_Negemo', 'LIWC_Anx', 'LIWC_Anger', 'LIWC_Sad', 'LIWC_Insight', 'LIWC_Cause', 'LIWC_Discrep', 'LIWC_Tentat', 'LIWC_Certain', 'LIWC_Inhib', 'LIWC_Incl', 'LIWC_Excl', 'LIWC_See', 'LIWC_Hear', 'LIWC_Feel', 'LIWC_Body', 'LIWC_Health', 'LIWC_Sexual', 'LIWC_Ingest', 'LIWC_Motion', 'LIWC_Space', 'LIWC_Time', 'LIWC_Work', 'LIWC_Achiev', 'LIWC_Leisure', 'LIWC_Home', 'LIWC_Money', 'LIWC_Relig', 'LIWC_Death']].mean().sort_values(ascending=False).head(10)
     
     def get_top_properties_average(self):
-        data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
+        data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean()
         return data
-    
-    def get_frequency(self, source_subreddit):
-        dict_source_target = {}
-        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
-        for target in filtered_by_source['TARGET_SUBREDDIT']:
-            if target not in dict_source_target:
-                dict_source_target[target] = 1
-            else:
-                dict_source_target[target] += 1
-        return dict_source_target
-    
+
+    def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        if source_subreddit is not None:
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif target_subreddit is not None:
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
+
+            
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
@@ -165,3 +161,17 @@ class BodyModel:
         #     .rename(columns={0: "count"})\
         #     .sort_values("count", ascending=False)
         ######## v2 end ########
+
+    def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+
+    def get_properties_radar_average(self):
+        data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+        return data

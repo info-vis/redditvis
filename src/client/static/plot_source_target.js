@@ -5,10 +5,8 @@ Vue.component('plot-source-target', {
         }
     },
     props: {
-        sourceSubreddit: {
-            default: null,
-            type: String
-        }
+        sourceSubreddit: String,
+        targetSubreddit: String
     },
     watch: {
         sourceSubreddit: "fetchAPIData",
@@ -20,24 +18,26 @@ Vue.component('plot-source-target', {
             let url = `${apiEndpoint}source-target-frequencies`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
-            if (this.sourceSubreddit && this.targetSubreddit) {
-                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery 
-            } else if (this.sourceSubreddit) {
+            if (this.sourceSubreddit) {
                 url = url + "?" + sourceSubredditQuery
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
-            
-            document.getElementById("plot-source-target").innerHTML = "";
-            window.Bokeh.embed.embed_item(freqObject, 'plot-source-target')
+            if (!(this.sourceSubreddit && this.targetSubreddit)) {
+                Plotly.react(document.getElementById("plot-source-target"), freqObject.data, freqObject.layout, {displayModeBar: false})
+            } else {
+                Plotly.purge(document.getElementById("plot-source-target"))
+            }
+
             this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
         }
     },
+
     created: async function(){
         this.fetchAPIData()
     },
@@ -48,11 +48,17 @@ Vue.component('plot-source-target', {
             </div>
         </div>
         <div v-show="!isLoading">
-            <p class="mb-0 mt-1" >
-            <small> <strong> Top target subreddits </strong></small>
+            <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
+            </p>
+            <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
+                <small> <strong> Top source subreddits </strong></small>
+            </p>
+            <p class="mb-0 mt-1" v-else>
+                <small> <strong> Top target subreddits </strong></small>
             </p>
         </div>
         <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
     </div> `
+
     
 })
