@@ -102,8 +102,8 @@ def plot_source_target_frequencies():
         y=data.index, 
         orientation='h', 
         showlegend=False, 
-        marker_color='rgb(64, 138, 207)')
-	])
+        marker_color='rgb(64, 138, 207)'
+    )])
 
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
