@@ -71,7 +71,7 @@ def top_properties():
 		width=400,
 		height=400,
 		dragmode=False,
-		xaxis = dict(
+		xaxis=dict(
 			tickformat = '0.1%',
 			title = '% of all words in the post',
 			range=[0,0.1],
@@ -114,8 +114,8 @@ def plot_source_target_frequencies():
         width=500,
         height=400,
         dragmode=False,
-        xaxis = dict(
-            title = 'Number of posts',
+        xaxis=dict(
+            title='Number of posts',
             ),
 		font=dict(
             size=9)
@@ -173,20 +173,20 @@ def properties_radar():
 	))
 
 	fig.update_layout(
-	polar = dict(
-		radialaxis=dict(
-			visible=True,
-			range=[0, 0.15],),
-		),
-	dragmode=False,
-	showlegend=True,
-	legend=dict(
-		orientation="h",
-		yanchor="bottom",
-		y=-0.2,
-		xanchor="right",
-		x=1.2
-		), 
+		polar=dict(
+			radialaxis=dict(
+				visible=True,
+				range=[0, 0.15],),
+			),
+		dragmode=False,
+		showlegend=True,
+		legend=dict(
+			orientation="h",
+			yanchor="bottom",
+			y=-0.2,
+			xanchor="right",
+			x=1.2
+			), 
 	)
 	
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])

@@ -28,7 +28,6 @@ Vue.component('plot-source-target', {
             if (!(this.sourceSubreddit && this.targetSubreddit)) {
                 Plotly.react(document.getElementById("plot-source-target"), freqObject.data, freqObject.layout, {displayModeBar: false})
             }
-            // document.getElementById("plot-source-target").innerHTML = "";
             this.isLoading = false
         },
         async fetchAPIData() {
