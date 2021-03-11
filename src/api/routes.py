@@ -114,11 +114,8 @@ def plot_source_target_frequencies():
         width=500,
         height=400,
         dragmode=False,
-        xaxis=dict(
-            title='Number of posts',
-            ),
-		font=dict(
-            size=9)
+        xaxis={"title": 'Number of posts',}, 
+        font={"size": 9}
 	)
 
     return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
