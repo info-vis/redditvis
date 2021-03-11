@@ -108,3 +108,13 @@ class BodyModel:
     def get_properties_radar_average(self):
         data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
         return data
+
+    def get_correlation_data(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None, property1='FRACTION_OF_ALPHABETICAL_CHARS', property2='AUTOMATED_READIBILITY_INDEX'):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data[[property1, property2]]

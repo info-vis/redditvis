@@ -189,3 +189,22 @@ def properties_radar():
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/correlation")
+def correlation_plot():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_correlation_data(source_subreddit, target_subreddit)
+
+	fig = px.scatter(data, x=data['FRACTION_OF_ALPHABETICAL_CHARS'], y=data['AUTOMATED_READIBILITY_INDEX'], opacity=0.4, trendline="ols", trendline_color_override="red")
+
+	fig.update_traces(marker={"color":"green"})
+	fig.update_layout(
+		width=400,
+		height=400,
+		dragmode=False,
+		font={'size':9})
+		
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+
