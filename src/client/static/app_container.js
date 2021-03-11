@@ -9,14 +9,14 @@ Vue.component("app-container", {
       selectedSourceSubreddit: null,
       selectedTargetSubreddit: null,
       showSubredditNames: false,
-      filterValue: null 
+      filterValue: null
     }
   },
 
   computed: {
     detailsOnDemandCardTitle: function () {
       if (this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
-        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`}    
+        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`}
       else if (this.selectedSourceSubreddit) {
         return `Details for the subreddit: ${this.selectedSourceSubreddit}`}
       else if (this.selectedTargetSubreddit) {
@@ -125,7 +125,7 @@ Vue.component("app-container", {
 
         <!-- Side bar -->
         <div class="col-md-3">
-          <div class="row"> 
+          <div class="row">
             <div class="col">
               <div class="mb-1">
                 <select-subreddit
@@ -140,7 +140,7 @@ Vue.component("app-container", {
               </div>
             </div>
           </div>
-          <div class="row"> 
+          <div class="row">
            <div class="col">
               <div class="my-1">
                 <select-subreddit
@@ -207,6 +207,12 @@ Vue.component("app-container", {
             <div class="card-body">
               <div class="row">
                 <div class="col">
+                  <aggregates-component :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
+                  </aggregates-component>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
                   <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
                   </properties-plot>
                 </div>
@@ -215,7 +221,7 @@ Vue.component("app-container", {
                 </div>
                 <div class="col">
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
-                </div>    
+                </div>
               </div>
             </div>
           </div>

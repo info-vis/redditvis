@@ -16,10 +16,10 @@ Vue.component('properties-radar', {
         async fetchPlot() {
             this.isLoading = true
             let url = `${apiEndpoint}properties-radar`
-            const sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-            const targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
+            let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
+            let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
             if (this.sourceSubreddit && this.targetSubreddit) {
-                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery 
+                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
             } else if (this.sourceSubreddit) {
                 url = url + "?" + sourceSubredditQuery
             } else if (this.targetSubreddit) {
@@ -44,7 +44,7 @@ Vue.component('properties-radar', {
     <div>
         <div v-if="isLoading" class="d-flex justify-content-center">
             <div class="spinner-grow my-5" role="status">
-        </div>        
+        </div>
         </div>
         <div v-show="!isLoading">
             <p class="mb-0 mt-1" >

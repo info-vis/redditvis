@@ -4,10 +4,11 @@ from math import pi
 
 import bokeh
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
-from flask import request
+from flask import request, jsonify
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
@@ -20,7 +21,7 @@ def sentiment_box():
 
 	if source_subreddit is None:
 		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
-	
+
 	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
 
 	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
@@ -31,8 +32,8 @@ def sentiment_box():
 	for i in range(len(sentiments)):
 		if sentiments[i] == 1:
 				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
-		else:  
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')  
+		else:
+				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')
 	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
 
 @bp.route('/top-properties')
@@ -53,7 +54,7 @@ def top_properties():
 	p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
 	p.xaxis.minor_tick_line_color = None
 	p.xaxis.axis_label = "% of all words in the post"
-	
+
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 
 @bp.route('/source-target-frequencies')
@@ -74,14 +75,14 @@ def network():
 	"""Returns the network graph data.
 	Format: {
 		"nodes": [
-			"trendingsubreddits", 
+			"trendingsubreddits",
 			"streetfighter",
 			"changelog",
 			"sf4"
 		]
 		"links": [
-			["trendingsubreddits", "changelog", 548], 
-			["streetfighter", "sf4", 279], 
+			["trendingsubreddits", "changelog", 548],
+			["streetfighter", "sf4", 279],
 		]
 	}
 	Returns:
@@ -98,7 +99,7 @@ def properties_radar():
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
 	data_avg = BodyModel.getInstance().get_properties_radar_average()
-	
+
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
@@ -132,9 +133,19 @@ def properties_radar():
 		y=-0.2,
 		xanchor="right",
 		x=1.2
-		), 
+		),
 	)
-	
+
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/aggregates")
+def aggregates():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
+	data_avg = BodyModel.getInstance().get_aggregates()
+
+	return jsonify({"data": data.to_dict(),
+	"data_avg": data_avg.to_dict() })
