@@ -426,7 +426,7 @@ Vue.component('graph-network', {
                     <div class="col">
                         <button title="Reset force controls" class="btn btn-primary btn-sm mb-2" @click="resetForceData" @click.middle="showFpsCounter"><i class="bi bi-sliders"></i></button><br/>
                     </div>
-                    <div class="col">
+                    <div class="col text-end">
                         <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="updateData"><i class="bi bi-tropical-storm"></i></button><br/>
                     </div>
                 </div>
@@ -440,7 +440,7 @@ Vue.component('graph-network', {
                 <input type="range" class="form-range" min="-5" max="30" step=".1" id="customRange2" v-model="d3ForceChargeDistanceMin">
 
                 <label for="customRange2" class="form-label">Max force distance</label>: <strong>{{ d3ForceChargeDistanceMax }}</strong>
-                <input type="range" class="form-range" min="-5" max="30" step=".1" id="customRange2" v-model="d3ForceChargeDistanceMax">
+                <input type="range" class="form-range" min="-5" max="3000" step="10" id="customRange2" v-model="d3ForceChargeDistanceMax">
 
                 <label for="customRange2" class="form-label">Link distance</label>: <strong>{{ d3ForceLinkDistance }}</strong>
                 <input type="range" class="form-range" min=1 max="500" step="1" id="customRange2" v-model="d3ForceLinkDistance">
