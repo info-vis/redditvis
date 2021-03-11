@@ -3,9 +3,8 @@ Vue.component('sentiment-box', {
         return {
             data: null,
             width: 400,
-            barWidth: null,
             barHeight: 50,
-            colors: ['#00ff00','#ff0900'],
+            colors: ['#00ff00','#ff0900', '#00000045'],
             isLoading: false
         }
     },
@@ -18,6 +17,16 @@ Vue.component('sentiment-box', {
     watch: {
         sourceSubreddit: "createPlot"
     },
+    computed: {
+        barWidth(){
+            return this.width / this.data.length
+        },
+        strokeWidth(){
+            return (this.widht / this.data.lenght) * 0.05
+        }
+        // this.strokeWidth = this.barWidth*0.05
+    },
+
     methods: {
         async fetchAPIData() {
             document.getElementById("sentiment-box").innerHTML = "";
@@ -46,9 +55,6 @@ Vue.component('sentiment-box', {
             if (!this.data) {
                 return
             }
-            this.barWidth = this.width / this.data.length
-            console.log(this.barWidth)
-            console.log(this.width)
             console.log(this.data.length)
             var graph = d3.select("#sentiment-box")
                       .append("svg")
@@ -66,6 +72,8 @@ Vue.component('sentiment-box', {
             bar.append("rect")
             .attr("width", this.barWidth)
             .attr("height", this.barHeight)
+            .attr("stroke-width",this.strokeWidth)
+            .attr("stroke", this.colors[2])
             .attr("fill", (d)=>{
                 if (d < 1) {
                     return this.colors[1];
