@@ -2,7 +2,7 @@ Vue.component("aggregates-component", {
   data: function() {
     return {
       isLoading: false,
-      myData: null
+      myData: 1
     }
   },
   props: {
@@ -36,8 +36,18 @@ Vue.component("aggregates-component", {
   },
   template: `
   <div>
+    <div v-if="isLoading" class="d-flex justify-content-center">
+      <div class="spinner-grow my-5" role="status">
+      </div>
+    </div>
+    <div v-show="!isLoading">
+        <p class="mb-0 mt-1" >
+        <small> <strong> Post Aggregates </strong></small>
+        </p>
+    </div>
+    <div v-show="!isLoading" id="aggregates-component" class="bk-root"></div>
 
-    {{ myData }}
+    <pre>{{ myData.data }}</pre>
 
   </div>
   `
