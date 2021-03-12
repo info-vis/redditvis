@@ -1,3 +1,4 @@
+// Initial state for the force related data. Used to reset the state programmatically.
 function d3ForceInitialState() {
     return {
         d3ForceChargeStrength: -30,
@@ -20,7 +21,7 @@ Vue.component('graph-network', {
             d3Simulation: null,
             d3Canvas: null,
             d3Context: null,
-            d3Transform: d3.zoomIdentity,
+            d3Transform: null,
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
             d3NodeRadius: 5,
             d3LinkWidth: 1,
@@ -41,7 +42,7 @@ Vue.component('graph-network', {
         showSubredditNames: "simulationUpdate",
         selectedSourceSubreddit: "simulationUpdate",
         selectedTargetSubreddit: "simulationUpdate",
-        networkData: "updateData",
+        networkData: "loadNetworkData",
         d3ForceChargeStrength: function () {
             this.setForceSimulation()
         },
@@ -70,14 +71,16 @@ Vue.component('graph-network', {
             this.d3Context.save();
             this.clearCanvas()
             this.setBackgroundColor()
+
             this.d3Context.translate(this.d3Transform.x, this.d3Transform.y);
             this.d3Context.scale(this.d3Transform.k, this.d3Transform.k);
+
+            // Draw the network
             this.drawLinks(this.links)
             this.drawArrows(this.links)
-
             this.nodes.forEach(node => this.drawNode(node, this.d3NodeRadius))
-
             this.drawSelectedSubreddits()
+
             this.d3Context.restore();
         },
         zoomed(event) {
@@ -234,13 +237,14 @@ Vue.component('graph-network', {
         },
         drawNodeName(node, offset = 8) {
             this.d3Context.font = "5px Verdana";
-            this.d3Context.fillText(node.id, node.x + offset, node.y);
+            // this.d3Context.fillText(node.id, node.x + offset, node.y);
+            this.d3Context.fillText(`c: ${node.collapse}. v: ${node.visible}`, node.x + offset, node.y);
         },
         findNodeById(id) { // id = subreddit
             return this.nodes.filter(node => node.id == id)[0]
         },
-        panToSubreddit(subredditName) {
-            const selectedNode = this.findNodeById(subredditName)
+        panToNode(nodeId) {
+            const selectedNode = this.findNodeById(nodeId)
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2
@@ -274,8 +278,9 @@ Vue.component('graph-network', {
         dragSubject(event) {
             const x = this.d3Transform.invertX(event.x);
             const y = this.d3Transform.invertY(event.y);
-            const node = this.findNode(this.nodes, x, y, this.d3NodeRadius);
+            let node = this.findNode(this.nodes, x, y);
             if (node) {
+                node = this.handleNodeClick(node)
                 node.x = this.d3Transform.applyX(node.x);
                 node.y = this.d3Transform.applyY(node.y);
             }
@@ -297,14 +302,12 @@ Vue.component('graph-network', {
             event.subject.fx = null;
             event.subject.fy = null;
         },
-        findNode(nodes, x, y, radius) {
-            const rSq = radius * radius;
-            let i;
-            for (i = nodes.length - 1; i >= 0; --i) {
-                const node = nodes[i],
-                    dx = x - node.x,
-                    dy = y - node.y,
-                    distSq = (dx * dx) + (dy * dy);
+        findNode(nodes, x, y) {
+            const rSq = this.d3NodeRadius * this.d3NodeRadius;
+            for (node of nodes) {
+                const dx = x - node.x
+                const dy = y - node.y
+                const distSq = (dx * dx) + (dy * dy)
                 if (distSq < rSq) {
                     return node;
                 }
@@ -312,30 +315,69 @@ Vue.component('graph-network', {
             // No node selected
             return undefined;
         },
-        setDimensionsOfCanvas() {
+        handleNodeClick(node) {
+            // this.deleteNode(node.id)
+            // this.addNode({...node, id: this.nodes.length})
+            return this.mutateNode(node.id, {...node, collapse: node.collapse ? !node.collapse : true})
+        },
+        setDimensionsOfCanvas(withUpdate=true) {
             var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
             this.d3Canvas.width = containerDimensions.width; // The width of the parent div of the canvas
             this.d3Canvas.height = window.innerHeight / 1.8; // A fraction of the height of the screen
-            this.simulationUpdate()
+            if (withUpdate) {
+                this.simulationUpdate()
+            }
         },
         burstSimulation() {
             this.d3Simulation.alpha(1)
             this.d3Simulation.restart()
         },
-        updateData() {
+        addNode(node) {
+            this.nodes.push(node)
+            this.loadDataIntoSimulation()
+        },
+        deleteNode(id) {
+            this.nodes = this.nodes.filter(node => node.id != id)
+            this.links = this.links.filter(node => node.source.id != id)
+            this.links = this.links.filter(node => node.target.id != id)
+            this.loadDataIntoSimulation()
+        },
+        mutateNode(idOfNodeToMutate, newNode) {
+            const indexOfNode = this.nodes.findIndex(x => x.id == idOfNodeToMutate)
+            
+            // Mutate this.nodes
+            this.nodes[indexOfNode] = newNode
+
+            // Mutate this.links
+            this.links.forEach((link, index) => {
+                if (link.source.id == idOfNodeToMutate) {
+                    this.links[index] = { ...this.links[index], source: newNode}
+                } else if (link.target.id == idOfNodeToMutate) {
+                    this.links[index] = { ...this.links[index], target: newNode}
+                }
+            })
+            this.loadDataIntoSimulation()
+            return newNode
+        },
+        loadDataIntoSimulation() {
+
+            this.d3Simulation.nodes(this.nodes).force("link").links(this.links)
+        },
+        loadNetworkData() {
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
-            this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
+            this.nodes = this.networkData.nodes.map(d => ({ id: d[0], group: d[1]}))
 
-            this.d3Simulation.nodes(this.nodes)
-            this.d3Simulation.force("link").links(this.links)
+            this.loadDataIntoSimulation()
             this.burstSimulation()
         },
         resetForceData() {
             Object.assign(this.$data, { ...this.$data, ...d3ForceInitialState() })
         },
         setForceSimulation() {
-            this.d3Simulation.force("link", d3.forceLink(this.links).id(d => d.id)
+            // Overwrite the current simulation values with whatever is in Vue's data
+            this.d3Simulation.force("link", d3.forceLink()
+                .id(d => d.id)
                 .distance(this.d3ForceLinkDistance)
             )
             this.d3Simulation.force("charge", d3.forceManyBody()
@@ -347,23 +389,12 @@ Vue.component('graph-network', {
             this.d3Simulation.force("center", d3.forceCenter(this.width / 2, this.height / 2)
                 .strength(this.d3ForceCenterStrength)
             )
+            this.loadDataIntoSimulation()
             this.burstSimulation()
         },
         initForceSimulation() {
-            this.d3Simulation = d3.forceSimulation(this.nodes)
-                .force("link", d3.forceLink(this.links).id(d => d.id)
-                    .distance(this.d3ForceLinkDistance)
-                )
-                .force("charge", d3.forceManyBody()
-                    .strength(this.d3ForceChargeStrength)
-                    .theta(this.d3ForceChargeTheta)
-                    .distanceMin(this.d3ForceChargeDistanceMin)
-                    .distanceMax(this.d3ForceChargeDistanceMax)
-                )
-                .force("center", d3.forceCenter(this.width / 2, this.height / 2)
-                    .strength(this.d3ForceCenterStrength)
-                );
-            this.d3Simulation.on("tick", this.simulationUpdate);
+            this.d3Simulation = d3.forceSimulation()
+            this.setForceSimulation()
         },
         showFpsCounter() {
             var stats = new Stats();
@@ -380,22 +411,33 @@ Vue.component('graph-network', {
         },
 
         init() {
-            // Transform the rows from being arrays of values to objects.
+            // Transform the rows from being arrays of values to arrays of objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
-            this.nodes = this.networkData.nodes.map(d => ({ id: d, group: Math.floor(Math.random() * Math.floor(10)) }))
+            this.nodes = this.networkData.nodes.map(d => ({ id: d[0], group: d[1] }))
 
-            this.d3Canvas = document.getElementById("graph-network-canvas")
-            this.d3Context = this.d3Canvas.getContext("2d", { alpha: false })
+            // Set the canvas and the context to the Vue component's data
+            this.d3Canvas = d3.select("#graph-network-container")
+                .append('canvas')
+                .attr("class", "shadow-sm rounded border")
+                .attr("style", "width: 100%")
+                .node()
+            this.d3Context = this.d3Canvas.getContext("2d")
+
+            this.setDimensionsOfCanvas(withUpdate=false)
 
             // Performance optimizations
             this.d3Context.imageSmoothingEnabled = false
             this.d3Context.translate(0.5, 0.5)
-
-            this.setDimensionsOfCanvas()
-            this.setBackgroundColor()
-
+            this.d3Context.alpha = false
+            
+            // Force simulation
             this.initForceSimulation()
 
+            this.setBackgroundColor()
+
+            this.d3Transform = d3.zoomIdentity
+
+            // Initialize node drag and zoom & pan behavior
             d3.select(this.d3Context.canvas)
                 .call(d3.drag()
                     .subject(this.dragSubject)
@@ -406,6 +448,12 @@ Vue.component('graph-network', {
                     .scaleExtent([0.1, 8])
                     .on("zoom", this.zoomed))
                 .on("wheel", event => event.preventDefault())
+                .on("dblclick.zoom", null);
+
+            this.d3Simulation.on("tick", this.simulationUpdate);
+
+            this.loadDataIntoSimulation()
+
         }
     },
     created() {
@@ -427,7 +475,7 @@ Vue.component('graph-network', {
                         <button title="Reset force controls" class="btn btn-primary btn-sm mb-2" @click="resetForceData" @click.middle="showFpsCounter"><i class="bi bi-sliders"></i></button><br/>
                     </div>
                     <div class="col text-end">
-                        <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="updateData"><i class="bi bi-tropical-storm"></i></button><br/>
+                        <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="loadNetworkData"><i class="bi bi-tropical-storm"></i></button><br/>
                     </div>
                 </div>
                 <label for="customRange1" class="form-label">Force strength</label>: <strong>{{ d3ForceChargeStrength }}</strong>
@@ -451,11 +499,13 @@ Vue.component('graph-network', {
             </div>
             <div class="col">
                 <div id="graph-network-container">
-                    <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
-                    </canvas>
                 </div>
             </div>
         </div>
     </div>
     `
 })
+
+
+{/* <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
+</canvas> */}

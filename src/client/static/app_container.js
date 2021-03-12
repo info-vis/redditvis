@@ -2,7 +2,67 @@ Vue.component("app-container", {
   name: 'app-container',
   data: function () {
     return {
-      networkData: null,
+      // networkData: null,
+      networkData: {
+        links: [
+          ['a', 'b', 1],
+          ['a', 'c', 1],
+          ['a', 'd', 1],
+          ['a', 'e', 1],
+          ['a', 'f', 1],
+          ['a', 'g', 1],
+          ['a', 'h', 1],
+          ['a', 'i', 1],
+          ['a', 'j', 1],
+          ['a', 'k', 1],
+          ['a', 'l', 1],
+          ['a', 'm', 1],
+          ['a', 'n', 1],
+          ['a', 'o', 1],
+          ['a', 'p', 1],
+
+          ['c', 'q', 1]
+
+          // ['b', 'q', 1],
+          // ['b', 'r', 1],
+          // ['b', 's', 1],
+          // ['b', 't', 1],
+          // ['b', 'u', 1],
+          // ['b', 'v', 1],
+          // ['b', 'w', 1],
+          // ['b', 'x', 1],
+          // ['b', 'y', 1],
+          // ['b', 'z', 1],
+        ],
+        nodes: [
+          ['a', 1],
+          ['b', 1],
+          ['c', 2],
+          ['d', 1],
+          ['e', 1],
+          ['f', 1],
+          ['g', 1],
+          ['h', 1],
+          ['i', 1],
+          ['j', 1],
+          ['k', 1],
+          ['l', 1],
+          ['m', 1],
+          ['n', 1],
+          ['o', 1],
+          ['p', 1],
+          ['q', 3],
+          // ['r', 2],
+          // ['s', 2],
+          // ['t', 2],
+          // ['u', 2],
+          // ['v', 2],
+          // ['w', 2],
+          // ['x', 2],
+          // ['y', 2],
+          // ['z', 2],
+        ]
+      },
       numberOfLinks: 200,
       numberOfLinksSliderValue: 200,
       isLoadingData: false,
@@ -108,7 +168,7 @@ Vue.component("app-container", {
     }
   },
   created: async function () {
-    await this.fetchData()
+    // await this.fetchData()
   },
   template: `
     <div id="wrapper">
