@@ -119,6 +119,5 @@ class BodyModel:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:, ['FRACTION_OF_ALPHABETICAL_CHARS',
        'FRACTION_OF_DIGITS', 'FRACTION_OF_UP_CHARS', 'FRACTION_OF_WHITESPACE',
-       'FRACTION_OF_SPECIAL_CHARS', 'AVG_WORD_LENGTH', 'FRACTION_OF_STOPWORDS',
-       'AVG_NO_OF_CHARS_PER_SENTENCE', 'AVG_NO_OF_WORDS_PER_SENTENCE',
-       'AUTOMATED_READIBILITY_INDEX']].mean().sort_values(ascending=False)
+       'FRACTION_OF_SPECIAL_CHARS', 'FRACTION_OF_STOPWORDS',
+       'AUTOMATED_READIBILITY_INDEX']].mean().sort_values(ascending=False).round(decimals=3)

@@ -36,19 +36,64 @@ Vue.component("aggregates-component", {
   },
   template: `
   <div>
-    <div v-if="isLoading" class="d-flex justify-content-center">
-      <div class="spinner-grow my-5" role="status">
+    <div class="row">
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Automated Readability Index</h5>
+            <p class="card-text">{{myData.data["AUTOMATED_READIBILITY_INDEX"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Alphabetical Characters</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Digits</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_DIGITS"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Special Characters</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_SPECIAL_CHARS"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Stopwords</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_STOPWORDS"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Uppercase Characters</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_UP_CHARS"]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="height: 10rem;background-color: #eeeeee">
+          <div class="card-body">
+            <h5 class="card-title">Fraction of Whitespace</h5>
+            <p class="card-text">{{myData.data["FRACTION_OF_WHITESPACE"]}}</p>
+          </div>
+        </div>
       </div>
     </div>
-    <div v-show="!isLoading">
-        <p class="mb-0 mt-1" >
-        <small> <strong> Post Aggregates </strong></small>
-        </p>
-    </div>
-    <div v-show="!isLoading" id="aggregates-component" class="bk-root"></div>
-
-    <pre>{{ myData.data }}</pre>
-
   </div>
   `
 })
