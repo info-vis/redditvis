@@ -30,6 +30,15 @@ class NetworkGraphHelper:
                 ]
             }
         """
+        #     // {
+        #     //     "nodes": [
+        #     //         {
+        #     //             "id": "a",
+        #     //             "cluster": 1,
+        #     //             "type": "parent"
+        #     //         }
+        #     //     ]
+        #     // }
 
         def to_nodes(data):
             unique_sources = pd.DataFrame(data["SOURCE_SUBREDDIT"].unique())
