@@ -484,7 +484,7 @@ Vue.component('graph-network', {
         },
         loadNetworkData() {
             this.setDataFromNetworkData()
-            this.loadDataIntoSimulation()
+            this.loadDataIntoSimulation(isInitialLoad=true)
             this.burstSimulation()
         },
         resetForceData() {
