@@ -43,7 +43,7 @@ Vue.component('properties-plot', {
         <div class="row">
             <div class="col-md-10">
                 <p class="mb-0 mt-1" >
-                <small> <strong> Top semantic properties </strong></small>
+                <small> <strong> Top topics of the post </strong></small>
                 </p>
             </div>
             <div class="col-md-2">
