@@ -4,16 +4,17 @@ from math import pi
 
 import bokeh
 import numpy as np
-import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
-from flask import request, jsonify
+from flask import request
+from plotly import utils
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
-import plotly.io as pio
-from plotly import utils
+
 
 @bp.route('/sentiment-box')
 def sentiment_box():
@@ -41,21 +42,57 @@ def top_properties():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
-	data_avg = BodyModel.getInstance().get_top_properties_average()
+	data_intermediate = BodyModel.getInstance().get_top_properties_average()
+	data_avg = data_intermediate[data.index]
 
-	p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.10), toolbar_location=None, tools="")
-	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
-	p.asterisk(y=list(data_avg.index), x=list(data_avg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
-	p.ygrid.grid_line_color = None
-	p.legend.location = "bottom_right"
-	p.legend.background_fill_alpha = 0.2
-	p.legend.border_line_alpha = 0.5
-	p.legend.label_text_font_size = '8pt'
-	p.xaxis[0].formatter = NumeralTickFormatter(format="0.0%")
-	p.xaxis.minor_tick_line_color = None
-	p.xaxis.axis_label = "% of all words in the post"
+	fig = go.Figure()
 
-	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
+	fig.add_trace(
+		go.Bar(
+			x=data.values,
+			y=data.index,
+			orientation='h',
+			showlegend=False,
+			marker_color='rgb(64, 138, 207)',
+			name="Selection"
+		))
+
+	fig.add_trace(
+		go.Scatter(
+			x=data_avg.values,
+			y=data.index,
+			mode="markers",
+			name='Avg. of all subreddits',
+			marker_color='rgb(0, 62, 120)',
+			marker_symbol="diamond"
+		))
+
+	fig.update_yaxes(autorange="reversed")
+	fig.update_layout(
+		width=400,
+		height=400,
+		dragmode=False,
+		xaxis={
+			"tickformat":'0.1%',
+			"title":'% of all words in the post',
+			"range":[0,0.1],
+			"dtick":0.025
+		},
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":0.01,
+			"xanchor":"right",
+			"x":0.99,
+			"bgcolor":'rgba(0,0,0,0)',
+			"bordercolor":"LightSteelBlue",
+			"borderwidth":0.5
+			},
+		font={"size": 9},
+		margin={"t": 0}
+	)
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
@@ -63,12 +100,26 @@ def plot_source_target_frequencies():
     target_subreddit = request.args.get('target-subreddit')
     data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
 
-    p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=500,
-	    toolbar_location=None, tools="")
-    p.hbar(y=list(data.index), right=data.values, height=0.9)
-    p.xaxis.axis_label = "Number of times linked"
 
-    return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
+    fig = go.Figure([go.Bar(
+        x=data.values,
+        y=data.index,
+        orientation='h',
+        showlegend=False,
+        marker_color='rgb(64, 138, 207)'
+    )])
+
+    fig.update_yaxes(autorange="reversed")
+    fig.update_layout(
+        width=500,
+        height=400,
+        dragmode=False,
+        xaxis={"title": 'Number of posts'},
+        font={"size": 9},
+		margin={"t": 0}
+	)
+
+    return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route("/network")
 def network():
@@ -108,32 +159,34 @@ def properties_radar():
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
 		theta=data_close_line.index,
-		line_color="blue",
+		line_color='rgb(64, 138, 207)',
 		showlegend=False
 	))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_avg_close_line.values,
 		theta=data_avg_close_line.index,
-		line_color="red",
+		line_color='rgb(0, 62, 120)',
 		name='Avg. of all subreddits'
 	))
 
 	fig.update_layout(
-	polar = dict(
-		radialaxis=dict(
-			visible=True,
-			range=[0, 0.15],),
-		),
-	dragmode=False,
-	showlegend=True,
-	legend=dict(
-		orientation="h",
-		yanchor="bottom",
-		y=-0.2,
-		xanchor="right",
-		x=1.2
-		),
+		polar =
+			{"radialaxis": {
+				"visible":True,
+				"range":[0, 0.15]
+				}
+		},
+		dragmode=False,
+		showlegend=True,
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":-0.2,
+			"xanchor":"right",
+			"x":1.2
+		},
+		margin={"t": 0}
 	)
 
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])

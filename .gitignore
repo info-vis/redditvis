@@ -141,3 +141,4 @@ src/data/*
 !src/data/.gitkeep
 .DS_Store
 .vscode
+.local

@@ -25,10 +25,10 @@ Vue.component('properties-plot', {
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
-            const propertiesResponse = await fetch(url);
-            const propertiesPlot = await propertiesResponse.json();
-            document.getElementById("properties-plot").innerHTML = "";
-            Bokeh.embed.embed_item(propertiesPlot, 'properties-plot')
+            const propertiesPlotResponse = await fetch(url);
+            const propertiesPlot = await propertiesPlotResponse.json();
+            const graphDiv = document.getElementById("properties-plot")
+            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, {displayModeBar: false})
             this.isLoading = false
         },
         async fetchAPIData() {
@@ -49,6 +49,6 @@ Vue.component('properties-plot', {
             <small> <strong> Top semantic properties </strong></small>
             </p>
         </div>
-        <div v-show="!isLoading" id="properties-plot" class="bk-root"></div>
+        <div v-show="!isLoading" id="properties-plot" class="chart"></div>
     </div> `
 })

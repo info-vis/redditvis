@@ -207,21 +207,34 @@ Vue.component("app-container", {
             <div class="card-body">
               <div class="row">
                 <div class="col">
+<<<<<<< HEAD
                   <aggregates-component :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </aggregates-component>
                 </div>
               </div>
               <div class="row">
+=======
+                  <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
+                </div> 
+>>>>>>> c5d4da7cac1c07114d94c42a5ff465f23db3240d
                 <div class="col">
                   <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
                   </properties-plot>
                 </div>
                 <div class="col">
+<<<<<<< HEAD
                   <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
                 <div class="col">
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
                 </div>
+=======
+                  <properties-radar :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></properties-radar>
+                </div>    
+                <div class="col">
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
+                </div>                              
+>>>>>>> c5d4da7cac1c07114d94c42a5ff465f23db3240d
               </div>
             </div>
           </div>
