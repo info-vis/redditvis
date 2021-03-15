@@ -37,51 +37,57 @@ Vue.component("aggregates-component", {
   template: `
   <div>
     <div class="row">
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Alphabetical Characters</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h6>
+            <p class="card-text">Fraction of Alphabetical Characters</p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Digits</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_DIGITS"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_DIGITS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_DIGITS"]}}%</h6>
+            <p class="card-text">Fraction of Digits</p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Special Characters</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_SPECIAL_CHARS"]}}%</h6>
+            <p class="card-text">Fraction of Special Characters</p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Stopwords</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_STOPWORDS"]}}%</h6>
+            <p class="card-text">Fraction of Stopwords</p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Uppercase Characters</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_UP_CHARS"]}}%</h6>
+            <p class="card-text">Fraction of Uppercase Characters</p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card" style="height: 10rem;background-color: #eeeeee">
+      <div class="col-2">
+        <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
-            <h5 class="card-title">Fraction of Whitespace</h5>
-            <p class="card-text">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</p>
+            <h3 class="card-title">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_WHITESPACE"]}}%</h6>
+            <p class="card-text">Fraction of Whitespace</p>
           </div>
         </div>
       </div>

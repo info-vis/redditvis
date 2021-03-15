@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
-from flask import request
+from flask import request, jsonify
 from plotly import utils
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
