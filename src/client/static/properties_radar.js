@@ -52,6 +52,7 @@ Vue.component('properties-radar', {
                 <div v-if="isLoading" class="d-flex justify-content-center">
                     <div class="spinner-grow spinner-grow-sm" role="status"></div>
                 </div>
+            </div>
         </div>
         <div id="properties-radar" class="chart"></div>
     </div> `
