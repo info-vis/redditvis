@@ -70,7 +70,7 @@ def top_properties():
 	fig.update_yaxes(autorange="reversed")
 	fig.update_layout(
 		width=400,
-		height=400,
+		height=300,
 		dragmode=False,
 		xaxis={
 			"tickformat":'0.1%',
@@ -111,8 +111,8 @@ def plot_source_target_frequencies():
 
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
-        width=500,
-        height=400,
+        width=400,
+        height=300,
         dragmode=False,
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
@@ -154,7 +154,7 @@ def properties_radar():
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
-	fig = go.Figure(layout=go.Layout(height=400, width=400))
+	fig = go.Figure(layout=go.Layout(height=300, width=300))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
@@ -174,7 +174,7 @@ def properties_radar():
 		polar =
 			{"radialaxis": {
 				"visible":True,
-				"range":[0, 0.15]
+				"range":[0, 0.25]
 				}
 		},
 		dragmode=False,
@@ -182,10 +182,11 @@ def properties_radar():
 		legend={
 			"orientation":"h",
 			"yanchor":"bottom",
-			"y":-0.2,
+			"y":0,
 			"xanchor":"right",
 			"x":1.2
 		},
+		font={"size": 9},
 		margin={"t": 0}
 	)
 
@@ -202,3 +203,41 @@ def aggregates():
 
 	return jsonify({"data": data.to_dict(),
 	"data_avg": data_avg.to_dict() })
+
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/correlation")
+def correlation_plot():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	x_axis_property = request.args.get('x-axis-property', 'FRACTION_OF_ALPHABETICAL_CHARS')
+	y_axis_property = request.args.get('y-axis-property', 'AUTOMATED_READIBILITY_INDEX')
+	print(x_axis_property)
+	print(y_axis_property)
+
+	data = BodyModel.getInstance().get_correlation_data(
+		x_axis_property,
+		y_axis_property,
+		source_subreddit,
+		target_subreddit
+	)
+
+	fig = px.scatter(
+		data,
+		x=data[x_axis_property],
+		y=data[y_axis_property],
+		opacity=0.4,
+		trendline="ols",
+		trendline_color_override="rgb(0, 62, 120)"
+	)
+
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
+	fig.update_layout(
+		width=400,
+		height=300,
+		font={'size':9},
+		margin={"t": 0})
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)

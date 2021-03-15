@@ -42,15 +42,24 @@ Vue.component('properties-radar', {
 
     template: `
     <div>
+<<<<<<< HEAD
         <div v-if="isLoading" class="d-flex justify-content-center">
             <div class="spinner-grow my-5" role="status">
         </div>
+=======
+        <div class="row">
+            <div class="col-md-10">
+                <p class="mb-0 mt-1" >
+                <small> <strong> Psychological properties of posts </strong></small>
+                </p>
+            </div>
+            <div class="col-md-2">
+                <div v-if="isLoading" class="d-flex justify-content-center">
+                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                </div>
+            </div>
+>>>>>>> 23d58d1aa54b45b9f76e8057036a4e733543a967
         </div>
-        <div v-show="!isLoading">
-            <p class="mb-0 mt-1" >
-            <small> <strong> Psychological properties of posts </strong></small>
-            </p>
-        </div>
-        <div v-show="!isLoading" id="properties-radar" class="chart"></div>
+        <div id="properties-radar" class="chart"></div>
     </div> `
 })
