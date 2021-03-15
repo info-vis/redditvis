@@ -18,26 +18,23 @@ Vue.component('plot-source-target', {
             let url = `${apiEndpoint}source-target-frequencies`
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
-            if (this.sourceSubreddit) {
+            if (this.sourceSubreddit && this.targetSubreddit) {
+                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
+            } else if (this.sourceSubreddit) {
                 url = url + "?" + sourceSubredditQuery
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
             const freqResponse = await fetch(url);
             const freqObject = await freqResponse.json();
-            if (!(this.sourceSubreddit && this.targetSubreddit)) {
-                Plotly.react(document.getElementById("plot-source-target"), freqObject.data, freqObject.layout, {displayModeBar: false})
-            } else {
-                Plotly.purge(document.getElementById("plot-source-target"))
-            }
-
+            
+            Plotly.react(document.getElementById("plot-source-target"), freqObject.data, freqObject.layout, {displayModeBar: false})
             this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
         }
     },
-
     created: async function(){
         this.fetchAPIData()
     },
@@ -46,6 +43,7 @@ Vue.component('plot-source-target', {
         <div class="row"> 
             <div class="col-md-10">
                 <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
+                    <small> <strong> Number of posts </strong></small>
                 </p>
                 <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
                     <small> <strong> Top source subreddits </strong></small>
