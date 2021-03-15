@@ -61,10 +61,14 @@ class BodyModel:
         return data
 
     def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        if source_subreddit is not None:
+        if source_subreddit and target_subreddit:
+            return self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
+                .groupby(['TARGET_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif source_subreddit:
             return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
                 .size().sort_values(ascending=False).head(10)
-        elif target_subreddit is not None:
+        elif target_subreddit:
             return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
                 .size().sort_values(ascending=False).head(10)
         return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
@@ -108,3 +112,20 @@ class BodyModel:
     def get_properties_radar_average(self):
         data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
         return data
+
+    def get_correlation_data(
+        self, 
+        property1: str,
+        property2: str,
+        source_subreddit: Optional[str] = None,
+        target_subreddit: Optional[str] = None
+    ):
+
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data[[property1, property2]]
