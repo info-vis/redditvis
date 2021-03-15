@@ -190,20 +190,6 @@ def properties_radar():
 		margin={"t": 0}
 	)
 
-	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
-
-	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
-
-@bp.route("/aggregates")
-def aggregates():
-	source_subreddit = request.args.get('source-subreddit')
-	target_subreddit = request.args.get('target-subreddit')
-	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
-	data_avg = BodyModel.getInstance().get_aggregates()
-
-	return jsonify({"data": data.to_dict(),
-	"data_avg": data_avg.to_dict() })
-
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -239,5 +225,19 @@ def correlation_plot():
 		height=300,
 		font={'size':9},
 		margin={"t": 0})
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/aggregates")
+def aggregates():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
+	data_avg = BodyModel.getInstance().get_aggregates()
+
+	return jsonify({"data": data.to_dict(),
+	"data_avg": data_avg.to_dict() })
+
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
