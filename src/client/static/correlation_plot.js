@@ -29,7 +29,7 @@ Vue.component('correlation-plot', {
     methods: {
         async fetchPlot() {
             this.isLoading = true
-            let url = this.createApiUrl()
+            const url = this.createApiUrl()
             const correlationPlotResponse = await fetch(url);
             const correlationPlot = await correlationPlotResponse.json();
             const graphDiv = document.getElementById("correlation-plot")
