@@ -40,15 +40,18 @@ Vue.component('properties-plot', {
     },
     template: `
     <div>
-        <div v-if="isLoading" class="d-flex justify-content-center">
-            <div class="spinner-grow my-5" role="status">
+        <div class="row">
+            <div class="col-md-10">
+                <p class="mb-0 mt-1" >
+                <small> <strong> Top semantic properties </strong></small>
+                </p>
+            </div>
+            <div class="col-md-2">
+                <div v-if="isLoading" class="d-flex justify-content-center">
+                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                </div>
             </div>
         </div>
-        <div v-show="!isLoading">
-            <p class="mb-0 mt-1" >
-            <small> <strong> Top semantic properties </strong></small>
-            </p>
-        </div>
-        <div v-show="!isLoading" id="properties-plot" class="chart"></div>
+        <div id="properties-plot" class="chart"></div>
     </div> `
 })

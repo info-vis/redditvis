@@ -174,7 +174,7 @@ def properties_radar():
 		polar =
 			{"radialaxis": {
 				"visible":True,
-				"range":[0, 0.15]
+				"range":[0, 0.25]
 				}
 		},
 		dragmode=False,
@@ -190,7 +190,7 @@ def properties_radar():
 		margin={"t": 0}
 	)
 	
-	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
@@ -198,9 +198,26 @@ def properties_radar():
 def correlation_plot():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	data = BodyModel.getInstance().get_correlation_data(source_subreddit, target_subreddit)
+	x_axis_property = request.args.get('x-axis-property', 'FRACTION_OF_ALPHABETICAL_CHARS')
+	y_axis_property = request.args.get('y-axis-property', 'AUTOMATED_READIBILITY_INDEX')
+	print(x_axis_property)
+	print(y_axis_property)
+	
+	data = BodyModel.getInstance().get_correlation_data(
+		x_axis_property, 
+		y_axis_property,
+		source_subreddit,
+		target_subreddit 
+	)
 
-	fig = px.scatter(data, x=data['FRACTION_OF_ALPHABETICAL_CHARS'], y=data['AUTOMATED_READIBILITY_INDEX'], opacity=0.4, trendline="ols", trendline_color_override="rgb(0, 62, 120)")
+	fig = px.scatter(
+		data, 
+		x=data[x_axis_property], 
+		y=data[y_axis_property], 
+		opacity=0.4, 
+		trendline="ols", 
+		trendline_color_override="rgb(0, 62, 120)"
+	)
 
 	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(

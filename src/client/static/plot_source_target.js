@@ -43,21 +43,24 @@ Vue.component('plot-source-target', {
     },
     template: `
     <div>
-        <div v-if="isLoading" class="d-flex justify-content-center">
-            <div class="spinner-grow my-5" role="status">
+        <div class="row"> 
+            <div class="col-md-10">
+                <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
+                </p>
+                <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
+                    <small> <strong> Top source subreddits </strong></small>
+                </p>
+                <p class="mb-0 mt-1" v-else>
+                    <small> <strong> Top target subreddits </strong></small>
+                </p>
+            </div>
+            <div class="col-md-2">
+                <div v-if="isLoading" class="d-flex justify-content-center">
+                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                </div>
             </div>
         </div>
-        <div v-show="!isLoading">
-            <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
-            </p>
-            <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
-                <small> <strong> Top source subreddits </strong></small>
-            </p>
-            <p class="mb-0 mt-1" v-else>
-                <small> <strong> Top target subreddits </strong></small>
-            </p>
-        </div>
-        <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
+        <div id="plot-source-target" class="bk-root"></div>
     </div> `
 
     

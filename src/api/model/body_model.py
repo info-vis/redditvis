@@ -109,7 +109,14 @@ class BodyModel:
         data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
         return data
 
-    def get_correlation_data(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None, property1='FRACTION_OF_ALPHABETICAL_CHARS', property2='AUTOMATED_READIBILITY_INDEX'):
+    def get_correlation_data(
+        self, 
+        property1: str,
+        property2: str,
+        source_subreddit: Optional[str] = None,
+        target_subreddit: Optional[str] = None
+    ):
+
         data = self.data
         if source_subreddit is not None and target_subreddit is not None:
             data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
