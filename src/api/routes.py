@@ -152,6 +152,7 @@ def network():
 	else:
 		data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
+	print(type(network_graph['nodes'][0][2]))
 	return jsonify(network_graph)
 
 @bp.route("/properties-radar")

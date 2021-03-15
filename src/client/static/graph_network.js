@@ -269,8 +269,8 @@ Vue.component('graph-network', {
         },
         drawNodeName(node, offset = 8) {
             this.d3Context.font = "5px Verdana";
-            // this.d3Context.fillText(node.id, node.x + offset, node.y);
-            this.d3Context.fillText(`id: ${node.id} g: ${node.group} t: ${node.type} c: ${node.collapsed}`, node.x + offset, node.y);
+            this.d3Context.fillText(node.id, node.x + offset, node.y);
+            // this.d3Context.fillText(`id: ${node.id} g: ${node.group} t: ${node.type} c: ${node.collapsed}`, node.x + offset, node.y);
         },
         getNodeById(id) { // id = subreddit
             return this.nodes.filter(node => node.id == id)[0]
@@ -311,6 +311,7 @@ Vue.component('graph-network', {
             const x = this.d3Transform.invertX(event.x);
             const y = this.d3Transform.invertY(event.y);
             let node = this.findNode(this.nodes, x, y);
+            // To Do: sometimes it thinks it finds a node based on position, even if the node is collapsed (not visible on canvas)
             if (node) {
                 node = this.handleNodeClick(node)
                 node.x = this.d3Transform.applyX(node.x);
@@ -361,6 +362,7 @@ Vue.component('graph-network', {
         toggleCollapseChildren(group) {
             for (node of this.nodes) {
                 const belongsToGroup = node.group == group
+                console.log('trigger')
                 if (belongsToGroup) {
                     const mutatedNode = {...node, "collapsed": !node.collapsed}
                     this.mutateNode(node.id, mutatedNode)
@@ -372,8 +374,13 @@ Vue.component('graph-network', {
             //     this.mutateNode(childId, childNode)
             // })
         },
+        toggleCollapseAllChildren() {
+            const groups = this.nodes.map(x => x.group)
+            groups.forEach(x => this.toggleCollapseChildren(x))
+            this.simulationUpdate()
+        },
         getNodesToDraw() {
-            return this.nodes.filter(node => (!node.collapsed || node.type == "parent"))
+            return this.nodes.filter(node => (!node.collapsed || node.type != "child"))
         },
         getLinksToDraw() {
             const nodeIdsToDraw = this.getNodesToDraw().map(x => x.id)
@@ -422,63 +429,15 @@ Vue.component('graph-network', {
         getLinksFor(nodeId) {
             return this.links.filter(link => (link.source.id == nodeId) || (link.target.id == nodeId))
         },
-        addClusterableChildrenFor(node) {
-
-            // {
-            //     "nodes": [
-            //         {
-            //             "id": "a",
-            //             "cluster": 1,
-            //             "type": "parent"
-            //         }
-            //     ]
-            // }
-
-            const links = this.getLinksFor(node.id)
-
-            const clusterableLinks = []
-            links.forEach((link) => {
-                console.log('oi')
-                // See if the node on the other end has other neighbors than the node in question
-                // 1. Get links
-                const otherNodeId = link.source.id != node.id ? link.source.id : link.target.id
-                const linksOfOtherNode = this.getLinksFor(otherNodeId)
-                // 2. For each link, check if source id is one of two ids and target id is one of two ids
-                let clusterable = true
-                for (l of linksOfOtherNode) {
-                    console.log(l)
-                    const sourceIsGood = (l.source.id == otherNodeId || l.source.id == node.id)
-                    const targetIsGood = (l.target.id == otherNodeId || l.target.id == node.id)
-                    if (!( sourceIsGood && targetIsGood)) {
-                        clusterable = false
-                        break
-                    }
-                }
-                if (clusterable) {
-                    clusterableLinks.push(otherNodeId)
-                }
-            })
-            // Mark current node as clusterParent
-            
-            console.log('clusterableLinks:', clusterableLinks)
-            node.children = clusterableLinks
-            this.mutateNode(node.id, node)
-        },
         loadDataIntoSimulation(isInitialLoad=false) {
             if (isInitialLoad) {
                 this.d3Simulation.nodes(this.nodes).force("link").links(this.links)
             } else {
-                console.log('calling')
                 const linksToDraw = this.getLinksToDraw()
-                // this.drawLinks(linksToDraw)
-                // this.drawArrows(linksToDraw)
-                // Draw the nodes
-                const nodesToDraw = this.getNodesToDraw()
-                // nodesToDraw.forEach(node => this.drawNode(node, this.d3NodeRadius))
-                // this.drawSelectedSubreddits()
 
+                const nodesToDraw = this.getNodesToDraw()
+  
                 this.d3Simulation.nodes(nodesToDraw).force("link").links(linksToDraw)
-                // this.addChildrenToNodes(this.nodes)
                 this.burstSimulation()
             }
         },
@@ -528,10 +487,7 @@ Vue.component('graph-network', {
         setDataFromNetworkData() {
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
-            this.nodes = this.networkData.nodes.map(d => ({ id: d[0], group: d[1], type: d[2]}))
-        },
-        addChildrenToNodes(nodes) {
-            nodes.forEach(node => this.addClusterableChildrenFor(node))
+            this.nodes = this.networkData.nodes.map(d => ({ id: d[0], type: d[1], group: d[2], collapsed: true}))
         },
         init() {
             this.setDataFromNetworkData()
@@ -593,6 +549,9 @@ Vue.component('graph-network', {
                 <div class="row">
                     <div class="col">
                         <button title="Reset force controls" class="btn btn-primary btn-sm mb-2" @click="resetForceData" @click.middle="showFpsCounter"><i class="bi bi-sliders"></i></button><br/>
+                    </div>
+                    <div class="col">
+                        <button title="Toglle collapse all" class="btn btn-primary btn-sm mb-2" @click="toggleCollapseAllChildren"><i class="bi bi-sliders"></i></button><br/>
                     </div>
                     <div class="col text-end">
                         <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="loadNetworkData"><i class="bi bi-tropical-storm"></i></button><br/>

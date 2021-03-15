@@ -2,40 +2,40 @@ Vue.component("app-container", {
   name: 'app-container',
   data: function () {
     return {
-      // networkData: null,
-      networkData: {
-        links: [
-          ['a', 'b', 1],
-          ['a', 'c', 1],
-          ['a', 'd', 1],
-          ['a', '1', 1],
-          ['a', '2', 1],
-          ['a', '3', 1],
-          ['a', '4', 1],
-          ['a', '5', 1],
-          ['a', '6', 1],
-          ['a', '7', 1],
-          ['a', '8', 1],
-          ['a', '9', 1],
-          ['c', 'e', 1],
-        ],
-        nodes: [
-          ['a', 1, 'parent'],
-          ['b', 1, 'child'],
-          ['1', 1, 'child'],
-          ['2', 1, 'child'],
-          ['3', 1, 'child'],
-          ['4', 1, 'child'],
-          ['5', 1, 'child'],
-          ['6', 1, 'child'],
-          ['7', 1, 'child'],
-          ['8', 1, 'child'],
-          ['9', 1, 'child'],
-          ['c', null, null],
-          ['d', 1, 'child'],
-          ['e', null, null],
-        ]
-      },
+      networkData: null,
+      // networkData: {
+      //   links: [
+      //     ['a', 'b', 1],
+      //     ['a', 'c', 1],
+      //     ['a', 'd', 1],
+      //     ['a', '1', 1],
+      //     ['a', '2', 1],
+      //     ['a', '3', 1],
+      //     ['a', '4', 1],
+      //     ['a', '5', 1],
+      //     ['a', '6', 1],
+      //     ['a', '7', 1],
+      //     ['a', '8', 1],
+      //     ['a', '9', 1],
+      //     ['c', 'e', 1],
+      //   ],
+      //   nodes: [
+      //     ['a', 1, 'parent'],
+      //     ['b', 1, 'child'],
+      //     ['1', 1, 'child'],
+      //     ['2', 1, 'child'],
+      //     ['3', 1, 'child'],
+      //     ['4', 1, 'child'],
+      //     ['5', 1, 'child'],
+      //     ['6', 1, 'child'],
+      //     ['7', 1, 'child'],
+      //     ['8', 1, 'child'],
+      //     ['9', 1, 'child'],
+      //     ['c', null, null],
+      //     ['d', 1, 'child'],
+      //     ['e', null, null],
+      //   ]
+      // },
       numberOfLinks: 200,
       numberOfLinksSliderValue: 200,
       isLoadingData: false,
@@ -136,12 +136,12 @@ Vue.component("app-container", {
           }).map(link => link[0])
           return sourcesOfSelectedTargetSubreddit
         }
-        return this.networkData && this.networkData.nodes
+        return this.networkData && this.networkData.nodes.map(x => x[0])
       }
     }
   },
   created: async function () {
-    // await this.fetchData()
+    await this.fetchData()
   },
   template: `
     <div id="wrapper">
