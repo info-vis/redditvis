@@ -24,7 +24,7 @@ Vue.component('sentiment-box', {
                 if (this.sourceSubreddit) {
                     sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
                 }
-                
+
                 url = url + "?" + sourceSubredditQuery
 
                 const sentimentResponse = await fetch(url);

@@ -58,5 +58,5 @@ Vue.component('plot-source-target', {
         <div v-show="!isLoading" id="plot-source-target" class="bk-root"></div>
     </div> `
 
-    
+
 })
