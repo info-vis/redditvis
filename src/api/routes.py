@@ -40,7 +40,7 @@ def top_properties():
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 
 @bp.route('/average-sentiment')
-def sentiment_box():
+def average_sentiment():
 	
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
