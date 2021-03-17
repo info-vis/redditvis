@@ -37,7 +37,7 @@ Vue.component("aggregates-component", {
   template: `
   <div>
     <div class="row">
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h3>
@@ -46,7 +46,7 @@ Vue.component("aggregates-component", {
           </div>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_DIGITS"]}}%</h3>
@@ -55,7 +55,7 @@ Vue.component("aggregates-component", {
           </div>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</h3>
@@ -64,7 +64,7 @@ Vue.component("aggregates-component", {
           </div>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</h3>
@@ -73,7 +73,7 @@ Vue.component("aggregates-component", {
           </div>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</h3>
@@ -82,7 +82,7 @@ Vue.component("aggregates-component", {
           </div>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee">
           <div class="card-body">
             <h3 class="card-title">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
