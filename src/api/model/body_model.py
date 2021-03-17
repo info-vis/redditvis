@@ -34,11 +34,33 @@ class BodyModel:
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
 
-    def get_sentiments(self, target):
-        #TODO add different returns for source & target, source xor target.
-        return list(self.data.loc[self.data['TARGET_SUBREDDIT'] == target] \
-                             .sort_values(by=['DATE','TIMEOFDAY']) \
-                             .loc[:,'LINK_SENTIMENT'])
+    def get_sentiments(self, target_subreddit, source_subreddit):
+        if target_subreddit != None and source_subreddit != None:
+            print('\nSENTIMENTS - GETTING SOURCE and TARGET DATA\n')
+            return self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)].sort_values(by=['DATE','TIMEOFDAY']).loc(axis=1)['LINK_SENTIMENT', 'DATE'].groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .to_dict()
+
+        elif source_subreddit != None:
+            print('SENTIMENTS - ONLY GETTING SOURCE DATA')
+            
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit] \
+                                .sort_values(by=['DATE','TIMEOFDAY']) \
+                                .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
+                                .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .to_dict()
+                                
+            
+        elif target_subreddit != None:
+            print('SENTIMENTS - ONLY GETTING TARGET DATA')
+            
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == target_subreddit] \
+                                .sort_values(by=['DATE','TIMEOFDAY']) \
+                                .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
+                                .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .to_dict()
+        else:
+            print('Something went wrong in get_sentiments function')
+        return
         
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 

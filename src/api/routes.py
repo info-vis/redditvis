@@ -15,13 +15,12 @@ from src.api.model.body_model import BodyModel
 def sentiment_box():
 	
 	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
 
-	if source_subreddit is None:
-		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
+	if source_subreddit is None and target_subreddit is None:
+		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
 	
-	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
-
-	#TODO merge sentbox data into JSON 
+	sentiments = BodyModel.getInstance().get_sentiments(target_subreddit, source_subreddit)
   
 	return json.dumps(sentiments)
 
