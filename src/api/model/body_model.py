@@ -36,13 +36,10 @@ class BodyModel:
 
     def get_sentiments(self, target_subreddit, source_subreddit):
         if target_subreddit != None and source_subreddit != None:
-            print('\nSENTIMENTS - GETTING SOURCE and TARGET DATA\n')
             return self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)].sort_values(by=['DATE','TIMEOFDAY']).loc(axis=1)['LINK_SENTIMENT', 'DATE'].groupby('DATE')['LINK_SENTIMENT'].sum() \
                                 .to_dict()
 
         elif source_subreddit != None:
-            print('SENTIMENTS - ONLY GETTING SOURCE DATA')
-            
             return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit] \
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
@@ -51,9 +48,7 @@ class BodyModel:
                                 
             
         elif target_subreddit != None:
-            print('SENTIMENTS - ONLY GETTING TARGET DATA')
-            
-            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == target_subreddit] \
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit] \
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
@@ -61,7 +56,22 @@ class BodyModel:
         else:
             print('Something went wrong in get_sentiments function')
         return
-        
+    def get_average_sentiments(self, target_subreddit, source_subreddit):
+        if target_subreddit != None and source_subreddit != None:
+            return float(self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
+                                .loc['LINK_SENTIMENT']
+                                .mean())
+        elif source_subreddit != None:
+            return float(self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit] \
+                                .loc['LINK_SENTIMENT']
+                                .mean())
+        elif target_subreddit != None:
+            return float(self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit] \
+                                .loc['LINK_SENTIMENT']
+                                .mean())
+        else:
+            print('Something went wrong in get_average_sentiments function')
+
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
 

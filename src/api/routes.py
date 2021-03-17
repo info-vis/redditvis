@@ -39,6 +39,19 @@ def top_properties():
 
 	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
 
+@bp.route('/average-sentiment')
+def sentiment_box():
+	
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+
+	if source_subreddit is None and target_subreddit is None:
+		raise ValueError("Cannot load average sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
+	
+	average = BodyModel.getInstance().get_average_sentiments(target_subreddit, source_subreddit)
+  
+	return json.dumps(average)
+
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
 	num = int(request.args.get('num', default="20"))
