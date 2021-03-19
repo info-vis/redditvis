@@ -45,7 +45,7 @@ Vue.component('properties-radar', {
         <div class="row">
             <div class="col-md-10">
                 <p class="mb-0 mt-1" >
-                <small> <strong> Psychological properties of posts </strong></small>
+                <small> <strong> Topical processes of posts </strong></small>
                 </p>
             </div>
             <div class="col-md-2">

@@ -198,11 +198,9 @@ def properties_radar():
 def correlation_plot():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	x_axis_property = request.args.get('x-axis-property', 'FRACTION_OF_ALPHABETICAL_CHARS')
-	y_axis_property = request.args.get('y-axis-property', 'AUTOMATED_READIBILITY_INDEX')
-	print(x_axis_property)
-	print(y_axis_property)
-	
+	x_axis_property = request.args.get('x-axis-property', 'Fraction of alphabetical characters')
+	y_axis_property = request.args.get('y-axis-property', 'Automated readability index')
+
 	data = BodyModel.getInstance().get_correlation_data(
 		x_axis_property, 
 		y_axis_property,
@@ -219,12 +217,14 @@ def correlation_plot():
 		trendline_color_override="rgb(0, 62, 120)"
 	)
 
-	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"},)
 	fig.update_layout(
 		width=400,
 		height=300,
 		font={'size':9},
 		margin={"t": 0})
+
+
 		
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
