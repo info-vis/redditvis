@@ -36,13 +36,13 @@ Vue.component("aggregates-component", {
   },
   template: `
   <div class="w-50">
-  <strong>Aggregates</strong>
+  <strong>Aggregate properties of the posts</strong>
     <div class="card-columns" style="column-count:3">
       <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of alphabetical characters"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of alphabetical characters"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Alphabetical Characters</p>
           </div>
         </div>
@@ -50,8 +50,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_DIGITS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_DIGITS"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of digits"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of digits"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Digits</p>
           </div>
         </div>
@@ -59,8 +59,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_SPECIAL_CHARS"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of special characters"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of special characters"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Special Characters</p>
           </div>
         </div>
@@ -68,8 +68,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_STOPWORDS"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of stopwords"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of stopwords"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Stopwords</p>
           </div>
         </div>
@@ -77,8 +77,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_UP_CHARS"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of uppercase characters"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of uppercase characters"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Uppercase Characters</p>
           </div>
         </div>
@@ -86,8 +86,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_WHITESPACE"]}}%</h6>
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of white spaces"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["Fraction of white spaces"]}}%</h6>
             <p class="card-text" style="font-size:12px">Fraction of Whitespace</p>
           </div>
         </div>

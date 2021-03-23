@@ -198,10 +198,8 @@ def properties_radar():
 def correlation_plot():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	x_axis_property = request.args.get('x-axis-property', 'FRACTION_OF_ALPHABETICAL_CHARS')
-	y_axis_property = request.args.get('y-axis-property', 'AUTOMATED_READIBILITY_INDEX')
-	print(x_axis_property)
-	print(y_axis_property)
+	x_axis_property = request.args.get('x-axis-property', 'Fraction of alphabetical characters')
+	y_axis_property = request.args.get('y-axis-property', 'Automated readability index')
 
 	data = BodyModel.getInstance().get_correlation_data(
 		x_axis_property,
@@ -225,7 +223,7 @@ def correlation_plot():
 		height=300,
 		font={'size':9},
 		margin={"t": 0})
-
+	
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route("/aggregates")
@@ -237,7 +235,3 @@ def aggregates():
 
 	return jsonify({"data": data.to_dict(),
 	"data_avg": data_avg.to_dict() })
-
-	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
-
-	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
