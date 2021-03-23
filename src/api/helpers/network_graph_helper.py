@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import collections
+import networkx as nx
+from pandas.core.common import flatten
 
 
 class NetworkGraphHelper:
@@ -60,3 +63,59 @@ class NetworkGraphHelper:
 
         return {"nodes": cluster_nodes(nodes, links), "links": links.values.tolist()}
 
+
+
+    @staticmethod
+    def to_network_graph2(data: pd.DataFrame, graph, subreddit) -> dict:
+        def to_links(data):
+            return data.rename(columns={
+                "SOURCE_SUBREDDIT": "source",
+                "TARGET_SUBREDDIT": "target",
+                "count": "value",
+            })
+
+        def get_subgraph(subreddit, graph):
+            neighbors = [x for x in nx.all_neighbors(graph, subreddit)]
+            neighbors.append(subreddit)
+
+            nn = []
+            for neigh in neighbors:
+                temp = [x for x in nx.all_neighbors(graph, neigh)]
+                print(f"neighbors for {neigh}: ", temp)
+                nn += temp
+
+            nn += neighbors
+            nn = set(nn)
+            print('nn:', nn)
+            result = nx.subgraph(graph, nn)
+            return result
+
+
+        def cluster(subgraph):
+            clusters = collections.defaultdict(list)
+            for node in subgraph:
+                neighbors = [x for x in nx.all_neighbors(subgraph, node)]
+                if len(neighbors) == 1:
+                    # child found
+                    key = neighbors[0]
+                    clusters[key].append(node)
+            
+            result = []
+            group_id = 1
+            for parent, children in clusters.items():
+                result.append([parent, "parent", group_id]) # Parent
+                result += [[c, "child", group_id] for c in children] #child
+                group_id += 1
+                
+            nodes = [x for x in subgraph]
+            parents_or_children = list(clusters.keys()) + list(flatten(clusters.values()))
+            result += [[x, None, None] for x in nodes if x not in parents_or_children]
+
+            return result
+
+        subgraph = get_subgraph(subreddit, graph)
+        print('subgraph')
+        print([x for x in subgraph])
+        print(nx.info(subgraph))
+        clusters = cluster(subgraph)
+        return {"nodes": clusters, "links": to_links(data).values.tolist()}
