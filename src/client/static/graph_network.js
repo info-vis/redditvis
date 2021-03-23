@@ -17,6 +17,7 @@ Vue.component('graph-network', {
         return {
             links: null,
             nodes: null,
+            collapseAll: true,
 
             d3Simulation: null,
             d3Canvas: null,
@@ -61,6 +62,7 @@ Vue.component('graph-network', {
         d3ForceCenterStrength: function () {
             this.setForceSimulation()
         },
+        collapseAll: "toggleCollapseAllChildren"
     },
     methods: {
         setBackgroundColor(color = "white") {
@@ -349,10 +351,6 @@ Vue.component('graph-network', {
             return undefined;
         },
         handleNodeClick(node) {
-            // this.deleteNode(node.id)
-            // this.addNode({...node, id: this.nodes.length})
-            // return this.mutateNode(node.id, {...node, collapse: node.collapse ? !node.collapse : true})
-            // console.log(this.getClusterableLinksFor(node.id))
             if (node.type == 'parent') {
                 this.toggleCollapseChildren(node.group)
                 this.loadDataIntoSimulation()
@@ -368,16 +366,10 @@ Vue.component('graph-network', {
                     this.mutateNode(node.id, mutatedNode)
                 }
             }
-            // node.children.forEach(childId => {
-            //     const childNode = this.getNodeById(childId)
-            //     childNode.collapse = !childNode.collapse
-            //     this.mutateNode(childId, childNode)
-            // })
         },
         toggleCollapseAllChildren() {
-            const groups = this.nodes.map(x => x.group)
-            groups.forEach(x => this.toggleCollapseChildren(x))
-            this.simulationUpdate()
+            this.nodes.forEach(x => x.collapsed = this.collapseAll)
+            this.loadDataIntoSimulation()
         },
         getNodesToDraw() {
             return this.nodes.filter(node => (!node.collapsed || node.type != "child"))
@@ -396,8 +388,8 @@ Vue.component('graph-network', {
                 this.simulationUpdate()
             }
         },
-        burstSimulation() {
-            this.d3Simulation.alpha(1)
+        burstSimulation(alpha=1) {
+            this.d3Simulation.alpha(alpha)
             this.d3Simulation.restart()
         },
         addNode(node) {
@@ -429,6 +421,7 @@ Vue.component('graph-network', {
         getLinksFor(nodeId) {
             return this.links.filter(link => (link.source.id == nodeId) || (link.target.id == nodeId))
         },
+        // Should be called whenever this.nodes and this.links changes.
         loadDataIntoSimulation(isInitialLoad=false) {
             if (isInitialLoad) {
                 this.d3Simulation.nodes(this.nodes).force("link").links(this.links)
@@ -438,7 +431,7 @@ Vue.component('graph-network', {
                 const nodesToDraw = this.getNodesToDraw()
   
                 this.d3Simulation.nodes(nodesToDraw).force("link").links(linksToDraw)
-                this.burstSimulation()
+                this.burstSimulation(0.1)
             }
         },
         loadNetworkData() {
@@ -557,6 +550,14 @@ Vue.component('graph-network', {
                         <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="loadNetworkData"><i class="bi bi-tropical-storm"></i></button><br/>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked v-model="collapseAll">
+                            <label class="form-check-label" for="flexSwitchCheckChecked">Collapse all clusters</label>
+                        </div>
+                    </div>
+                </div>
                 <label for="customRange1" class="form-label">Force strength</label>: <strong>{{ d3ForceChargeStrength }}</strong>
                 <input type="range" class="form-range" min="-100" max="10" step="1" id="customRange1" v-model="d3ForceChargeStrength">
 
@@ -584,7 +585,3 @@ Vue.component('graph-network', {
     </div>
     `
 })
-
-
-{/* <canvas id="graph-network-canvas" class="shadow-sm rounded border" style="width: 100%">
-</canvas> */}

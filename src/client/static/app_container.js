@@ -58,7 +58,9 @@ Vue.component("app-container", {
   },
   watch: {
     selectedSourceSubreddit: "fetchData",
-    selectedTargetSubreddit: "fetchData"
+    selectedTargetSubreddit: "fetchData",
+    numberOfLinks: "fetchData"
+
   },
   methods: {
     fetchData: async function () {
@@ -98,10 +100,11 @@ Vue.component("app-container", {
     },
     handlePanToSubreddit: function (payload) {
       if (payload == "source") {
-        this.$refs.graphNetwork.panToSubreddit(this.selectedSourceSubreddit)
+        console.log(this.$refs)
+        this.$refs.graphNetwork.panToNode(this.selectedSourceSubreddit)
       }
       if (payload == "target") {
-        this.$refs.graphNetwork.panToSubreddit(this.selectedTargetSubreddit)
+        this.$refs.graphNetwork.panToNode(this.selectedTargetSubreddit)
       }
     },
     handleClearSubreddit: function (payload) {
@@ -114,7 +117,6 @@ Vue.component("app-container", {
     },
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
-      this.fetchData()
     },
     subredditSelectOptions(type) {
       if (this.networkData && this.networkData.nodes) {
