@@ -19,7 +19,7 @@ Vue.component('properties-plot', {
             let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
             let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
             if (this.sourceSubreddit && this.targetSubreddit) {
-                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery 
+                url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
             } else if (this.sourceSubreddit) {
                 url = url + "?" + sourceSubredditQuery
             } else if (this.targetSubreddit) {
