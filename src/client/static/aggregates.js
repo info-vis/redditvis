@@ -35,59 +35,60 @@ Vue.component("aggregates-component", {
     this.fetchAPIData()
   },
   template: `
-  <div>
-    <div class="row">
+  <div class="w-50">
+  <strong>Aggregates</strong>
+    <div class="card-columns" style="column-count:3">
       <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h6>
-            <p class="card-text">Fraction of Alphabetical Characters</p>
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_ALPHABETICAL_CHARS"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Alphabetical Characters</p>
           </div>
         </div>
       </div>
-      <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_DIGITS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_DIGITS"]}}%</h6>
-            <p class="card-text">Fraction of Digits</p>
+      <div class="col d-flex align-items-stretch mt-2">
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_DIGITS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_DIGITS"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Digits</p>
           </div>
         </div>
       </div>
-      <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_SPECIAL_CHARS"]}}%</h6>
-            <p class="card-text">Fraction of Special Characters</p>
+      <div class="col d-flex align-items-stretch mt-2">
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_SPECIAL_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_SPECIAL_CHARS"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Special Characters</p>
           </div>
         </div>
       </div>
-      <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_STOPWORDS"]}}%</h6>
-            <p class="card-text">Fraction of Stopwords</p>
+      <div class="col d-flex align-items-stretch mt-2">
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_STOPWORDS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_STOPWORDS"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Stopwords</p>
           </div>
         </div>
       </div>
-      <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_UP_CHARS"]}}%</h6>
-            <p class="card-text">Fraction of Uppercase Characters</p>
+      <div class="col d-flex align-items-stretch mt-2">
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_UP_CHARS"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_UP_CHARS"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Uppercase Characters</p>
           </div>
         </div>
       </div>
-      <div class="col d-flex align-items-stretch">
-        <div class="card" style="background-color: #eeeeee">
-          <div class="card-body">
-            <h3 class="card-title">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Global Average: {{aggs.data_avg["FRACTION_OF_WHITESPACE"]}}%</h6>
-            <p class="card-text">Fraction of Whitespace</p>
+      <div class="col d-flex align-items-stretch mt-2">
+        <div class="card" style="background-color: #eeeeee; width: 10rem">
+          <div class="card-body" style="text-align:center">
+            <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
+            <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_WHITESPACE"]}}%</h6>
+            <p class="card-text" style="font-size:12px">Fraction of Whitespace</p>
           </div>
         </div>
       </div>
