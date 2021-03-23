@@ -107,10 +107,10 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Perceptual processes", "Biological processes", "Relativity"]].mean()
+        return data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
 
     def get_properties_radar_average(self):
-        data = self.data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Perceptual processes", "Biological processes", "Relativity"]].mean()
+        data = self.data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
         return data
 
     def get_correlation_data(

@@ -217,7 +217,7 @@ def correlation_plot():
 		trendline_color_override="rgb(0, 62, 120)"
 	)
 
-	fig.update_traces(marker={"color":"rgb(64, 138, 207)"},)
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(
 		width=400,
 		height=300,
