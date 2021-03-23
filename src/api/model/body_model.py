@@ -1,9 +1,9 @@
 import os
+from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from typing import Optional
 
 import networkx as nx
 import pandas as pd
-import collections
 
 
 class BodyModel:
@@ -107,12 +107,14 @@ class BodyModel:
             return result.head(n_links)
         return result
 
-    def get_subgraph_for_subreddit(self, subreddit: str) -> pd.DataFrame:
+    def get_subgraph_for_subreddit(self, subreddit: str, min_count = 5) -> pd.DataFrame:
         """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
         outgoing edges of the subreddit.
 
         Args:
             subreddit (str): The subreddit to retrieve the subgraph for
+            min_count (int): The minimum number of rows that need to exist in the data set
+                in order for the source/target relation to be returned.
 
         Returns:
             pd.DataFrame: Format (subreddit = "changelog"):
@@ -123,13 +125,10 @@ class BodyModel:
         """
         ######## v3 begin ########
         df = self.data
-        def get_neighbors(subreddit, network):
-            outgoing_subreddits = list(network[subreddit])
-            _incoming = list(network.in_edges(subreddit))
-            incoming_subreddits = list(map(lambda x: x[0], _incoming))
-
-            unique_subreddits = outgoing_subreddits + incoming_subreddits
-            return set(unique_subreddits)
+        
+        def get_neighbors(subreddit, graph):
+            neighbors = list(nx.all_neighbors(graph, subreddit))
+            return set(neighbors)
 
         neighbors = get_neighbors(subreddit, self.graph)
         
@@ -146,7 +145,7 @@ class BodyModel:
             .rename(columns={0: "count"})\
             .sort_values("count", ascending=False)
         # Reduce size
-        neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > 2]
+        neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > min_count]
 
         return pd.concat([subreddit_neighbors_df, neighbors_neighbors_df])
         ######## v3 end ########
@@ -162,49 +161,6 @@ class BodyModel:
         #     .rename(columns={0: "count"})\
         #     .sort_values("count", ascending=False)
         ######## v2 end ########
-
-    def to_network_graph2(self, subreddit) -> dict:
-        def to_links(data):
-            return data.rename(columns={
-                "SOURCE_SUBREDDIT": "source",
-                "TARGET_SUBREDDIT": "target",
-                "count": "value",
-            })
-
-        def get_subgraph(subreddit, graph):
-            neighbors = [x for x in nx.all_neighbors(graph, subreddit)]
-            neighbors.append(subreddit)
-
-            nn = []
-            for neigh in neighbors:
-                temp = [x for x in nx.all_neighbors(graph, neigh)]
-                print(f"Number of neighs for {neigh}: {len(temp)}")
-                nn += temp
-
-            nn += neighbors
-            nn = set(nn)
-            result = nx.subgraph(graph, nn)
-            return result
-
-        def cluster(subgraph):
-            clusters = collections.defaultdict(list)
-            for node in subgraph:
-                neighbors = [x for x in nx.all_neighbors(subgraph, node)]
-                if len(neighbors) == 1:
-                    # child found
-                    key = neighbors[0]
-                    clusters[key].append(node)
-            result = []
-            group_id = 1
-            for parent, children in clusters.items():
-                result.append([parent, "parent", group_id])
-                result += [[c, "child", group_id] for c in children]
-                group_id += 1
-            return result
-        
-        subgraph = get_subgraph(subreddit, self.graph)
-        clusters = cluster(subgraph)
-        return {"nodes": clusters, "links": to_links(self.data)}
 
     def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         data = self.data

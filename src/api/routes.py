@@ -146,7 +146,7 @@ def network():
 	if subreddit:
 		try:
 			data = BodyModel.get_instance().get_subgraph_for_subreddit(subreddit)
-		except KeyError as e:
+		except KeyError:
 			abort(404, description="Resource not found")
 	else:
 		data = BodyModel.get_instance().get_network_data(n_links=n_links)
