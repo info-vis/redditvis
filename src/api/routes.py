@@ -1,12 +1,10 @@
 import json
 from math import pi
 
-import bokeh
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
 from flask import abort, jsonify, request
 from plotly import utils
@@ -25,7 +23,7 @@ def sentiment_box():
 
 	if source_subreddit is None:
 		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
-	
+
 	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
 
 	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
@@ -36,8 +34,8 @@ def sentiment_box():
 	for i in range(len(sentiments)):
 		if sentiments[i] == 1:
 				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
-		else:  
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')  
+		else:
+				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')
 	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
 
 @bp.route('/top-properties')
@@ -53,7 +51,7 @@ def top_properties():
 	fig.add_trace(
 		go.Bar(
 			x=data.values,
-			y=data.index, 
+			y=data.index,
 			orientation='h',
 			showlegend=False,
 			marker_color='rgb(64, 138, 207)',
@@ -63,7 +61,7 @@ def top_properties():
 	fig.add_trace(
 		go.Scatter(
 			x=data_avg.values,
-			y=data.index, 
+			y=data.index,
 			mode="markers",
 			name='Avg. of all subreddits',
 			marker_color='rgb(0, 62, 120)',
@@ -73,7 +71,7 @@ def top_properties():
 	fig.update_yaxes(autorange="reversed")
 	fig.update_layout(
 		width=400,
-		height=400,
+		height=300,
 		dragmode=False,
 		xaxis={
 			"tickformat":'0.1%',
@@ -94,7 +92,7 @@ def top_properties():
 		font={"size": 9},
 		margin={"t": 0}
 	)
-		
+
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route('/source-target-frequencies')
@@ -106,18 +104,18 @@ def plot_source_target_frequencies():
 
     fig = go.Figure([go.Bar(
         x=data.values,
-        y=data.index, 
-        orientation='h', 
-        showlegend=False, 
+        y=data.index,
+        orientation='h',
+        showlegend=False,
         marker_color='rgb(64, 138, 207)'
     )])
 
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
-        width=500,
-        height=400,
+        width=400,
+        height=300,
         dragmode=False,
-        xaxis={"title": 'Number of posts'}, 
+        xaxis={"title": 'Number of posts'},
         font={"size": 9},
 		margin={"t": 0}
 	)
@@ -129,14 +127,14 @@ def network():
 	"""Returns the network graph data.
 	Format: {
 		"nodes": [
-			"trendingsubreddits", 
+			"trendingsubreddits",
 			"streetfighter",
 			"changelog",
 			"sf4"
 		]
 		"links": [
-			["trendingsubreddits", "changelog", 548], 
-			["streetfighter", "sf4", 279], 
+			["trendingsubreddits", "changelog", 548],
+			["streetfighter", "sf4", 279],
 		]
 	}
 	Returns:
@@ -160,11 +158,11 @@ def properties_radar():
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
 	data_avg = BodyModel.getInstance().get_properties_radar_average()
-	
+
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
-	fig = go.Figure(layout=go.Layout(height=400, width=400))
+	fig = go.Figure(layout=go.Layout(height=300, width=300))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
@@ -184,7 +182,7 @@ def properties_radar():
 		polar =
 			{"radialaxis": {
 				"visible":True,
-				"range":[0, 0.15]
+				"range":[0, 0.25]
 				}
 		},
 		dragmode=False,
@@ -192,13 +190,56 @@ def properties_radar():
 		legend={
 			"orientation":"h",
 			"yanchor":"bottom",
-			"y":-0.2,
+			"y":0,
 			"xanchor":"right",
 			"x":1.2
 		},
+		font={"size": 9},
 		margin={"t": 0}
 	)
-	
-	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15])
+
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/correlation")
+def correlation_plot():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	x_axis_property = request.args.get('x-axis-property', 'Fraction of alphabetical characters')
+	y_axis_property = request.args.get('y-axis-property', 'Automated readability index')
+
+	data = BodyModel.getInstance().get_correlation_data(
+		x_axis_property,
+		y_axis_property,
+		source_subreddit,
+		target_subreddit
+	)
+
+	fig = px.scatter(
+		data,
+		x=data[x_axis_property],
+		y=data[y_axis_property],
+		opacity=0.4,
+		trendline="ols",
+		trendline_color_override="rgb(0, 62, 120)"
+	)
+
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
+	fig.update_layout(
+		width=400,
+		height=300,
+		font={'size':9},
+		margin={"t": 0})
+	
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/aggregates")
+def aggregates():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
+	data_avg = BodyModel.getInstance().get_aggregates()
+
+	return jsonify({"data": data.to_dict(),
+	"data_avg": data_avg.to_dict() })
