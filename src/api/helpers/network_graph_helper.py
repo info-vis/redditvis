@@ -50,7 +50,6 @@ class NetworkGraphHelper:
                 for neighbor in neighbors:
                     neighborIsChild = neighbor in [x[0] for x in childNodes]
                     if neighborIsChild:
-                        print(f'{node[0]}is parent')
                         indexOfParent = np.where(nodes == node[0])[0][0]
                         parentNodes.append([node[0], 'parent', int(indexOfParent)])
                         isParent = True
