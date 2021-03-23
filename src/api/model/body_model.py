@@ -32,7 +32,7 @@ class BodyModel:
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
         posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
-        sentiments = list(posts_for_target['Link sentiment'])
+        sentiments = list(posts_for_target['LINK_SENTIMENT'])
         return sentiments 
         
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
@@ -134,6 +134,6 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:, ['FRACTION_OF_ALPHABETICAL_CHARS',
-       'FRACTION_OF_DIGITS', 'FRACTION_OF_UP_CHARS', 'FRACTION_OF_WHITESPACE',
-       'FRACTION_OF_SPECIAL_CHARS', 'FRACTION_OF_STOPWORDS']].mean().sort_values(ascending=False).multiply(100).round(decimals=2)
+        return data.loc[:, ['Fraction of alphabetical characters',
+       'Fraction of digits', 'Fraction of uppercase characters',
+       'Fraction of white spaces', 'Fraction of special characters', 'Fraction of stopwords',]].mean().sort_values(ascending=False).multiply(100).round(decimals=2)

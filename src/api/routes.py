@@ -235,7 +235,3 @@ def aggregates():
 
 	return jsonify({"data": data.to_dict(),
 	"data_avg": data_avg.to_dict() })
-
-	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
-
-	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
