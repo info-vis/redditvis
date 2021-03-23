@@ -14,7 +14,7 @@ class BodyModel:
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
 
-    @staticmethod 
+    @staticmethod
     def getInstance():
         """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
@@ -33,10 +33,10 @@ class BodyModel:
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
         posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
         sentiments = list(posts_for_target['LINK_SENTIMENT'])
-        return sentiments 
-        
+        return sentiments
+
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
+        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
 
         Args:
             source_subreddit (str, optional): The source subreddit you wish to get top properties for. Defaults to None.
@@ -55,25 +55,21 @@ class BodyModel:
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data.loc[:,['LIWC_Family', 'LIWC_Friends', 'LIWC_Humans', 'LIWC_Posemo', 'LIWC_Negemo', 'LIWC_Anx', 'LIWC_Anger', 'LIWC_Sad', 'LIWC_Insight', 'LIWC_Cause', 'LIWC_Discrep', 'LIWC_Tentat', 'LIWC_Certain', 'LIWC_Inhib', 'LIWC_Incl', 'LIWC_Excl', 'LIWC_See', 'LIWC_Hear', 'LIWC_Feel', 'LIWC_Body', 'LIWC_Health', 'LIWC_Sexual', 'LIWC_Ingest', 'LIWC_Motion', 'LIWC_Space', 'LIWC_Time', 'LIWC_Work', 'LIWC_Achiev', 'LIWC_Leisure', 'LIWC_Home', 'LIWC_Money', 'LIWC_Relig', 'LIWC_Death']].mean().sort_values(ascending=False).head(10)
-    
+
     def get_top_properties_average(self):
         data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean()
         return data
 
     def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        if source_subreddit and target_subreddit:
-            return self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
-                .groupby(['TARGET_SUBREDDIT']) \
-                .size().sort_values(ascending=False).head(10)
-        elif source_subreddit:
+        if source_subreddit is not None:
             return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
                 .size().sort_values(ascending=False).head(10)
-        elif target_subreddit:
+        elif target_subreddit is not None:
             return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
                 .size().sort_values(ascending=False).head(10)
         return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
 
-            
+
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
@@ -114,7 +110,7 @@ class BodyModel:
         return data
 
     def get_correlation_data(
-        self, 
+        self,
         property1: str,
         property2: str,
         source_subreddit: Optional[str] = None,
@@ -129,3 +125,15 @@ class BodyModel:
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
         return data[[property1, property2]]
+
+    def get_aggregates(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:, ['FRACTION_OF_ALPHABETICAL_CHARS',
+       'FRACTION_OF_DIGITS', 'FRACTION_OF_UP_CHARS', 'FRACTION_OF_WHITESPACE',
+       'FRACTION_OF_SPECIAL_CHARS', 'FRACTION_OF_STOPWORDS']].mean().sort_values(ascending=False).multiply(100).round(decimals=2)
