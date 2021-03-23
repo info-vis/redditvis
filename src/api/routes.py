@@ -25,7 +25,7 @@ def sentiment_box():
 	if source_subreddit is None:
 		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
 
-	sentiments = BodyModel.getInstance().get_sentiments(source_subreddit)
+	sentiments = BodyModel.get_instance().get_sentiments(source_subreddit)
 
 	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
 	p.axis.visible = False
@@ -43,8 +43,8 @@ def sentiment_box():
 def top_properties():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
-	data_intermediate = BodyModel.getInstance().get_top_properties_average()
+	data = BodyModel.get_instance().get_top_properties(source_subreddit, target_subreddit)
+	data_intermediate = BodyModel.get_instance().get_top_properties_average()
 	data_avg = data_intermediate[data.index]
 
 	fig = go.Figure()
@@ -100,7 +100,7 @@ def top_properties():
 def plot_source_target_frequencies():
     source_subreddit = request.args.get('source-subreddit')
     target_subreddit = request.args.get('target-subreddit')
-    data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
+    data = BodyModel.get_instance().get_frequency(source_subreddit, target_subreddit)
 
 
     fig = go.Figure([go.Bar(
@@ -145,11 +145,11 @@ def network():
 	subreddit = request.args.get('subreddit')
 	if subreddit:
 		try:
-			data = BodyModel.getInstance().get_subgraph_for_subreddit(subreddit)
+			data = BodyModel.get_instance().get_subgraph_for_subreddit(subreddit)
 		except KeyError as e:
 			abort(404, description="Resource not found")
 	else:
-		data = BodyModel.getInstance().get_network_data(n_links=n_links)
+		data = BodyModel.get_instance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return jsonify(network_graph)
 
@@ -157,8 +157,8 @@ def network():
 def properties_radar():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
-	data_avg = BodyModel.getInstance().get_properties_radar_average()
+	data = BodyModel.get_instance().get_properties_radar(source_subreddit, target_subreddit)
+	data_avg = BodyModel.get_instance().get_properties_radar_average()
 
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
@@ -210,7 +210,7 @@ def correlation_plot():
 	x_axis_property = request.args.get('x-axis-property', 'Fraction of alphabetical characters')
 	y_axis_property = request.args.get('y-axis-property', 'Automated readability index')
 
-	data = BodyModel.getInstance().get_correlation_data(
+	data = BodyModel.get_instance().get_correlation_data(
 		x_axis_property,
 		y_axis_property,
 		source_subreddit,
@@ -239,8 +239,8 @@ def correlation_plot():
 def aggregates():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
-	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
-	data_avg = BodyModel.getInstance().get_aggregates()
+	data = BodyModel.get_instance().get_aggregates(source_subreddit, target_subreddit)
+	data_avg = BodyModel.get_instance().get_aggregates()
 
 	return jsonify({"data": data.to_dict(),
 	"data_avg": data_avg.to_dict() })

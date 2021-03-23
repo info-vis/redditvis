@@ -17,7 +17,7 @@ class BodyModel:
     graph = None
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
             BodyModel()
