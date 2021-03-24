@@ -36,15 +36,20 @@ class BodyModel:
 
     def get_sentiments(self, target_subreddit, source_subreddit):
         if target_subreddit != None and source_subreddit != None:
-            return self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)].sort_values(by=['DATE','TIMEOFDAY']).loc(axis=1)['LINK_SENTIMENT', 'DATE'].groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .to_dict()
+            return self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
+                                .sort_values(by=['DATE','TIMEOFDAY']) \
+                                .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
+                                .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .reset_index() \
+                                .to_dict('records')
 
         elif source_subreddit != None:
             return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit] \
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .to_dict()
+                                .reset_index() \
+                                .to_dict('records')
                                 
             
         elif target_subreddit != None:
@@ -52,7 +57,8 @@ class BodyModel:
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .to_dict()
+                                .reset_index() \
+                                .to_dict('records')
         else:
             print('Something went wrong in get_sentiments function')
         return
