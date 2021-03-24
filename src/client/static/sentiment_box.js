@@ -6,6 +6,7 @@ Vue.component('sentiment-box', {
             height: 700,
             cellSize: 15,
             years: ['2014','2015','2016','2017'],
+            months: ['J','F','M','A','M','J','J','A','S','O','N','D'],
             colors: ['#00ff00','#ff0900', '#00000045'],
             isLoading: false
         }
@@ -58,20 +59,18 @@ Vue.component('sentiment-box', {
             if (!this.data) {
                 return
             }
-            const tParser = d3.timeParse("%Y-%m-%d")
+
             var dateRange = d3.timeDays(new Date(2014, 1, 1), new Date(2017, 12, 31));
             
-            console.log(dateRange)
+            const dateValues = this.data.map(dv => ({
+                date: d3.timeDay(new Date(dv.DATE)),
+                value: Number(dv.LINK_SENTIMENT)
+              }));
            
-            
+              const values = dateValues.map(c => c.value);
+              const maxValue = d3.max(values);
+              const minValue = d3.min(values);
 
-            let arr = this.data.values
-            const maxValue = Math.max(arr);
-            const minValue = Math.min(arr);
-
-            years = function(d){
-                (d => d3.timeDay(new Date(d).getUTCFullYear()))
-            }
 
             var svg = d3.select("#sentiment-box")
                       .append("svg")
@@ -125,6 +124,17 @@ Vue.component('sentiment-box', {
             
 
         
+        year
+            .append("g")
+            .attr("text-anchor", "end")
+            .selectAll("text")
+            .data(this.months)
+            .join("text")
+            .attr("x", (d,i) => 10 * i)
+            .attr("y", 0)
+            .attr("dy", "0.31em")
+            .attr("font-size", 12)
+            .text();
 
           year
             .append("g")
@@ -135,9 +145,22 @@ Vue.component('sentiment-box', {
             .attr("height", this.cellSize - 1.5)
             .attr(
               "x",
-              (d, i) => timeWeek.count(d3.utcYear(d), d) * this.cellSize + 10)
+              (d, i) => { 
+                  return timeWeek.count(d3.utcYear(d), d) * this.cellSize + 10})
             .attr("y", (d,i) => countDay(d) * this.cellSize + 0.5)
             .attr("fill", 'Grey')
+
+        
+
+        year.append('g')
+            .selectAll('rect')
+            .data(dateValues)
+            .join('rect')
+            .attr("width", this.cellSize - 1.5)
+            .attr("height", this.cellSize - 1.5)
+            .attr("x", (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * this.cellSize + 10)
+            .attr("y", d => countDay(d.date) * this.cellSize + 0.5)
+            .attr('fill', 'Green')
         },
         
     },
