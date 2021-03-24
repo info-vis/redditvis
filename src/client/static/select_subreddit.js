@@ -49,18 +49,18 @@ Vue.component('select-subreddit', {
                     <div class="row">
                         <div class="col">
                             <strong>Selected {{ type }} subreddit:</strong> 
-                            <div>
+                            <div style="font-size: 14px">
                                 <a v-if="selectedSubreddit"
-                                class="" 
-                                target="_blank" 
-                                v-bind:href="subredditLink"
-                                role="button"
-                                v-bind:title="subredditLink"
+                                    class="" 
+                                    target="_blank" 
+                                    v-bind:href="subredditLink"
+                                    role="button"
+                                    v-bind:title="subredditLink"
                                 >
-                                r/{{ selectedSubreddit }}
+                                    r/{{ selectedSubreddit }}
                                 </a>
+                                <div v-if="!selectedSubreddit">None</div>
                             </div>
-                            <div v-if="!selectedSubreddit">None</div>
                         </div>
                     </div>
 

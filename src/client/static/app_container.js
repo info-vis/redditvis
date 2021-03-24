@@ -8,6 +8,7 @@ Vue.component("app-container", {
       isLoadingData: false,
       selectedSourceSubreddit: null,
       selectedTargetSubreddit: null,
+      shownSubgraph: null,
       showSubredditNames: false,
       filterValue: null,
       showAlert: false
@@ -21,13 +22,26 @@ Vue.component("app-container", {
         return `Details for the subreddit: ${this.selectedSourceSubreddit}`}
       else if (this.selectedTargetSubreddit) {
         return `Details for the target subreddit: ${this.selectedTargetSubreddit}`}
-      return "Details for all subreddits"}
+      return "Details for all subreddits"
+    },
+    subredditLink: function () {
+      return `https://www.reddit.com/r/${this.shownSubgraph}/`
+    },
   },
   watch: {
-    selectedSourceSubreddit: "fetchData",
-    selectedTargetSubreddit: "fetchData",
+    selectedSourceSubreddit: function() {
+      const subGraphIsShownForTarget = this.selectedTargetSubreddit && this.selectedTargetSubreddit == this.shownSubgraph
+      if (!subGraphIsShownForTarget) {
+        this.fetchData()
+      }
+    },
+    selectedTargetSubreddit:  function() {
+      const subGraphIsShownForSource = this.selectedSourceSubreddit && this.selectedSourceSubreddit == this.shownSubgraph
+      if (!subGraphIsShownForSource) {
+        this.fetchData()
+      }
+    },
     numberOfLinks: "fetchData"
-
   },
   methods: {
     fetchData: async function () {
@@ -35,9 +49,12 @@ Vue.component("app-container", {
       let url = ''
       if (this.selectedSourceSubreddit || (this.selectedSourceSubreddit && this.selectedTargetSubreddit)) {
         url = `${apiEndpoint}network?subreddit=${this.selectedSourceSubreddit}`
+        this.shownSubgraph = this.selectedSourceSubreddit
       } else if (this.selectedTargetSubreddit) {
         url = `${apiEndpoint}network?subreddit=${this.selectedTargetSubreddit}`
+        this.shownSubgraph = this.selectedTargetSubreddit
       } else {
+        this.shownSubgraph = null
         url = `${apiEndpoint}network?n_links=${this.numberOfLinks}`
       }
       const response = await fetch(url);
@@ -81,6 +98,10 @@ Vue.component("app-container", {
         this.selectedTargetSubreddit = null
       }
     },
+    handleNodeSelected: function (payload) {
+      this.$refs.selectSourceSubreddit.selectedSubredditInput = payload.id
+      this.$refs.selectTargetSubreddit.selectedSubredditInput = payload.id
+    },
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
     },
@@ -114,9 +135,18 @@ Vue.component("app-container", {
   template: `
     <div id="wrapper">
 
-      <div class="row my-3">
+      <div class="row my-3 mb-3">
         <!-- Graph network -->
         <div class="col-md-10 pe-0 mb-2">
+          <div>
+            <p v-if="shownSubgraph">
+              Showing subgraph of subreddit 
+              <a :href="subredditLink" target="_blank">
+                <strong>r/{{ shownSubgraph }}</strong>
+              </a>
+            </p>
+            <p v-else>Showing network for top subreddits</p>
+          </div>
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -124,6 +154,7 @@ Vue.component("app-container", {
             v-bind:selected-source-subreddit="selectedSourceSubreddit"
             v-bind:selected-target-subreddit="selectedTargetSubreddit"
             v-bind:show-subreddit-names="showSubredditNames"
+            v-on:node-selected="handleNodeSelected"
             ref="graphNetwork"
           ></graph-network>
         </div>
@@ -157,6 +188,7 @@ Vue.component("app-container", {
                   v-on:select-subreddit="handleSelectSubreddit"
                   v-on:pan-to-subreddit="handlePanToSubreddit"
                   v-on:clear-subreddit="handleClearSubreddit"
+                  ref="selectSourceSubreddit"
                 ></select-subreddit>
               </div>
             </div>
@@ -172,6 +204,7 @@ Vue.component("app-container", {
                   v-on:select-subreddit="handleSelectSubreddit"
                   v-on:pan-to-subreddit="handlePanToSubreddit"
                   v-on:clear-subreddit="handleClearSubreddit"
+                  ref="selectTargetSubreddit"
                 ></select-subreddit>
               </div>
             </div>
