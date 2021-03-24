@@ -4,8 +4,13 @@ from math import pi
 
 import bokeh
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
+from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure
-from flask import request
+from flask import request, jsonify
+from plotly import utils
 from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
@@ -29,15 +34,57 @@ def top_properties():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 	data = BodyModel.getInstance().get_top_properties(source_subreddit, target_subreddit)
-	data_avg = BodyModel.getInstance().get_top_properties_average()
+	data_intermediate = BodyModel.getInstance().get_top_properties_average()
+	data_avg = data_intermediate[data.index]
 
-	p = figure(y_range=list(reversed(data.index)), plot_height=300, plot_width=350, x_range=(0, 0.5), toolbar_location=None, tools="")
-	p.hbar(y=list(data.index), right=list(data.values), left=0, height=0.9)
-	p.asterisk(y=list(data_avg.index), x=list(data_avg.values), color="midnightblue", legend_label="Avg. of all subreddits",)
-	p.ygrid.grid_line_color = None
-	p.legend.location = "bottom_right"
+	fig = go.Figure()
 
-	return json.dumps(bokeh.embed.json_item(p, "top_properties"))
+	fig.add_trace(
+		go.Bar(
+			x=data.values,
+			y=data.index,
+			orientation='h',
+			showlegend=False,
+			marker_color='rgb(64, 138, 207)',
+			name="Selection"
+		))
+
+	fig.add_trace(
+		go.Scatter(
+			x=data_avg.values,
+			y=data.index,
+			mode="markers",
+			name='Avg. of all subreddits',
+			marker_color='rgb(0, 62, 120)',
+			marker_symbol="diamond"
+		))
+
+	fig.update_yaxes(autorange="reversed")
+	fig.update_layout(
+		width=400,
+		height=300,
+		dragmode=False,
+		xaxis={
+			"tickformat":'0.1%',
+			"title":'% of all words in the post',
+			"range":[0,0.1],
+			"dtick":0.025
+		},
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":0.01,
+			"xanchor":"right",
+			"x":0.99,
+			"bgcolor":'rgba(0,0,0,0)',
+			"bordercolor":"LightSteelBlue",
+			"borderwidth":0.5
+			},
+		font={"size": 9},
+		margin={"t": 0}
+	)
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route('/average-sentiment')
 def average_sentiment():
@@ -54,39 +101,44 @@ def average_sentiment():
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
-	num = int(request.args.get('num', default="20"))
-	source_subreddit = request.args.get('source-subreddit')
-	data = BodyModel.getInstance().get_frequency(source_subreddit)
-	
-	if source_subreddit is None:
-		raise ValueError("Cannot load frequency plot for the entire data set. A source_subreddit as a query parameter is mandatory.")
+    source_subreddit = request.args.get('source-subreddit')
+    target_subreddit = request.args.get('target-subreddit')
+    data = BodyModel.getInstance().get_frequency(source_subreddit, target_subreddit)
 
-	sorted_dict = sorted(data.items(), key=lambda x:x[1], reverse=True)
-	target_subreddits, frequencies = zip(*sorted_dict)
 
-	p = figure(x_range=target_subreddits[:num], plot_height=300, plot_width=350,
-               toolbar_location=None, tools="")
-	
-	p.vbar(x=target_subreddits, top=frequencies, width=0.9)
-	p.xgrid.grid_line_color = None
-	p.y_range.start = 0
-	p.xaxis.major_label_orientation = pi/4
-	
-	return json.dumps(bokeh.embed.json_item(p, "source_target_frequencies"))
+    fig = go.Figure([go.Bar(
+        x=data.values,
+        y=data.index,
+        orientation='h',
+        showlegend=False,
+        marker_color='rgb(64, 138, 207)'
+    )])
+
+    fig.update_yaxes(autorange="reversed")
+    fig.update_layout(
+        width=400,
+        height=300,
+        dragmode=False,
+        xaxis={"title": 'Number of posts'},
+        font={"size": 9},
+		margin={"t": 0}
+	)
+
+    return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 
 @bp.route("/network")
 def network():
 	"""Returns the network graph data.
 	Format: {
 		"nodes": [
-			"trendingsubreddits", 
+			"trendingsubreddits",
 			"streetfighter",
 			"changelog",
 			"sf4"
 		]
 		"links": [
-			["trendingsubreddits", "changelog", 548], 
-			["streetfighter", "sf4", 279], 
+			["trendingsubreddits", "changelog", 548],
+			["streetfighter", "sf4", 279],
 		]
 	}
 	Returns:
@@ -96,3 +148,95 @@ def network():
 	data = BodyModel.getInstance().get_network_data(n_links=n_links)
 	network_graph = NetworkGraphHelper.to_network_graph(data)
 	return network_graph
+
+@bp.route("/properties-radar")
+def properties_radar():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_properties_radar(source_subreddit, target_subreddit)
+	data_avg = BodyModel.getInstance().get_properties_radar_average()
+
+	data_close_line = data.append(data.head(1))
+	data_avg_close_line = data_avg.append(data_avg.head(1))
+
+	fig = go.Figure(layout=go.Layout(height=300, width=300))
+
+	fig.add_trace(go.Scatterpolar(
+		r=data_close_line.values,
+		theta=data_close_line.index,
+		line_color='rgb(64, 138, 207)',
+		showlegend=False
+	))
+
+	fig.add_trace(go.Scatterpolar(
+		r=data_avg_close_line.values,
+		theta=data_avg_close_line.index,
+		line_color='rgb(0, 62, 120)',
+		name='Avg. of all subreddits'
+	))
+
+	fig.update_layout(
+		polar =
+			{"radialaxis": {
+				"visible":True,
+				"range":[0, 0.25]
+				}
+		},
+		dragmode=False,
+		showlegend=True,
+		legend={
+			"orientation":"h",
+			"yanchor":"bottom",
+			"y":0,
+			"xanchor":"right",
+			"x":1.2
+		},
+		font={"size": 9},
+		margin={"t": 0}
+	)
+
+	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
+
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/correlation")
+def correlation_plot():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	x_axis_property = request.args.get('x-axis-property', 'Fraction of alphabetical characters')
+	y_axis_property = request.args.get('y-axis-property', 'Automated readability index')
+
+	data = BodyModel.getInstance().get_correlation_data(
+		x_axis_property,
+		y_axis_property,
+		source_subreddit,
+		target_subreddit
+	)
+
+	fig = px.scatter(
+		data,
+		x=data[x_axis_property],
+		y=data[y_axis_property],
+		opacity=0.4,
+		trendline="ols",
+		trendline_color_override="rgb(0, 62, 120)"
+	)
+
+	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
+	fig.update_layout(
+		width=400,
+		height=300,
+		font={'size':9},
+		margin={"t": 0})
+	
+	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route("/aggregates")
+def aggregates():
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+	data = BodyModel.getInstance().get_aggregates(source_subreddit, target_subreddit)
+	data_avg = BodyModel.getInstance().get_aggregates()
+
+	return jsonify({"data": data.to_dict(),
+	"data_avg": data_avg.to_dict() })

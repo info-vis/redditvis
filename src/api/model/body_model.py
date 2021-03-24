@@ -1,5 +1,4 @@
 import os
-import random
 from typing import Optional
 
 import pandas as pd
@@ -15,7 +14,7 @@ class BodyModel:
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
 
-    @staticmethod 
+    @staticmethod
     def getInstance():
         """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
@@ -79,7 +78,7 @@ class BodyModel:
             print('Something went wrong in get_average_sentiments function')
 
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits. 
+        """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
 
         Args:
             source_subreddit (str, optional): The source subreddit you wish to get top properties for. Defaults to None.
@@ -97,22 +96,22 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False).head(10)
+        return data.loc[:,['Swear words','Family', 'Friends', 'Humans', 'Positive emotions', 'Negative emotions', 'Anxiety', 'Anger', 'Sadness', 'Insight', 'Causation', 'Discrepancy', 'Tentative', 'Certainty', 'Inhibition', 'Inclusive', 'Exclusive', 'Seeing', 'Hearing', 'Feeling', 'Body', 'Health', 'Sexuality', 'Ingestion', 'Motion', 'Space', 'Time', 'Work', 'Achievement', 'Leisure', 'Home', 'Money', 'Religion', 'Death']].mean().sort_values(ascending=False).head(10)
     
     def get_top_properties_average(self):
-        data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean().sort_values(ascending=False)
+        data = self.data.loc[:,"Swear words":"Death"].mean()
         return data
-    
-    def get_frequency(self, source_subreddit):
-        dict_source_target = {}
-        filtered_by_source = self.data[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
-        for target in filtered_by_source['TARGET_SUBREDDIT']:
-            if target not in dict_source_target:
-                dict_source_target[target] = 1
-            else:
-                dict_source_target[target] += 1
-        return dict_source_target
-    
+
+    def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        if source_subreddit is not None:
+            return self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].groupby(['TARGET_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        elif target_subreddit is not None:
+            return self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].groupby(['SOURCE_SUBREDDIT']) \
+                .size().sort_values(ascending=False).head(10)
+        return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
+
+
 
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
@@ -136,3 +135,47 @@ class BodyModel:
         if n_links is not None:
             return result.head(n_links)
         return result
+
+
+    def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
+
+    def get_properties_radar_average(self):
+        data = self.data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
+        return data
+
+    def get_correlation_data(
+        self,
+        property1: str,
+        property2: str,
+        source_subreddit: Optional[str] = None,
+        target_subreddit: Optional[str] = None
+    ):
+
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data[[property1, property2]]
+
+    def get_aggregates(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
+        data = self.data
+        if source_subreddit is not None and target_subreddit is not None:
+            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+        elif target_subreddit is not None:
+            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+        return data.loc[:, ['Fraction of alphabetical characters',
+       'Fraction of digits', 'Fraction of uppercase characters',
+       'Fraction of white spaces', 'Fraction of special characters', 'Fraction of stopwords',]].mean().sort_values(ascending=False).multiply(100).round(decimals=2)

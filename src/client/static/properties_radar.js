@@ -1,10 +1,10 @@
-Vue.component('properties-plot', {
+Vue.component('properties-radar', {
     data: function () {
         return {
             isLoading: false
         }
     },
-    props: {
+    props:{
         sourceSubreddit: String,
         targetSubreddit: String
     },
@@ -15,9 +15,9 @@ Vue.component('properties-plot', {
     methods: {
         async fetchPlot() {
             this.isLoading = true
-            let url = `${apiEndpoint}top-properties`
-            let sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-            let targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
+            let url = `${apiEndpoint}properties-radar`
+            const sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
+            const targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
             if (this.sourceSubreddit && this.targetSubreddit) {
                 url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
             } else if (this.sourceSubreddit) {
@@ -25,25 +25,27 @@ Vue.component('properties-plot', {
             } else if (this.targetSubreddit) {
                 url = url + "?" + targetSubredditQuery
             }
-            const propertiesPlotResponse = await fetch(url);
-            const propertiesPlot = await propertiesPlotResponse.json();
-            const graphDiv = document.getElementById("properties-plot")
-            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, {displayModeBar: false})
+            const propertiesResponse = await fetch(url);
+            const propertiesRadar = await propertiesResponse.json();
+            const graphDiv = document.getElementById("properties-radar")
+            Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, {displayModeBar: false})
             this.isLoading = false
         },
-        async fetchAPIData() {
+        async fetchAPIData () {
             this.fetchPlot()
         }
     },
+
     created: async function(){
         this.fetchAPIData()
     },
+
     template: `
     <div>
         <div class="row">
             <div class="col-md-10">
                 <p class="mb-0 mt-1" >
-                <small> <strong> Top topics of the post </strong></small>
+                <small> <strong> Topical processes of posts </strong></small>
                 </p>
             </div>
             <div class="col-md-2">
@@ -52,6 +54,6 @@ Vue.component('properties-plot', {
                 </div>
             </div>
         </div>
-        <div id="properties-plot" class="chart"></div>
+        <div id="properties-radar" class="chart"></div>
     </div> `
 })
