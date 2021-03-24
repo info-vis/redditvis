@@ -1,9 +1,7 @@
 import collections
 
 import networkx as nx
-import numpy as np
 import pandas as pd
-from pandas.core.common import flatten
 
 
 class NetworkGraphHelper:
@@ -27,26 +25,30 @@ class NetworkGraphHelper:
                 data, "SOURCE_SUBREDDIT", "TARGET_SUBREDDIT", create_using=nx.DiGraph()
             )
             # Contains parents as key, list of children as values
-            clusters = collections.defaultdict(list) # Create a dict where each key has an empty list by default
+            clusters = collections.defaultdict(
+                list
+            )  # Create a dict where each key has an empty list by default
             for node in graph:
                 neighbors = [x for x in nx.all_neighbors(graph, node)]
-                is_leaf_node = len(set(neighbors)) == 1 # Only one unique neighbor? Leaf node (child) found
+                # Only one unique neighbor? Leaf node (child) found
+                is_leaf_node = len(set(neighbors)) == 1
                 if is_leaf_node:
-                    key = neighbors[0]  # Key = parent
-                    clusters[key].append(node)  # Add the node to the child array of the parent
+                    parent_node = neighbors[0]  # Key = parent
+                    # Add the node to the child array of the parent
+                    clusters[parent_node].append(node)
 
             result = []
             cluster_id = 1
             for parent, children in clusters.items():
+                if (len(children)) == 1:
+                    continue  # Do not add parents with only one child, as cluster does not make sense here
                 result.append([parent, "parent", cluster_id])  # Parent
                 result += [[c, "child", cluster_id] for c in children]  # Child
                 cluster_id += 1
 
             nodes = [x for x in graph]  # All nodes in the graph
-            parents_or_children = list(clusters.keys()) + list(
-                flatten(clusters.values())
-            )
-            # Add nodes without cluster properties (None, None) when they are neither parents nor children
+            parents_or_children = [x[0] for x in result]
+            # When nodes are neither parents nor children, add them without cluster properties: [x, None, None]
             result += [[x, None, None] for x in nodes if x not in parents_or_children]
             return result
 
