@@ -63,6 +63,4 @@ def test_to_network_graph():
         columns=["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT", "count"],
     )
     actual = NetworkGraphHelper.to_network_graph(input_data)
-    print("actual:", actual)
-    print("expected:", expected)
     assert actual == expected
