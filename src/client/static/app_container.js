@@ -9,10 +9,10 @@ Vue.component("app-container", {
       selectedSourceSubreddit: null,
       selectedTargetSubreddit: null,
       showSubredditNames: false,
-      filterValue: null
+      filterValue: null,
+      showAlert: false
     }
   },
-
   computed: {
     detailsOnDemandCardTitle: function () {
       if (this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
@@ -23,11 +23,33 @@ Vue.component("app-container", {
         return `Details for the target subreddit: ${this.selectedTargetSubreddit}`}
       return "Details for all subreddits"}
   },
+  watch: {
+    selectedSourceSubreddit: "fetchData",
+    selectedTargetSubreddit: "fetchData",
+    numberOfLinks: "fetchData"
 
+  },
   methods: {
     fetchData: async function () {
       this.isLoadingData = true
-      const response = await fetch(`${apiEndpoint}network?n_links=${this.numberOfLinks}`);
+      let url = ''
+      if (this.selectedSourceSubreddit || (this.selectedSourceSubreddit && this.selectedTargetSubreddit)) {
+        url = `${apiEndpoint}network?subreddit=${this.selectedSourceSubreddit}`
+      } else if (this.selectedTargetSubreddit) {
+        url = `${apiEndpoint}network?subreddit=${this.selectedTargetSubreddit}`
+      } else {
+        url = `${apiEndpoint}network?n_links=${this.numberOfLinks}`
+      }
+      const response = await fetch(url);
+      if (response.status != 200) {
+        this.selectedSourceSubreddit = null
+        this.selectedTargetSubreddit = null
+        this.showAlert = true
+        return
+      }
+      if (this.selectedSourceSubreddit) {
+        this.showAlert = false
+      }
       const data = await response.json();
       this.networkData = await data
       this.isLoadingData = false
@@ -45,10 +67,10 @@ Vue.component("app-container", {
     },
     handlePanToSubreddit: function (payload) {
       if (payload == "source") {
-        this.$refs.graphNetwork.panToSubreddit(this.selectedSourceSubreddit)
+        this.$refs.graphNetwork.panToNode(this.selectedSourceSubreddit)
       }
       if (payload == "target") {
-        this.$refs.graphNetwork.panToSubreddit(this.selectedTargetSubreddit)
+        this.$refs.graphNetwork.panToNode(this.selectedTargetSubreddit)
       }
     },
     handleClearSubreddit: function (payload) {
@@ -59,19 +81,8 @@ Vue.component("app-container", {
         this.selectedTargetSubreddit = null
       }
     },
-    submitFilter: function (event) {
-      const input = event.target.value
-      if (this.networkData.nodes.includes(this.filterValue)) {
-        this.selectedSourceSubreddit = this.filterValue
-      }
-    },
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
-      this.fetchData()
-    },
-    clearFilters: function () {
-      this.filterValue = null
-      this.selectedSourceSubreddit = null
     },
     subredditSelectOptions(type) {
       if (this.networkData && this.networkData.nodes) {
@@ -93,7 +104,7 @@ Vue.component("app-container", {
           }).map(link => link[0])
           return sourcesOfSelectedTargetSubreddit
         }
-        return this.networkData && this.networkData.nodes
+        return this.networkData && this.networkData.nodes.map(x => x[0])
       }
     }
   },
@@ -103,15 +114,9 @@ Vue.component("app-container", {
   template: `
     <div id="wrapper">
 
-      <!-- Spinner/Loading icon -->
-      <div v-if="isLoadingData" class="d-flex justify-content-center col">
-          <div class="spinner-grow mt-5" role="status">
-          </div>
-      </div>
-
       <div class="row my-3">
         <!-- Graph network -->
-        <div class="col-md-9 pe-0 mb-2">
+        <div class="col-md-10 pe-0 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -124,8 +129,24 @@ Vue.component("app-container", {
         </div>
 
         <!-- Side bar -->
-        <div class="col-md-3">
-          <div class="row">
+        <div class="col-md-2">
+
+          <!-- Spinner/Loading icon -->
+          <div v-if="isLoadingData" class="d-flex justify-content-center col">
+              <div class="spinner-grow my-2" role="status">
+              </div>
+          </div>
+
+          <div class="row" v-if="showAlert"> 
+            <div class="col">
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Oops!</strong> Could not find the subreddit you entered.
+                <button type="button" class="btn-close" @click="showAlert = false" aria-label="Close"></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row"> 
             <div class="col">
               <div class="mb-1">
                 <select-subreddit
@@ -161,10 +182,10 @@ Vue.component("app-container", {
           <div class="row">
 
             <div class="col">
-            <div class="p-2 rounded my-1" style="background-color: #eeeeee">
+            <div class="p-2 rounded my-1 border shadow-sm" style="background-color: white">
 
               <div class="row">
-                <div class="input-group mb-3">
+                <div class="input-group">
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames">
                     <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
@@ -175,7 +196,7 @@ Vue.component("app-container", {
               <div class="row">
                 <div class="col">
                   <label for="linkSlider" class="form-label">Number of links: {{ numberOfLinksSliderValue }}/137821</label>
-                  <input type="range" class="form-range" min="0" max="137821" step="1000" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
+                  <input type="range" class="form-range" min="0" max="25000" step="50" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
                 </div>
               </div>
 
@@ -185,7 +206,7 @@ Vue.component("app-container", {
 
           <div class="row">
             <div class="col">
-            <div class="border p-2 rounded my-1" style="background-color: #eeeeee">
+            <div class="border p-2 rounded my-1 border shadow-sm" style="background-color: white">
                 <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
                 <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
             </div>
