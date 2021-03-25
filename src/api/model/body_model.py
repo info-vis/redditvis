@@ -34,12 +34,17 @@ class BodyModel:
             .sort_values("counts", ascending=False).head(num)
 
     def get_sentiments(self, target_subreddit, source_subreddit):
-        if target_subreddit != None and source_subreddit != None:
+        
+        daterange = pd.date_range('01-01-2014', '12-31-2017').astype(str)
+
+        if target_subreddit is not None and source_subreddit is not None:
             return self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .reindex(daterange) \
                                 .reset_index() \
+                                .rename(columns={'index': 'DATE'}) \
                                 .to_dict('records')
 
         elif source_subreddit != None:
@@ -47,7 +52,9 @@ class BodyModel:
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
+                                .rename(columns={'index': 'DATE'}) \
                                 .to_dict('records')
                                 
             
@@ -56,7 +63,9 @@ class BodyModel:
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .reindex(daterange) \
                                 .reset_index() \
+                                .rename(columns={'index': 'DATE'}) \
                                 .to_dict('records')
         else:
             print('Something went wrong in get_sentiments function')
