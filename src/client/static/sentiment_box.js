@@ -60,20 +60,17 @@ Vue.component('sentiment-box', {
                 return
             }
 
-            var dateRange = d3.timeDays(new Date(2014, 0, 1), new Date(2018, 0, 0));
-
-
-            
+            // wrangles data into more useable format
             const dateValues = this.data.map(dv => ({
                 date: d3.timeDay(new Date(dv.DATE)),
                 value: Number(dv.LINK_SENTIMENT)
               }));
-           
+            
+            // gets min-maxvalues for color scale
               const values = dateValues.map(c => c.value);
               const maxValue = d3.max(values);
               const minValue = d3.min(values);
 
-            console.log(dateValues)
               
                 
             var svg = d3.select("#sentiment-box")
@@ -82,13 +79,14 @@ Vue.component('sentiment-box', {
                       .attr("height", this.height);
     
             
+            // wrangles data into array of arrays format
              const years = d3
                             .group(dateValues, d => d.date.getUTCFullYear());
             
-            console.log(typeof(years))
 
             const group = svg.append("g");
 
+            // binds data to all 'g'
             const year = group
             .selectAll("g")
             .data(years)
@@ -97,7 +95,8 @@ Vue.component('sentiment-box', {
               "transform",
               (d, i) => `translate(50, ${this.yearHeight * i + this.cellSize * 1.5})`
             );
-  
+
+        // writes year names on the left
           year
             .append("text")
             .attr("x", -5)
@@ -118,7 +117,7 @@ Vue.component('sentiment-box', {
             .domain([-3, 0, 3]); //should be dynamic base on minValue, maxValue
           const format = d3.format("+.2%");
   
-        // 
+        // Writes daynames on the left
           year
             .append("g")
             .attr("text-anchor", "end")
@@ -131,40 +130,7 @@ Vue.component('sentiment-box', {
             .attr("font-size", 12)
             .text(formatDay);
             
-
-        
-        // year
-        //     .append("g")
-        //     .attr("text-anchor", "end")
-        //     .selectAll("text")
-        //     .data(this.months)
-        //     .join("text")
-        //     .attr("x", (d,i) => 10 * i)
-        //     .attr("y", 0)
-        //     .attr("dy", "0.31em")
-        //     .attr("font-size", 12)
-        //     .text();
-
-        //   year
-        //     .append("g")
-        //     .selectAll("rect")
-        //     .data(dateRange)
-        //     .join("rect")
-        //     .attr("width", this.cellSize - 1.5)
-        //     .attr("height", this.cellSize - 1.5)
-        //     .attr(
-        //       "x",
-        //       (d, i) => { 
-        //           return timeWeek.count(d3.utcYear(d), d) * this.cellSize + 10})
-        //     .attr("y", (d,i) => countDay(d) * this.cellSize + 0.5)
-        //     .attr("stroke-width", '0.5')
-        //     .attr("stroke", "Black")
-        //     .attr("fill", "White")
-        //     .append("title")
-        //     .text(d => `${formatDate(d)}: No data`)
-
-        
-
+        // draws rectangles based on values               
         year
             .append("g")
             .selectAll("rect")
@@ -176,7 +142,7 @@ Vue.component('sentiment-box', {
             "x",
             (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * this.cellSize + 10)
             .attr("y", d => countDay(d.date) * this.cellSize + 0.5)
-            .attr("fill", function(d){if (d.value == Number.NaN){
+            .attr("fill", function(d){if (d.value == 0){
                 return 'Grey'} else {return colorFn(d.value)} })
             .append("title")
             .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`)
