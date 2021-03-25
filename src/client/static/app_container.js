@@ -8,20 +8,25 @@ Vue.component("app-container", {
       isLoadingData: false,
       selectedSourceSubreddit: null,
       selectedTargetSubreddit: null,
+      sourceSubredditQuery: null,
+      targetSubredditQuery: null,
       shownSubgraph: null,
       showSubredditNames: false,
       filterValue: null,
-      showAlert: false
+      alerts: []
     }
   },
   computed: {
     detailsOnDemandCardTitle: function () {
       if (this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
-        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`}
+        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`
+      }
       else if (this.selectedSourceSubreddit) {
-        return `Details for the subreddit: ${this.selectedSourceSubreddit}`}
+        return `Details for the subreddit: ${this.selectedSourceSubreddit}`
+      }
       else if (this.selectedTargetSubreddit) {
-        return `Details for the target subreddit: ${this.selectedTargetSubreddit}`}
+        return `Details for the target subreddit: ${this.selectedTargetSubreddit}`
+      }
       return "Details for all subreddits"
     },
     subredditLink: function () {
@@ -29,57 +34,121 @@ Vue.component("app-container", {
     },
   },
   watch: {
-    selectedSourceSubreddit: function() {
-      const subGraphIsShownForTarget = this.selectedTargetSubreddit && this.selectedTargetSubreddit == this.shownSubgraph
-      if (!subGraphIsShownForTarget) {
+    selectedSourceSubreddit () {
+      if (!this.selectedSourceSubreddit && !this.selectedTargetSubreddit) {
         this.fetchData()
       }
     },
-    selectedTargetSubreddit:  function() {
-      const subGraphIsShownForSource = this.selectedSourceSubreddit && this.selectedSourceSubreddit == this.shownSubgraph
-      if (!subGraphIsShownForSource) {
+    selectedTargetSubreddit () {
+      if (!this.selectedSourceSubreddit && !this.selectedTargetSubreddit) {
         this.fetchData()
+      }
+    },
+    sourceSubredditQuery: function (query) {
+      if (query != null) { 
+        this.handleSubredditQueryChange(type = "source")
+      }
+    },
+    targetSubredditQuery: function (query) {
+      if (query != null) { 
+        this.handleSubredditQueryChange(type = "target")
       }
     },
     numberOfLinks: "fetchData"
   },
   methods: {
+    /**
+     * @param {String} type Either 'source' or 'target'
+     */
+    handleSubredditQueryChange: function (type) {
+      const validateLink = (source, target) => {
+        const linkExists = this.doesLinkExist(source, target)
+        if (!linkExists) {
+          if (type == "target") {
+            this.addAlert(`Subreddit <strong>${source}</strong> has no posts to <strong>${target}</strong>`)
+          } else {
+            this.addAlert(`Subreddit <strong>${target}</strong> has no posts from <strong>${source}</strong>`)
+          }
+          return false
+        } else {
+          this.removeAllAlerts()
+          return true
+        }
+      }
+
+      if (this.selectedSourceSubreddit && type == 'target') {
+        const isValid = validateLink(this.selectedSourceSubreddit, this.targetSubredditQuery)
+        if (isValid) {
+          this.selectedTargetSubreddit = this.targetSubredditQuery
+        }
+        this.targetSubredditQuery = null
+      } else if (this.selectedTargetSubreddit && type == 'source') {
+        const isValid = validateLink(this.sourceSubredditQuery, this.selectedTargetSubreddit)
+        if (isValid) {
+          this.selectedSourceSubreddit = this.sourceSubredditQuery
+        }
+        this.sourceSubredditQuery = null
+      } else {
+        let counterpartsSubgraphIsShown
+        if (type == "source") {
+          counterpartsSubgraphIsShown = this.selectedTargetSubreddit && this.selectedTargetSubreddit == this.shownSubgraph
+        } else {
+          counterpartsSubgraphIsShown = this.selectedSourceSubreddit && this.selectedSourceSubreddit == this.shownSubgraph
+        }
+        if (!counterpartsSubgraphIsShown) {
+          this.fetchData()
+        }
+      }
+    },
     fetchData: async function () {
       this.isLoadingData = true
       let url = ''
-      if (this.selectedSourceSubreddit || (this.selectedSourceSubreddit && this.selectedTargetSubreddit)) {
-        url = `${apiEndpoint}network?subreddit=${this.selectedSourceSubreddit}`
-        this.shownSubgraph = this.selectedSourceSubreddit
-      } else if (this.selectedTargetSubreddit) {
-        url = `${apiEndpoint}network?subreddit=${this.selectedTargetSubreddit}`
-        this.shownSubgraph = this.selectedTargetSubreddit
+      let subredditToFetchSubgraphFor = null
+
+      if (this.sourceSubredditQuery) {
+        url = `${apiEndpoint}network?subreddit=${this.sourceSubredditQuery}`
+        subredditToFetchSubgraphFor = this.sourceSubredditQuery
+      } else if (this.targetSubredditQuery) {
+        url = `${apiEndpoint}network?subreddit=${this.targetSubredditQuery}`
+        subredditToFetchSubgraphFor = this.targetSubredditQuery
       } else {
-        this.shownSubgraph = null
         url = `${apiEndpoint}network?n_links=${this.numberOfLinks}`
       }
+
       const response = await fetch(url);
+
+      // Handle failed responses
       if (response.status != 200) {
-        this.selectedSourceSubreddit = null
-        this.selectedTargetSubreddit = null
-        this.showAlert = true
+        this.sourceSubredditQuery = null
+        this.targetSubredditQuery = null
+        this.addAlert(`Subreddit ${subredditToFetchSubgraphFor} was not found`)
+        this.isLoadingData = false
         return
       }
-      if (this.selectedSourceSubreddit) {
-        this.showAlert = false
-      }
+
       const data = await response.json();
       this.networkData = await data
+      this.shownSubgraph = subredditToFetchSubgraphFor
       this.isLoadingData = false
+      if (this.sourceSubredditQuery) {
+        this.selectedSourceSubreddit = this.sourceSubredditQuery
+      }
+      if (this.targetSubredditQuery) {
+        this.selectedTargetSubreddit = this.targetSubredditQuery
+      }
+      this.sourceSubredditQuery = null
+      this.targetSubredditQuery = null
+      this.removeAllAlerts()
     },
     toggleShowSubredditNames: function () {
       this.showSubredditNames = !this.showSubredditNames
     },
     handleSelectSubreddit: function (payload) {
       if (payload.type == "source") {
-        this.selectedSourceSubreddit = payload.selectedSubredditInput
+        this.sourceSubredditQuery = payload.selectedSubredditInput
       }
       if (payload.type == "target") {
-        this.selectedTargetSubreddit = payload.selectedSubredditInput
+        this.targetSubredditQuery = payload.selectedSubredditInput
       }
     },
     handlePanToSubreddit: function (payload) {
@@ -127,6 +196,23 @@ Vue.component("app-container", {
         }
         return this.networkData && this.networkData.nodes.map(x => x[0])
       }
+    },
+    doesLinkExist: function (source, target) {
+      const foundLinks = this.networkData.links.filter(x => x[0] == source && x[1] == target)
+      return foundLinks.length > 0 ? true : false
+    },
+    addAlert: function (message) {
+      this.alerts.push({
+        id: Date.now(),
+        message: message
+      })
+    },
+    removeAlert: function (alertId) {
+      const newAlerts = this.alerts.filter(x => x.id != alertId)
+      this.alerts = newAlerts
+    },
+    removeAllAlerts: function () {
+      this.alerts = []
     }
   },
   created: async function () {
@@ -168,11 +254,14 @@ Vue.component("app-container", {
               </div>
           </div>
 
-          <div class="row" v-if="showAlert"> 
+          <div v-for="alert in alerts" :key="alert.id" class="row"> 
             <div class="col">
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Oops!</strong> Could not find the subreddit you entered.
-                <button type="button" class="btn-close" @click="showAlert = false" aria-label="Close"></button>
+                <strong>Oops!</strong>  
+                <span v-html="alert.message">
+                   {{ alert.message }}
+                </span>
+                <button type="button" class="btn-close" @click="removeAlert(alert.id)" aria-label="Close"></button>
               </div>
             </div>
           </div>

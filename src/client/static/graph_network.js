@@ -349,9 +349,7 @@ Vue.component('graph-network', {
                 this.handleSecondNodeClick(node)
             }
             this.selectedNode = node
-            // ToDo: Add info whether the selected node is an actual link of the currently selected source/target (or both)
-            this.$emit("node-selected", {node})
-
+            this.$emit("node-selected", node)
             return this.getNodeById(node.id)
         },
         handleSecondNodeClick(node) {
@@ -411,9 +409,6 @@ Vue.component('graph-network', {
         },
         expandNode(newNodeId, oldNodeId) {
             const node = this.getNodeById(newNodeId)
-            console.log("node inside expandndoe")
-            console.log(node)
-            console.log(newNodeId)
             if (node) { // Expand the new node
                 this.mutateNode(node.id, {...node, "collapsed": false})
             }

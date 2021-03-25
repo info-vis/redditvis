@@ -13,7 +13,6 @@ Vue.component('select-subreddit', {
             default: "#dee2e6"
         }
     },
-
     computed: {
         subredditLink: function () {
             return `https://www.reddit.com/r/${this.selectedSubreddit}/`
