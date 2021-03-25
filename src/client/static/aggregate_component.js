@@ -1,4 +1,4 @@
-Vue.component("aggregates-component", {
+Vue.component("aggregate-component", {
   data: function() {
     return {
       isLoading: false,
@@ -27,8 +27,7 @@ Vue.component("aggregates-component", {
             url = url + "?" + targetSubredditQuery
           }
         const freqResponse = await fetch(url);
-        const freqObject = await freqResponse.json();
-        this.aggregateData = freqObject
+        this.aggregateData = await freqResponse.json();
     },
   },
   mounted() {
@@ -38,6 +37,7 @@ Vue.component("aggregates-component", {
   <div class="w-50" v-if="aggregateData && aggregateData.data">
     <strong>Aggregate properties of the posts</strong>
     <div class="card-columns" style="column-count:3">
+      
       <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">

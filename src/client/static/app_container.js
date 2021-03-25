@@ -228,8 +228,8 @@ Vue.component("app-container", {
             <div class="card-body">
               <div class="row">
                 <div class="col">
-                  <aggregates-component :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
-                  </aggregates-component>
+                  <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
+                  </aggregate-container>
                 </div>
               </div>
               <div class="row">
