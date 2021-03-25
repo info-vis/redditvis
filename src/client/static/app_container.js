@@ -61,29 +61,14 @@ Vue.component("app-container", {
      * @param {String} type Either 'source' or 'target'
      */
     handleSubredditQueryChange: function (type) {
-      const validateLink = (source, target) => {
-        const linkExists = this.doesLinkExist(source, target)
-        if (!linkExists) {
-          if (type == "target") {
-            this.addAlert(`Subreddit <strong>${source}</strong> has no posts to <strong>${target}</strong>`)
-          } else {
-            this.addAlert(`Subreddit <strong>${target}</strong> has no posts from <strong>${source}</strong>`)
-          }
-          return false
-        } else {
-          this.removeAllAlerts()
-          return true
-        }
-      }
-
       if (this.selectedSourceSubreddit && type == 'target') {
-        const isValid = validateLink(this.selectedSourceSubreddit, this.targetSubredditQuery)
+        const isValid = this.validateLink(this.selectedSourceSubreddit, this.targetSubredditQuery, type)
         if (isValid) {
           this.selectedTargetSubreddit = this.targetSubredditQuery
         }
         this.targetSubredditQuery = null
       } else if (this.selectedTargetSubreddit && type == 'source') {
-        const isValid = validateLink(this.sourceSubredditQuery, this.selectedTargetSubreddit)
+        const isValid = this.validateLink(this.sourceSubredditQuery, this.selectedTargetSubreddit, type)
         if (isValid) {
           this.selectedSourceSubreddit = this.sourceSubredditQuery
         }
@@ -100,11 +85,13 @@ Vue.component("app-container", {
         }
       }
     },
-    fetchData: async function () {
-      this.isLoadingData = true
-      let url = ''
-      let subredditToFetchSubgraphFor = null
-
+    getSubredditToFetchSubgraphFor() {
+      if (this.sourceSubredditQuery) return this.sourceSubredditQuery
+      if (this.targetSubredditQuery) return this.targetSubredditQuery
+      return null
+    },
+    getNetworkUrl() {
+      let url
       if (this.sourceSubredditQuery) {
         url = `${apiEndpoint}network?subreddit=${this.sourceSubredditQuery}`
         subredditToFetchSubgraphFor = this.sourceSubredditQuery
@@ -114,14 +101,21 @@ Vue.component("app-container", {
       } else {
         url = `${apiEndpoint}network?n_links=${this.numberOfLinks}`
       }
-
+      return url
+    },
+    clearQueries() {
+      this.sourceSubredditQuery = null
+      this.targetSubredditQuery = null
+    },
+    fetchData: async function () {
+      this.isLoadingData = true
+      let url = this.getNetworkUrl()
       const response = await fetch(url);
+      let subredditToFetchSubgraphFor = this.getSubredditToFetchSubgraphFor()
 
-      // Handle failed responses
-      if (response.status != 200) {
-        this.sourceSubredditQuery = null
-        this.targetSubredditQuery = null
-        this.addAlert(`Subreddit ${subredditToFetchSubgraphFor} was not found`)
+      if (response.status != 200) { // Handle failed responses
+        this.clearQueries()
+        this.addAlert(`Subreddit ${subredditToFetchSubgraphFor} was not found.`)
         this.isLoadingData = false
         return
       }
@@ -129,16 +123,17 @@ Vue.component("app-container", {
       const data = await response.json();
       this.networkData = await data
       this.shownSubgraph = subredditToFetchSubgraphFor
-      this.isLoadingData = false
+
       if (this.sourceSubredditQuery) {
         this.selectedSourceSubreddit = this.sourceSubredditQuery
       }
       if (this.targetSubredditQuery) {
         this.selectedTargetSubreddit = this.targetSubredditQuery
       }
-      this.sourceSubredditQuery = null
-      this.targetSubredditQuery = null
+
+      this.clearQueries()
       this.removeAllAlerts()
+      this.isLoadingData = false
     },
     toggleShowSubredditNames: function () {
       this.showSubredditNames = !this.showSubredditNames
@@ -197,9 +192,23 @@ Vue.component("app-container", {
         return this.networkData && this.networkData.nodes.map(x => x[0])
       }
     },
-    doesLinkExist: function (source, target) {
-      const foundLinks = this.networkData.links.filter(x => x[0] == source && x[1] == target)
-      return foundLinks.length > 0 ? true : false
+    validateLink(source, target, type) {
+      const doesLinkExist = (source, target) => {
+        const foundLinks = this.networkData.links.filter(x => x[0] == source && x[1] == target)
+        return foundLinks.length > 0 ? true : false
+      }
+      const linkExists = doesLinkExist(source, target)
+      if (!linkExists) {
+        if (type == "target") {
+          this.addAlert(`Subreddit <strong>${source}</strong> has no posts to <strong>${target}</strong>`)
+        } else {
+          this.addAlert(`Subreddit <strong>${target}</strong> has no posts from <strong>${source}</strong>`)
+        }
+        return false
+      } else {
+        this.removeAllAlerts()
+        return true
+      }
     },
     addAlert: function (message) {
       this.alerts.push({
