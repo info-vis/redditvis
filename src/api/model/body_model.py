@@ -42,7 +42,7 @@ class BodyModel:
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .reindex(daterange) \
+                                .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
                                 .rename(columns={'index': 'DATE'}) \
                                 .to_dict('records')
@@ -63,7 +63,7 @@ class BodyModel:
                                 .sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .reindex(daterange) \
+                                .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
                                 .rename(columns={'index': 'DATE'}) \
                                 .to_dict('records')
