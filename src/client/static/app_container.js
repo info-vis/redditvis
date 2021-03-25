@@ -90,17 +90,13 @@ Vue.component("app-container", {
       return null
     },
     getNetworkUrl() {
-      let url
       if (this.sourceSubredditQuery) {
-        url = `${apiEndpoint}network?subreddit=${this.sourceSubredditQuery}`
-        subredditToFetchSubgraphFor = this.sourceSubredditQuery
+        return `${apiEndpoint}network?subreddit=${this.sourceSubredditQuery}`
       } else if (this.targetSubredditQuery) {
-        url = `${apiEndpoint}network?subreddit=${this.targetSubredditQuery}`
-        subredditToFetchSubgraphFor = this.targetSubredditQuery
+        return `${apiEndpoint}network?subreddit=${this.targetSubredditQuery}`
       } else {
-        url = `${apiEndpoint}network?n_links=${this.numberOfLinks}`
+        return `${apiEndpoint}network?n_links=${this.numberOfLinks}`
       }
-      return url
     },
     clearQueries() {
       this.sourceSubredditQuery = null
@@ -108,9 +104,9 @@ Vue.component("app-container", {
     },
     fetchData: async function () {
       this.isLoadingData = true
-      let url = this.getNetworkUrl()
+      const url = this.getNetworkUrl()
       const response = await fetch(url);
-      let subredditToFetchSubgraphFor = this.getSubredditToFetchSubgraphFor()
+      const subredditToFetchSubgraphFor = this.getSubredditToFetchSubgraphFor()
 
       if (response.status != 200) { // Handle failed responses
         this.clearQueries()
