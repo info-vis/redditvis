@@ -110,7 +110,7 @@ Vue.component("app-container", {
 
       if (response.status != 200) { // Handle failed responses
         this.clearQueries()
-        this.addAlert(`Subreddit ${subredditToFetchSubgraphFor} was not found.`)
+        this.addAlert(`Subreddit <strong>${subredditToFetchSubgraphFor}</strong> was not found.`)
         this.isLoadingData = false
         return
       }
