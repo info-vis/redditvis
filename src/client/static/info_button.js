@@ -20,7 +20,6 @@ $(document).ready(function() {
 Vue.component('info-button1', {
     template: `
     <a tabindex="0" class="btn1" role="button" data-bs-toggle="popover1" data-bs-trigger="focus" title="Top target subreddits" data-bs-content="If a source subreddit is selected, the 10 most hyperlinked target subreddits of this source are displayed. If a target or both source and target subreddits are selected, the top 10 incoming subreddits of this target subreddit are displayed."><i class="bi bi-info-square"></i></a>
-    // <button type="button" class="btn1" data-bs-toggle="popover1" title="Top target/source subreddits" data-bs-content="And here's some amazing content. It's very engaging. Right?"><i class="bi bi-info-square"></i></button>
     `
 })
 
