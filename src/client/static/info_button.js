@@ -56,7 +56,7 @@ Vue.component('info-button4', {
 
 Vue.component('info-button5', {
     template: `
-    <a tabindex="0" class="btn5" role="button" style="color:grey" data-bs-toggle="popover5" data-bs-trigger="focus" title="Sentiment plot" data-bs-content="..."><i class="bi bi-info-square"></i></a>
+    <a tabindex="0" class="btn5" role="button" style="color:grey" data-bs-toggle="popover5" data-bs-trigger="focus" title="Sentiment plot" data-bs-content="Each cell represents a day in the years 2014, 2015, 2016 and 2017. The sum of all sentiments of the posts on one day is computed and colored according to a color scale, depending on the overall positivity or negativity of the posts."><i class="bi bi-info-square"></i></a>
     `
 })
 
