@@ -42,7 +42,7 @@ Vue.component('properties-plot', {
     <div>
         <div class="row">
             <div class="col-md-10">
-                <p class="mb-0 mt-1" >
+                <p class="mb-0 mt-1" > <info-button2></info-button2>
                 <small> <strong> Top topics of the post </strong></small>
                 </p>
             </div>

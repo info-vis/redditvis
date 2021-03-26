@@ -234,24 +234,19 @@ Vue.component("app-container", {
               </div>
               <div class="row">
                 <div class="col-md-3">
-                  <info-button1></info-button1>
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
                 </div>
                 <div class="col-md-3">
-                  <info-button2></info-button2>
                   <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
                   </properties-plot>
                 </div>
                 <div class="col-md-3">
-                  <info-button3></info-button3>
                   <properties-radar :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></properties-radar>
                 </div>
                 <div class="col-md-3">
-                  <info-button4></info-button4>
                   <correlation-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></correlation-plot>
                 </div>
                 <div class="col">
-                  <info-button5></info-button5>
                   <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
               </div>

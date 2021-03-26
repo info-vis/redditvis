@@ -44,7 +44,7 @@ Vue.component('properties-radar', {
     <div>
         <div class="row">
             <div class="col-md-10">
-                <p class="mb-0 mt-1" >
+                <p class="mb-0 mt-1" > <info-button3></info-button3>
                 <small> <strong> Topical processes of posts </strong></small>
                 </p>
             </div>

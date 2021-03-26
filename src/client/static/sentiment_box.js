@@ -48,7 +48,7 @@ Vue.component('sentiment-box', {
             </div>
         </div>
         <div v-show="!isLoading">
-            <p class="mb-0 mt-1" >
+            <p class="mb-0 mt-1" > <info-button5></info-button5>
             <small> <strong> Post sentiment per time </strong></small>
             </p>
         </div>

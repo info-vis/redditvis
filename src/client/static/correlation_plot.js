@@ -70,7 +70,7 @@ Vue.component('correlation-plot', {
     <div>
         <div class="row"> 
             <div class="col-md-10">
-                <p class="mb-0 mt-1" >
+                <p class="mb-0 mt-1" > <info-button4></info-button4>
                 <small> <strong> Correlation of post properties </strong></small>
                 </p>
             </div>

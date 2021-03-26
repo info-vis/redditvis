@@ -41,25 +41,28 @@ Vue.component('plot-source-target', {
   },
   template: `
   <div>
-      <div class="row">
-          <div class="col-md-10">
-              <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
-                  <small> <strong> Number of posts </strong></small>
-              </p>
-              <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
-                  <small> <strong> Top source subreddits </strong></small>
-              </p>
-              <p class="mb-0 mt-1" v-else>
-                  <small> <strong> Top target subreddits </strong></small>
-              </p>
-          </div>
-          <div class="col-md-2">
-              <div v-if="isLoading" class="d-flex justify-content-center">
-                  <div class="spinner-grow spinner-grow-sm" role="status"></div>
-              </div>
-          </div>
-      </div>
-      <div id="plot-source-target" class="bk-root"></div>
+    <div class="row">
+        <div class="col-md-10">
+            <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
+                <info-button1-both></info-button1-both>
+                <small> <strong> Number of posts </strong></small>
+            </p>
+            <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
+                <info-button1-target></info-button1-target>
+                <small> <strong> Top source subreddits </strong></small> 
+            </p>
+            <p class="mb-0 mt-1" v-else>
+                <info-button1-none></info-button1-none>
+                <small> <strong> Top target subreddits </strong></small>
+            </p>
+        </div>
+        <div class="col-md-2">
+            <div v-if="isLoading" class="d-flex justify-content-center">
+                <div class="spinner-grow spinner-grow-sm" role="status"></div>
+            </div>
+        </div>
+    </div>
+    <div id="plot-source-target" class="bk-root"></div>
   </div> `
 
 
