@@ -1,6 +1,8 @@
 import os
+from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from typing import Optional
 
+import networkx as nx
 import pandas as pd
 
 
@@ -13,9 +15,10 @@ class BodyModel:
 
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
+    graph = None
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
             BodyModel()
@@ -28,6 +31,13 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
+        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+                .size()\
+                .reset_index()\
+                .rename(columns={0: "count"})\
+                .sort_values("count", ascending=False)
+        self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
+
 
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
@@ -75,7 +85,7 @@ class BodyModel:
         """Returns the network data.
 
         Args:
-            head (int, optional): number of links. Defaults to None.
+            n_links (int, optional): number of links. Defaults to None.
 
         Returns:
             pd.DataFrame: Format:
@@ -85,15 +95,72 @@ class BodyModel:
         """
         if self.data is None:
             raise ValueError("No data has been loaded in BodyModel.")
+
         result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
                 .size()\
                 .reset_index()\
                 .rename(columns={0: "count"})\
                 .sort_values("count", ascending=False)
+
+        
         if n_links is not None:
             return result.head(n_links)
         return result
 
+    def get_subgraph_for_subreddit(self, subreddit: str, min_count = 5) -> pd.DataFrame:
+        """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
+        outgoing edges of the subreddit.
+
+        Args:
+            subreddit (str): The subreddit to retrieve the subgraph for
+            min_count (int): The minimum number of rows that need to exist in the data set
+                in order for the source/target relation to be returned.
+
+        Returns:
+            pd.DataFrame: Format (subreddit = "changelog"):
+                    SOURCE_SUBREDDIT    TARGET_SUBREDDIT  count
+                    117	trendingsubreddits	changelog	548
+                    17	changelog	beta	7
+                    30	changelog	redditdev	7
+        """
+        ######## v3 begin ########
+        df = self.data
+        
+        def get_neighbors(subreddit, graph):
+            neighbors = list(nx.all_neighbors(graph, subreddit))
+            return set(neighbors)
+
+        neighbors = get_neighbors(subreddit, self.graph)
+        
+        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        # Reduce size
+        neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > min_count]
+
+        return pd.concat([subreddit_neighbors_df, neighbors_neighbors_df])
+        ######## v3 end ########
+
+        ######## v2 begin ########
+        # if self.data is None:
+        #     raise ValueError("No data has been loaded in BodyModel.")
+
+        # return self.data[(self.data["SOURCE_SUBREDDIT"] == subreddit) | (self.data["TARGET_SUBREDDIT"] == subreddit)]\
+        #     .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+        #     .size()\
+        #     .reset_index()\
+        #     .rename(columns={0: "count"})\
+        #     .sort_values("count", ascending=False)
+        ######## v2 end ########
 
     def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         data = self.data
