@@ -1,6 +1,8 @@
 import os
+from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from typing import Optional
 
+import networkx as nx
 import pandas as pd
 
 
@@ -13,9 +15,10 @@ class BodyModel:
 
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
+    graph = None
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         """Static access method. Returns a reference to the singleton object."""
         if BodyModel.__instance == None:
             BodyModel()
@@ -28,6 +31,13 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
+        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+                .size()\
+                .reset_index()\
+                .rename(columns={0: "count"})\
+                .sort_values("count", ascending=False)
+        self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
+
 
     def get_sentiments(self, target):
         posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
@@ -54,10 +64,10 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,['LIWC_Family', 'LIWC_Friends', 'LIWC_Humans', 'LIWC_Posemo', 'LIWC_Negemo', 'LIWC_Anx', 'LIWC_Anger', 'LIWC_Sad', 'LIWC_Insight', 'LIWC_Cause', 'LIWC_Discrep', 'LIWC_Tentat', 'LIWC_Certain', 'LIWC_Inhib', 'LIWC_Incl', 'LIWC_Excl', 'LIWC_See', 'LIWC_Hear', 'LIWC_Feel', 'LIWC_Body', 'LIWC_Health', 'LIWC_Sexual', 'LIWC_Ingest', 'LIWC_Motion', 'LIWC_Space', 'LIWC_Time', 'LIWC_Work', 'LIWC_Achiev', 'LIWC_Leisure', 'LIWC_Home', 'LIWC_Money', 'LIWC_Relig', 'LIWC_Death']].mean().sort_values(ascending=False).head(10)
-
+        return data.loc[:,['Swear words','Family', 'Friends', 'Humans', 'Positive emotions', 'Negative emotions', 'Anxiety', 'Anger', 'Sadness', 'Insight', 'Causation', 'Discrepancy', 'Tentative', 'Certainty', 'Inhibition', 'Inclusive', 'Exclusive', 'Seeing', 'Hearing', 'Feeling', 'Body', 'Health', 'Sexuality', 'Ingestion', 'Motion', 'Space', 'Time', 'Work', 'Achievement', 'Leisure', 'Home', 'Money', 'Religion', 'Death']].mean().sort_values(ascending=False).head(10)
+    
     def get_top_properties_average(self):
-        data = self.data.loc[:,"LIWC_Funct":"LIWC_Filler"].mean()
+        data = self.data.loc[:,"Swear words":"Death"].mean()
         return data
 
     def get_frequency(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
@@ -75,7 +85,7 @@ class BodyModel:
         """Returns the network data.
 
         Args:
-            head (int, optional): number of links. Defaults to None.
+            n_links (int, optional): number of links. Defaults to None.
 
         Returns:
             pd.DataFrame: Format:
@@ -85,15 +95,72 @@ class BodyModel:
         """
         if self.data is None:
             raise ValueError("No data has been loaded in BodyModel.")
+
         result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
                 .size()\
                 .reset_index()\
                 .rename(columns={0: "count"})\
                 .sort_values("count", ascending=False)
+
+        
         if n_links is not None:
             return result.head(n_links)
         return result
 
+    def get_subgraph_for_subreddit(self, subreddit: str, min_count = 5) -> pd.DataFrame:
+        """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
+        outgoing edges of the subreddit.
+
+        Args:
+            subreddit (str): The subreddit to retrieve the subgraph for
+            min_count (int): The minimum number of rows that need to exist in the data set
+                in order for the source/target relation to be returned.
+
+        Returns:
+            pd.DataFrame: Format (subreddit = "changelog"):
+                    SOURCE_SUBREDDIT    TARGET_SUBREDDIT  count
+                    117	trendingsubreddits	changelog	548
+                    17	changelog	beta	7
+                    30	changelog	redditdev	7
+        """
+        ######## v3 begin ########
+        df = self.data
+        
+        def get_neighbors(subreddit, graph):
+            neighbors = list(nx.all_neighbors(graph, subreddit))
+            return set(neighbors)
+
+        neighbors = get_neighbors(subreddit, self.graph)
+        
+        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]\
+            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+            .size()\
+            .reset_index()\
+            .rename(columns={0: "count"})\
+            .sort_values("count", ascending=False)
+        # Reduce size
+        neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > min_count]
+
+        return pd.concat([subreddit_neighbors_df, neighbors_neighbors_df])
+        ######## v3 end ########
+
+        ######## v2 begin ########
+        # if self.data is None:
+        #     raise ValueError("No data has been loaded in BodyModel.")
+
+        # return self.data[(self.data["SOURCE_SUBREDDIT"] == subreddit) | (self.data["TARGET_SUBREDDIT"] == subreddit)]\
+        #     .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
+        #     .size()\
+        #     .reset_index()\
+        #     .rename(columns={0: "count"})\
+        #     .sort_values("count", ascending=False)
+        ######## v2 end ########
 
     def get_properties_radar(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         data = self.data
@@ -103,10 +170,10 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+        return data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
 
     def get_properties_radar_average(self):
-        data = self.data.loc[:,["LIWC_Social", "LIWC_Affect", "LIWC_CogMech", "LIWC_Percept", "LIWC_Bio", "LIWC_Relativ"]].mean()
+        data = self.data.loc[:,["Social processes", "Affective processes", "Cognitive processes", "Relativity", "Biological processes", "Perceptual processes"]].mean()
         return data
 
     def get_correlation_data(
@@ -134,6 +201,6 @@ class BodyModel:
             data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
         elif target_subreddit is not None:
             data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:, ['FRACTION_OF_ALPHABETICAL_CHARS',
-       'FRACTION_OF_DIGITS', 'FRACTION_OF_UP_CHARS', 'FRACTION_OF_WHITESPACE',
-       'FRACTION_OF_SPECIAL_CHARS', 'FRACTION_OF_STOPWORDS']].mean().sort_values(ascending=False).multiply(100).round(decimals=2)
+        return data.loc[:, ['Fraction of alphabetical characters',
+       'Fraction of digits', 'Fraction of uppercase characters',
+       'Fraction of white spaces', 'Fraction of special characters', 'Fraction of stopwords',]].mean().sort_values(ascending=False).multiply(100).round(decimals=2)

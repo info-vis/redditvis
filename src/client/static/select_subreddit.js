@@ -21,7 +21,7 @@ Vue.component('select-subreddit', {
         styleObject() {
             return {
                 border: `1px solid ${this.borderColor}`,
-                "background-color": "#eeeeee"
+                "background-color": "white"
             }
         },
         subredditOptionsId() {
@@ -30,12 +30,10 @@ Vue.component('select-subreddit', {
     },
     methods: {
         selectSubreddit() {
-            if (this.subredditOptions.includes(this.selectedSubredditInput)) {
-                this.$emit("select-subreddit", {
-                    type: this.type,
-                    selectedSubredditInput: this.selectedSubredditInput
-                })
-            }
+            this.$emit("select-subreddit", {
+                type: this.type,
+                selectedSubredditInput: this.selectedSubredditInput
+            })
         },
         clearSubreddit() {
             this.$emit('clear-subreddit', this.type)
@@ -70,7 +68,7 @@ Vue.component('select-subreddit', {
                         <div class="col">
                             <div class="my-2">
                                 <div class="row">
-                                    <div class="col-8">
+                                    <div class="col-7">
                                         <label for="selectSubredditInput" class="form-label">Select a subreddit</label>
                                     </div>
                                     <div class="col">

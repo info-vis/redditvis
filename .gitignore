@@ -137,6 +137,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Custom
 src/data/*
 !src/data/.gitkeep
 .DS_Store
