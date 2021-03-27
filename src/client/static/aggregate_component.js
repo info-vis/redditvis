@@ -36,20 +36,21 @@ Vue.component("aggregate-component", {
     }
   },
   template: `
-    <div class="card" style="width: 10rem">
+    <div class="card">
       <div class="card-header p-1 text-center">
-        {{ title }}
+        {{ title }} <span><slot></slot></span>
+        
       </div>
       <div :class="cardBodyClasses">
         <h5 :class="cardTitleClasses" style="color:#408acf;">
           {{ value.toLocaleString() }}
         </h5>
         <p v-if="globalAverage" class="card-text mb-1" style="font-size:11px;color:#003e78">
-          Global average: {{ globalAverage.toLocaleString() }}
+          Global average: <strong> {{ globalAverage.toLocaleString() }} </strong>
         </p>
         <p v-if="globalAverage" class="card-text mb-1" style="font-size: 11px;/* color: #d32f2f; */">
           Difference: <span :style="differenceStyle">{{ difference }}</span>
-          </p>
+        </p>
       </div>
     </div>
   `

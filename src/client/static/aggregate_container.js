@@ -45,7 +45,6 @@ Vue.component("aggregate-container", {
       </div>
 
       <div class="card-group" v-if="aggregateData && aggregateData.data">
-      
         <aggregate-component
           title="Number of posts"
           :value="aggregateData.data['Number of posts']"
@@ -67,10 +66,17 @@ Vue.component("aggregate-container", {
           title="Automated Readability Index"
           :value="aggregateData.data['Automated readability index']"
           :globalAverage="aggregateData.data_avg['Automated readability index']"
-        ></aggregate-component>
-
+        >
+          <info-button
+            title="Automated Readability index"
+            text="The automated readability index (ARI) is a readability test for English texts, 
+              designed to gauge the understandability of a text. Like the Flesch–Kincaid grade level, Gunning fog index, 
+              SMOG index, Fry readability formula, and Coleman–Liau index, it produces an approximate representation of 
+              the US grade level needed to comprehend the text."
+          ></info-button>
+        </aggregate-component>
       </div>
+
     </div>
-  </div>
   `
 })

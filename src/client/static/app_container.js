@@ -119,7 +119,7 @@ Vue.component("app-container", {
     <div id="wrapper">
       <div class="row my-3">
         <!-- Graph network -->
-        <div class="col-md-10 pe-0 mb-2">
+        <div class="col-md pe-0 mb-2">
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -225,16 +225,19 @@ Vue.component("app-container", {
       <div class="row">
         <div class="col">
           <div class="card">
+
             <div class="card-header">
               <strong> {{detailsOnDemandCardTitle}} </strong>
             </div>
+
             <div class="card-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-7">
                   <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </aggregate-container>
                 </div>
               </div>
+
               <div class="row">
                 <div class="col-md-3">
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
@@ -253,6 +256,7 @@ Vue.component("app-container", {
                   <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
               </div>
+
             </div>
           </div>
        </div>
