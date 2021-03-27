@@ -57,7 +57,7 @@ class BodyModel:
                                 .to_dict('records')
     def get_average_sentiments(self, target_subreddit, source_subreddit):
         if target_subreddit != None and source_subreddit != None:
-            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)
+            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
         elif source_subreddit != None:
             result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
         elif target_subreddit != None:
