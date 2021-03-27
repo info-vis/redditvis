@@ -1,6 +1,8 @@
 import json
 from math import pi
 
+from numpy.lib.function_base import average
+
 import bokeh
 import numpy as np
 import plotly.express as px
@@ -239,8 +241,17 @@ def correlation_plot():
 def aggregates():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
+	if (source_subreddit is None and target_subreddit is None):
+		data = BodyModel.get_instance().get_global_aggregates()
+		return jsonify({
+			"data": data.to_dict(),
+			"data_avg": data.to_dict()
+		})
 	data = BodyModel.get_instance().get_aggregates(source_subreddit, target_subreddit)
-	data_avg = BodyModel.get_instance().get_aggregates()
-
-	return jsonify({"data": data.to_dict(),
-	"data_avg": data_avg.to_dict() })
+	print(data)
+	average_data = BodyModel.get_instance().get_global_aggregates()
+	print(average_data)
+	return jsonify({
+		"data": data.to_dict(),
+		"data_avg": average_data.to_dict()
+	})
