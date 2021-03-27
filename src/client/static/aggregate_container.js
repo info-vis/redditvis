@@ -70,8 +70,7 @@ Vue.component("aggregate-container", {
           <info-button
             title="Automated Readability index"
             text="The automated readability index (ARI) is a readability test for English texts, 
-              designed to gauge the understandability of a text. Like the Flesch–Kincaid grade level, Gunning fog index, 
-              SMOG index, Fry readability formula, and Coleman–Liau index, it produces an approximate representation of 
+              designed to gauge the understandability of a text. It produces an approximate representation of 
               the US grade level needed to comprehend the text."
           ></info-button>
         </aggregate-component>

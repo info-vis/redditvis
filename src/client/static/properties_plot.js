@@ -46,9 +46,8 @@ Vue.component('properties-plot', {
                     <small> <strong> Top topics of the post </strong></small>
                     <info-button
                         title="Top topics of the post"
-                        text="The top 10 highest averages of each topic for the selected posts are displayed.
-                            In addition, the average of all posts from all subreddits is visualised as a diamond and 
-                            allows exploring how the selection differs from all values (expressed as a percentage of words in the posts)."
+                        text="The top 10 highest averages of each topic for the selected posts are displayed. 
+                            The topics are computed using LIWC dictionary dimensions."
                     >
                     </info-button>
                 </p>

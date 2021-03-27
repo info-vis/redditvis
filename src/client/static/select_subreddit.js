@@ -58,7 +58,7 @@ Vue.component('select-subreddit', {
                                 >
                                     r/{{ selectedSubreddit }}
                                 </a>
-                                <div v-if="!selectedSubreddit">None</div>
+                                <div v-if="!selectedSubreddit" style="font-size: 10px" >None</div>
                             </div>
                         </div>
                     </div>
