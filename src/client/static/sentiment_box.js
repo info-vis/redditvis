@@ -133,7 +133,7 @@ Vue.component('sentiment-box', {
 
 
 
-            var svg = createSvg();
+            var svg = this.createSvg();
 
 
             // wrangles data into array of arrays format
@@ -144,7 +144,7 @@ Vue.component('sentiment-box', {
             const group = svg.append("g");
 
             // binds data to all 'g'
-            const year = bindData(group, years);
+            const year = this.bindData(group, years);
 
             // writes year names on the left
             this.drawYearNames(year);
