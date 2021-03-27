@@ -48,8 +48,8 @@ Vue.component('properties-radar', {
                     <small> <strong> Psychological processes of posts </strong></small>
                     <info-button
                         title="Psychological processes of posts"
-                        text="The distribution of psychological processes of the posts is shown.
-                        In addition, the average of all subreddits is displayed to allow a comparison between the selected and global values."    
+                        text="The average values for the psychological processes (an overarching categorisation of topics) of the posts.
+                        The processes are computed using LIWC dictionary dimensions."    
                     >
                     </info-button>
                 </p>

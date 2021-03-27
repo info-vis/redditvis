@@ -52,8 +52,7 @@ Vue.component('sentiment-box', {
                 <small> <strong> Post sentiment per time </strong></small>
                 <info-button
                     title="Sentiment plot"
-                    text="Each cell represents a day in the years 2014, 2015, 2016 and 2017. 
-                        The sum of all sentiments of the posts on one day is computed and colored according to a color scale, 
+                    text="The sum of all sentiments of the posts on one day is computed and displayed according to a color scale, 
                         depending on the overall positivity or negativity of the posts."
                 >
                 </info-button>
