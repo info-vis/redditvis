@@ -222,3 +222,4 @@ class BodyModel:
         result = self.data.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
         result["Number of posts"] = self.data.shape[0]
         return result
+        
