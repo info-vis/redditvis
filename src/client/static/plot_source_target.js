@@ -47,7 +47,8 @@ Vue.component('plot-source-target', {
                 <small> <strong> Number of posts </strong></small>
                 <info-button 
                     title="Number of posts" 
-                    text="The number of posts from the seleced source subreddit to the selected arget subreddit ."
+                    text="The number of posts from the selected source subreddit to the selected target subreddit ."
+
                 >
                 </info-button>
             </p>
