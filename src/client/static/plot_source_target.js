@@ -44,16 +44,30 @@ Vue.component('plot-source-target', {
     <div class="row">
         <div class="col-md-10">
             <p class="mb-0 mt-1" v-if="this.sourceSubreddit && this.targetSubreddit">
-                <info-button1-both></info-button1-both>
                 <small> <strong> Number of posts </strong></small>
+                <info-button 
+                    title="Number of posts" 
+                    text="If both source and target subreddits are selected,
+                        the top 10 number of posts of the source subreddit linking to the target subreddit is displayed."
+                >
+                </info-button>
             </p>
             <p class="mb-0 mt-1" v-else-if=this.targetSubreddit>
-                <info-button1-target></info-button1-target>
                 <small> <strong> Top source subreddits </strong></small> 
+                <info-button
+                    title="Top incoming subreddits"
+                    text="If a target subreddit is selected, the top 10 incoming subreddits of this target subreddit are displayed."
+                >
+                </info-button>
             </p>
             <p class="mb-0 mt-1" v-else>
-                <info-button1-none></info-button1-none>
                 <small> <strong> Top target subreddits </strong></small>
+                <info-button
+                    title="Top target subreddits"
+                    text="If no subreddits are selected, the 10 most frequently hyperlinked subreddits in general are displayed.
+                        If a source subreddit is selected, the 10 most targeted subreddits of this source subreddit are displayed."
+                >
+                </info-button>
             </p>
         </div>
         <div class="col-md-2">

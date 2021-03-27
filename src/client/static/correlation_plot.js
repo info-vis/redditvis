@@ -70,8 +70,14 @@ Vue.component('correlation-plot', {
     <div>
         <div class="row"> 
             <div class="col-md-10">
-                <p class="mb-0 mt-1" > <info-button4></info-button4>
-                <small> <strong> Correlation of post properties </strong></small>
+                <p class="mb-0 mt-1" > 
+                    <small> <strong> Correlation of post properties </strong></small>
+                    <info-button
+                        title="Correlation of post properties"
+                        text="This plot enables interactive visualization of the correlation between two selected properties. 
+                            The user can explore the relationships between properties to see if they affect each other and draw their own insights. 
+                            There are 50 properties to select from, including descriptive details and topics of the posts."
+                    ></info-button>
                 </p>
             </div>
             <div class="col-md-2">

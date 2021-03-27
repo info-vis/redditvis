@@ -29,6 +29,7 @@ Vue.component("aggregates-component", {
         const freqResponse = await fetch(url);
         const freqObject = await freqResponse.json();
         this.aggs = freqObject
+        this.isLoading = false
     },
   },
   mounted() {
@@ -36,7 +37,25 @@ Vue.component("aggregates-component", {
   },
   template: `
   <div class="w-50" v-if="aggs && aggs.data">
-    <strong>Aggregate properties of the posts</strong>
+
+    <div class="row">
+      <div class="col-md-10">
+          <p class="mb-0 mt-1">
+              <small> <strong> Aggregate properties of the posts </strong></small>
+              <info-button
+                  title="Aggregate properties of the posts"
+                  text="Properties related to fractions, such as the number of alphabetical characters."
+              >
+              </info-button>
+          </p>
+      </div>
+      <div class="col-md-2">
+          <div v-if="isLoading" class="d-flex justify-content-center">
+              <div class="spinner-grow spinner-grow-sm" role="status"></div>
+          </div>
+      </div>
+    </div>
+
     <div class="card-columns" style="column-count:3">
       <div class="col d-flex align-items-stretch">
         <div class="card" style="background-color: #eeeeee; width: 10rem">

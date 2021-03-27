@@ -42,8 +42,15 @@ Vue.component('properties-plot', {
     <div>
         <div class="row">
             <div class="col-md-10">
-                <p class="mb-0 mt-1" > <info-button2></info-button2>
-                <small> <strong> Top topics of the post </strong></small>
+                <p class="mb-0 mt-1">
+                    <small> <strong> Top topics of the post </strong></small>
+                    <info-button
+                        title="Top topics of the post"
+                        text="The top 10 highest averages of each topic for the selected posts are displayed.
+                            In addition, the average of all posts from all subreddits is visualised as a diamond and 
+                            allows exploring how the selection differs from all values (expressed as a percentage of words in the posts)."
+                    >
+                    </info-button>
                 </p>
             </div>
             <div class="col-md-2">
