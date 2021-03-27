@@ -48,7 +48,7 @@ Vue.component('properties-radar', {
                     <small> <strong> Psychological processes of posts </strong></small>
                     <info-button
                         title="Psychological processes of posts"
-                        text="The average values for the psychological processes -topic groups - of the posts.
+                        text="The average values for the psychological processes (an overarching categorisation of topics) of the posts.
                         The processes are computed using LIWC dictionary dimensions."    
                     >
                     </info-button>
