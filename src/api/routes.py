@@ -97,7 +97,7 @@ def average_sentiment():
 	
 	average = BodyModel.getInstance().get_average_sentiments(target_subreddit, source_subreddit)
   
-	return json.dumps(average)
+	return jsonify(average)
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
