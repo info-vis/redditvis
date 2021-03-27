@@ -9,7 +9,7 @@ Vue.component('select-subreddit', {
         selectedSubreddit: String,
         subredditOptions: Array,
         borderColor: {
-            type: String, 
+            type: String,
             default: "#dee2e6"
         }
     },
