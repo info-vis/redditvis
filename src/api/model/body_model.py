@@ -57,19 +57,16 @@ class BodyModel:
                                 .to_dict('records')
     def get_average_sentiments(self, target_subreddit, source_subreddit):
         if target_subreddit != None and source_subreddit != None:
-            return float(self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)] \
-                                .loc['LINK_SENTIMENT']
-                                .mean())
+            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)
         elif source_subreddit != None:
-            return float(self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit] \
-                                .loc['LINK_SENTIMENT']
-                                .mean())
+            result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
         elif target_subreddit != None:
-            return float(self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit] \
-                                .loc['LINK_SENTIMENT']
-                                .mean())
+            result = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
         else:
-            print('Something went wrong in get_average_sentiments function')
+            raise ValueError("source_subreddit and target_subreddit cannot both be None")
+        
+        result = result.loc['LINK_SENTIMENT'].mean()
+        return float(result)
 
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
