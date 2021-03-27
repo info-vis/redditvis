@@ -32,8 +32,6 @@ Vue.component('sentiment-box', {
 
     methods: {
         async fetchAPIData() {
-            console.log(this.sourceSubreddit)
-            console.log(this.targetSubreddit)
             document.getElementById("sentiment-box").innerHTML = "";
             this.isLoading = true
             let url = `${apiEndpoint}sentiment-box`
@@ -41,13 +39,80 @@ Vue.component('sentiment-box', {
                 url = `${url}?source-subreddit=${this.sourceSubreddit}&target-subreddit=${this.targetSubreddit}`
             } else if (this.sourceSubreddit) {
                 url = `${url}?source-subreddit=${this.sourceSubreddit}`
-            } else if (this.targetSubreddit) {                
+            } else if (this.targetSubreddit) {
                 url = `${url}?target-subreddit=${this.targetSubreddit}`
             }
             const sentimentResponse = await fetch(url);
             this.data = await sentimentResponse.json();
             this.isLoading = false
         },
+
+        drawDayCells: function (year, timeWeek, countDay, colorFn, formatDate) {
+            year
+                .append("g")
+                .selectAll("rect")
+                .data(d => d[1])
+                .join("rect")
+                .attr("width", this.cellSize - 1.5)
+                .attr("height", this.cellSize - 1.5)
+                .attr(
+                    "x",
+                    (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * this.cellSize + 10)
+                .attr("y", d => countDay(d.date) * this.cellSize + 0.5)
+                .attr("fill", function (d) {
+                    if (d.value == 0) {
+                        return 'Grey';
+                    } else { return colorFn(d.value); }
+                })
+                .append("title")
+                .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`);
+        },
+
+        drawDayNames: function (year, countDay, formatDay) {
+            year
+                .append("g")
+                .attr("text-anchor", "end")
+                .selectAll("text")
+                .data(d3.range(7).map(i => new Date(2014, 0, i)))
+                .join("text")
+                .attr("x", -5)
+                .attr("y", d => (countDay(d) + 0.5) * this.cellSize)
+                .attr("dy", "0.31em")
+                .attr("font-size", 12)
+                .text(formatDay);
+        },
+
+        drawYearNames: function (year) {
+            year
+                .append("text")
+                .attr("x", -5)
+                .attr("y", -30)
+                .attr("text-anchor", "end")
+                .attr("font-size", 16)
+                .attr("font-weight", 550)
+                .attr("transform", "rotate(270)")
+                .text(d => d[0]);
+        },
+
+        createSvg: function () {
+            return d3.select("#sentiment-box")
+                .append("svg")
+                .attr("width", this.width)
+                .attr("height", this.height);
+        },
+
+        bindData: function (group, years) {
+            return group
+                .selectAll("g")
+                .data(years)
+                .join("g")
+                .attr(
+                    "transform",
+                    (d, i) => `translate(50, ${this.yearHeight * i + this.cellSize * 1.5})`
+                );
+        },
+
+
 
         createPlot: async function () {
             await this.fetchAPIData()
@@ -68,10 +133,7 @@ Vue.component('sentiment-box', {
 
 
 
-            var svg = d3.select("#sentiment-box")
-                .append("svg")
-                .attr("width", this.width)
-                .attr("height", this.height);
+            var svg = createSvg();
 
 
             // wrangles data into array of arrays format
@@ -82,25 +144,10 @@ Vue.component('sentiment-box', {
             const group = svg.append("g");
 
             // binds data to all 'g'
-            const year = group
-                .selectAll("g")
-                .data(years)
-                .join("g")
-                .attr(
-                    "transform",
-                    (d, i) => `translate(50, ${this.yearHeight * i + this.cellSize * 1.5})`
-                );
+            const year = bindData(group, years);
 
             // writes year names on the left
-            year
-                .append("text")
-                .attr("x", -5)
-                .attr("y", -30)
-                .attr("text-anchor", "end")
-                .attr("font-size", 16)
-                .attr("font-weight", 550)
-                .attr("transform", "rotate(270)")
-                .text(d => d[0]);
+            this.drawYearNames(year);
 
             const formatDay = d =>
                 ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
@@ -113,37 +160,10 @@ Vue.component('sentiment-box', {
             const format = d3.format("+.2%");
 
             // Writes daynames on the left
-            year
-                .append("g")
-                .attr("text-anchor", "end")
-                .selectAll("text")
-                .data(d3.range(7).map(i => new Date(2014, 0, i)))
-                .join("text")
-                .attr("x", -5)
-                .attr("y", d => (countDay(d) + 0.5) * this.cellSize)
-                .attr("dy", "0.31em")
-                .attr("font-size", 12)
-                .text(formatDay);
+            this.drawDayNames(year, countDay, formatDay);
 
             // draws rectangles based on values               
-            year
-                .append("g")
-                .selectAll("rect")
-                .data(d => d[1])
-                .join("rect")
-                .attr("width", this.cellSize - 1.5)
-                .attr("height", this.cellSize - 1.5)
-                .attr(
-                    "x",
-                    (d, i) => timeWeek.count(d3.utcYear(d.date), d.date) * this.cellSize + 10)
-                .attr("y", d => countDay(d.date) * this.cellSize + 0.5)
-                .attr("fill", function (d) {
-                    if (d.value == 0) {
-                        return 'Grey'
-                    } else { return colorFn(d.value) }
-                })
-                .append("title")
-                .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`)
+            this.drawDayCells(year, timeWeek, countDay, colorFn, formatDate);
 
         },
 
