@@ -1,34 +1,34 @@
 Vue.component("aggregate-container", {
-  data: function() {
+  data: function () {
     return {
       isLoading: false,
       aggregateData: null
     }
   },
   props: {
-      sourceSubreddit: String,
-      targetSubreddit: String
+    sourceSubreddit: String,
+    targetSubreddit: String
   },
   watch: {
-      sourceSubreddit: "fetchAPIData",
-      targetSubreddit: "fetchAPIData"
+    sourceSubreddit: "fetchAPIData",
+    targetSubreddit: "fetchAPIData"
   },
   methods: {
     async fetchAPIData() {
-        this.isLoading = true
-        let url = `${apiEndpoint}aggregates`
-        const sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-        const targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
-        if (this.sourceSubreddit && this.targetSubreddit) {
-            url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
-        } else if (this.sourceSubreddit) {
-            url = url + "?" + sourceSubredditQuery
-        } else if (this.targetSubreddit) {
-            url = url + "?" + targetSubredditQuery
-          }
-        const freqResponse = await fetch(url);
-        this.aggregateData = await freqResponse.json();
-        this.isLoading = false
+      this.isLoading = true
+      let url = `${apiEndpoint}aggregates`
+      const sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
+      const targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
+      if (this.sourceSubreddit && this.targetSubreddit) {
+        url = url + "?" + sourceSubredditQuery + "&" + targetSubredditQuery
+      } else if (this.sourceSubreddit) {
+        url = url + "?" + sourceSubredditQuery
+      } else if (this.targetSubreddit) {
+        url = url + "?" + targetSubredditQuery
+      }
+      const freqResponse = await fetch(url);
+      this.aggregateData = await freqResponse.json();
+      this.isLoading = false
     },
   },
   mounted() {
@@ -42,18 +42,13 @@ Vue.component("aggregate-container", {
                 <div class="spinner-grow spinner-grow-sm" role="status"></div>
             </div>
         </div>
-      </div>    
+      </div>
+
       <div class="card-group" v-if="aggregateData && aggregateData.data">
       
         <aggregate-component
           title="Number of posts"
           :value="aggregateData.data['Number of posts']"
-        ></aggregate-component>
-
-        <aggregate-component
-          title="Automated Readability Index"
-          :value="aggregateData.data['Automated readability index']"
-          :globalAverage="aggregateData.data_avg['Automated readability index']"
         ></aggregate-component>
 
         <aggregate-component
@@ -67,6 +62,13 @@ Vue.component("aggregate-container", {
           :value="aggregateData.data['Average number of words per sentence']"
           :globalAverage="aggregateData.data_avg['Average number of words per sentence']"
         ></aggregate-component>
+        
+        <aggregate-component
+          title="Automated Readability Index"
+          :value="aggregateData.data['Automated readability index']"
+          :globalAverage="aggregateData.data_avg['Automated readability index']"
+        ></aggregate-component>
+
       </div>
     </div>
   </div>
