@@ -16,12 +16,16 @@ Vue.component("app-container", {
   computed: {
     detailsOnDemandCardTitle: function () {
       if (this.selectedSourceSubreddit && this.selectedTargetSubreddit) {
-        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`}
+        return `Details for the subreddit: ${this.selectedSourceSubreddit} and its target subreddit: ${this.selectedTargetSubreddit}`
+      }
       else if (this.selectedSourceSubreddit) {
-        return `Details for the subreddit: ${this.selectedSourceSubreddit}`}
+        return `Details for the subreddit: ${this.selectedSourceSubreddit}`
+      }
       else if (this.selectedTargetSubreddit) {
-        return `Details for the target subreddit: ${this.selectedTargetSubreddit}`}
-      return "Details for all subreddits"}
+        return `Details for the target subreddit: ${this.selectedTargetSubreddit}`
+      }
+      return "Details for all subreddits"
+    }
   },
   watch: {
     selectedSourceSubreddit: "fetchData",
@@ -113,7 +117,6 @@ Vue.component("app-container", {
   },
   template: `
     <div id="wrapper">
-
       <div class="row my-3">
         <!-- Graph network -->
         <div class="col-md-10 pe-0 mb-2">
