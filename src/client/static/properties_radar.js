@@ -4,7 +4,7 @@ Vue.component('properties-radar', {
             isLoading: false
         }
     },
-    props:{
+    props: {
         sourceSubreddit: String,
         targetSubreddit: String
     },
@@ -28,15 +28,15 @@ Vue.component('properties-radar', {
             const propertiesResponse = await fetch(url);
             const propertiesRadar = await propertiesResponse.json();
             const graphDiv = document.getElementById("properties-radar")
-            Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, {displayModeBar: false})
+            Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, { displayModeBar: false })
             this.isLoading = false
         },
-        async fetchAPIData () {
+        async fetchAPIData() {
             this.fetchPlot()
         }
     },
 
-    created: async function(){
+    created: async function () {
         this.fetchAPIData()
     },
 

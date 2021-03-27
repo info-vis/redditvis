@@ -28,14 +28,14 @@ Vue.component('properties-plot', {
             const propertiesPlotResponse = await fetch(url);
             const propertiesPlot = await propertiesPlotResponse.json();
             const graphDiv = document.getElementById("properties-plot")
-            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, {displayModeBar: false})
+            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, { displayModeBar: false })
             this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
         }
     },
-    created: async function(){
+    created: async function () {
         this.fetchAPIData()
     },
     template: `

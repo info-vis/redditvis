@@ -1,5 +1,5 @@
 Vue.component('sentiment-box', {
-    data: function() {
+    data: function () {
         return {
             isLoading: false
         }
@@ -38,7 +38,7 @@ Vue.component('sentiment-box', {
             this.fetchPlot()
         }
     },
-    mounted: async function(){
+    mounted: async function () {
         this.fetchAPIData()
     },
     template: `
