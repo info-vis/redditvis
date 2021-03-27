@@ -35,7 +35,9 @@ class BodyModel:
 
     def get_sentiments(self, target_subreddit, source_subreddit):
         
-        daterange = pd.date_range('01-01-2014', '12-31-2017').astype(str)
+        FIRST_DATE_IN_DATA_SET = '01-01-2014'
+        LATEST_DATE_IN_DATA_SET = '12-31-2017'
+        daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
 
         if target_subreddit is not None and source_subreddit is not None:
             result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
