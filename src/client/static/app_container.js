@@ -226,7 +226,7 @@ Vue.component("app-container", {
                   <correlation-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></correlation-plot>
                 </div>
                 <div class="col">
-                  <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></sentiment-box>
                 </div>
               </div>
             </div>
