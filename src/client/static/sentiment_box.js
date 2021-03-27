@@ -32,65 +32,21 @@ Vue.component('sentiment-box', {
 
     methods: {
         async fetchAPIData() {
+            console.log(this.sourceSubreddit)
+            console.log(this.targetSubreddit)
             document.getElementById("sentiment-box").innerHTML = "";
+            this.isLoading = true
+            let url = `${apiEndpoint}sentiment-box`
             if (this.sourceSubreddit && this.targetSubreddit) {
-                this.isLoading = true
-                let url = `${apiEndpoint}sentiment-box`
-                let sourceSubredditQuery = ""
-                let targetSubredditQuery = ""
-
-                // If it is not null, add the query param
-                if (this.sourceSubreddit && this.targetSubreddit) {
-                    sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-                    targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
-                }
-
-                url = url + "?" + sourceSubredditQuery + '&' + targetSubredditQuery
-                console.log('TARGET AND SOURCE')
-                const sentimentResponse = await fetch(url);
-                const sentimentObject = await sentimentResponse.json();
-                this.data = sentimentObject
-
-                this.isLoading = false
+                url = `${url}?source-subreddit=${this.sourceSubreddit}&target-subreddit=${this.targetSubreddit}`
+            } else if (this.sourceSubreddit) {
+                url = `${url}?source-subreddit=${this.sourceSubreddit}`
+            } else if (this.targetSubreddit) {                
+                url = `${url}?target-subreddit=${this.targetSubreddit}`
             }
-
-
-            if (this.sourceSubreddit) {
-                this.isLoading = true
-                let url = `${apiEndpoint}sentiment-box`
-                let sourceSubredditQuery = ""
-                // If it is not null, add the query param
-                if (this.sourceSubreddit) {
-                    sourceSubredditQuery = `source-subreddit=${this.sourceSubreddit}`
-                }
-
-                url = url + "?" + sourceSubredditQuery
-
-                const sentimentResponse = await fetch(url);
-                const sentimentObject = await sentimentResponse.json();
-                this.data = sentimentObject
-                console.log('SOURCE')
-                this.isLoading = false
-            }
-
-            else if (this.targetSubreddit) {
-                this.isLoading = true
-                let url = `${apiEndpoint}sentiment-box`
-                let targetSubredditQuery = ""
-
-                // If it is not null, add the query param
-                if (this.targetSubreddit) {
-                    targetSubredditQuery = `target-subreddit=${this.targetSubreddit}`
-                }
-
-                url = url + "?" + targetSubredditQuery
-                console.log('TARGET')
-                const sentimentResponse = await fetch(url);
-                const sentimentObject = await sentimentResponse.json();
-                this.data = sentimentObject
-
-                this.isLoading = false
-            }
+            const sentimentResponse = await fetch(url);
+            this.data = await sentimentResponse.json();
+            this.isLoading = false
         },
 
         createPlot: async function () {
