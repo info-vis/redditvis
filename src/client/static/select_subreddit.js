@@ -13,7 +13,6 @@ Vue.component('select-subreddit', {
             default: "#dee2e6"
         }
     },
-
     computed: {
         subredditLink: function () {
             return `https://www.reddit.com/r/${this.selectedSubreddit}/`
@@ -26,7 +25,7 @@ Vue.component('select-subreddit', {
         },
         subredditOptionsId() {
             return `subreddit-options-${this.type}`
-        }
+        },
     },
     methods: {
         selectSubreddit() {
@@ -73,32 +72,36 @@ Vue.component('select-subreddit', {
                                     </div>
                                     <div class="col">
                                         <div class="float-end">
-                                            <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="$emit('pan-to-subreddit', type)">
-                                            <i class="bi bi-geo-fill"></i>              
+                                            <button class="btn btn-primary btn-sm btn-secondary" v-bind:disabled="!selectedSubreddit" @click="$emit('pan-to-subreddit', type)">
+                                                <i class="bi bi-geo-fill"></i>              
                                             </button>
                                             <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSubreddit" @click="clearSubreddit">
-                                            <i class="bi bi-x-circle"></i>
+                                                <i class="bi bi-x-circle"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <input
-                                    class="form-control" 
-                                    :list="subredditOptionsId"
-                                    placeholder="Type a subreddit name.."
-                                    v-on:keyup.enter="selectSubreddit"
-                                    v-model="selectedSubredditInput"
-                                >
-                                <datalist :id="subredditOptionsId">
-                                    <option v-for="subreddit in subredditOptions">{{ subreddit }}</option>
-                                </datalist>
-                            </div>        
-                        </div>
-                    </div>
+                                <div class="row g-1">
+                                    <div class="col-md-10">
+                                        <input
+                                            class="form-control" 
+                                            :list="subredditOptionsId"
+                                            placeholder="Type a subreddit name.."
+                                            v-on:keyup.enter="selectSubreddit"
+                                            v-model="selectedSubredditInput"
+                                        >
+                                        <datalist :id="subredditOptionsId">
+                                            <option v-for="subreddit in subredditOptions">{{ subreddit }}</option>
+                                        </datalist>
+                                    </div>
 
-                    <div class="row mb-2">
-                        <div class="col">
-                            <button @click="selectSubreddit" class="btn btn-primary btn-sm">Select {{ type }} subreddit</button>
+                                    <div class="col-md-2 d-grid">
+                                        <button @click="selectSubreddit" :disabled="!selectedSubredditInput" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-caret-right-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>        
                         </div>
                     </div>
             </div>

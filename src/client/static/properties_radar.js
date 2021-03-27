@@ -45,9 +45,9 @@ Vue.component('properties-radar', {
         <div class="row">
             <div class="col-md-10">
                 <p class="mb-0 mt-1" > 
-                    <small> <strong> Topical processes of posts </strong></small>
+                    <small> <strong> Psychological processes of posts </strong></small>
                     <info-button
-                        title="Topical processes of posts"
+                        title="Psychological processes of posts"
                         text="The distribution of psychological processes of the posts is shown.
                         In addition, the average of all subreddits is displayed to allow a comparison between the selected and global values."    
                     >
