@@ -1,5 +1,5 @@
 Vue.component('sentiment-box', {
-    data: function() {
+    data: function () {
         return {
             isLoading: false
         }
@@ -38,7 +38,7 @@ Vue.component('sentiment-box', {
             this.fetchPlot()
         }
     },
-    mounted: async function(){
+    mounted: async function () {
         this.fetchAPIData()
     },
     template: `
@@ -49,7 +49,14 @@ Vue.component('sentiment-box', {
         </div>
         <div v-show="!isLoading">
             <p class="mb-0 mt-1" >
-            <small> <strong> Post sentiment per time </strong></small>
+                <small> <strong> Post sentiment per time </strong></small>
+                <info-button
+                    title="Sentiment plot"
+                    text="Each cell represents a day in the years 2014, 2015, 2016 and 2017. 
+                        The sum of all sentiments of the posts on one day is computed and colored according to a color scale, 
+                        depending on the overall positivity or negativity of the posts."
+                >
+                </info-button>
             </p>
         </div>
         <div v-show="!isLoading" id="sentiment-box" class="bk-root"></div>

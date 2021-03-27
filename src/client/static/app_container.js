@@ -348,16 +348,19 @@ Vue.component("app-container", {
       <div class="row">
         <div class="col">
           <div class="card">
+
             <div class="card-header">
               <strong> {{detailsOnDemandCardTitle}} </strong>
             </div>
+
             <div class="card-body">
               <div class="row">
-                <div class="col">
-                  <aggregates-component :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
-                  </aggregates-component>
+                <div class="col-md-7">
+                  <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
+                  </aggregate-container>
                 </div>
               </div>
+
               <div class="row">
                 <div class="col-md-3">
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
@@ -376,6 +379,7 @@ Vue.component("app-container", {
                   <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
               </div>
+
             </div>
           </div>
        </div>
