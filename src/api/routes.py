@@ -27,7 +27,7 @@ def sentiment_box():
 	
 	sentiments = BodyModel.getInstance().get_sentiments(target_subreddit, source_subreddit)
   
-	return json.dumps(sentiments)
+	return jsonify((sentiments)
 
 @bp.route('/top-properties')
 def top_properties():
