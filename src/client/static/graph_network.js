@@ -117,12 +117,11 @@ Vue.component('graph-network', {
             this.d3Context.clearRect(0, 0, this.width, this.height);
         },
         drawLinks(links) {
-            const getColor = () => "#bdbdbd";
-            const getWidth = () => this.d3LinkWidth;
+            const getColor = () => "#0000001a";
+            const getWidth = (d) => d.normalizedCount
             const getCurvature = () => .3;
 
             links.forEach(calcLinkControlPoints); // calculate curvature control points for all visible links
-
             // Bundle strokes per unique color/width for performance optimization
             const linksPerColor = indexBy(links, [getColor, getWidth]);
 
@@ -536,7 +535,7 @@ Vue.component('graph-network', {
         },
         setDataFromNetworkData() {
             // Transform the rows from being arrays of values to objects.
-            this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], value: d[2] }))
+            this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], count: d[2], normalizedCount: d[3] }))
             this.nodes = this.networkData.nodes.map(d => ({ id: d[0], type: d[1], group: d[2], collapsed: this.collapseAll }))
         },
         init() {
@@ -555,7 +554,7 @@ Vue.component('graph-network', {
             // Performance optimizations
             this.d3Context.imageSmoothingEnabled = false
             this.d3Context.translate(0.5, 0.5)
-            this.d3Context.alpha = false
+            this.d3Context.alpha = true
 
             // Force simulation
             this.initForceSimulation()

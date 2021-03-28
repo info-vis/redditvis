@@ -3,8 +3,8 @@ Vue.component("app-container", {
   data: function () {
     return {
       networkData: null, // The raw data used in the graph-network component
-      numberOfLinks: 200,
-      numberOfLinksSliderValue: 200,
+      numberOfLinks: 2000,
+      numberOfLinksSliderValue: 2000,
       isLoadingData: false, // Whether network data is currently being loaded
       selectedSourceSubreddit: null, // The selected source subreddit after going through validation
       selectedTargetSubreddit: null, // The selected target subreddit after going through validation
@@ -33,23 +33,23 @@ Vue.component("app-container", {
     },
   },
   watch: {
-    selectedSourceSubreddit () {
+    selectedSourceSubreddit() {
       if (!this.selectedSourceSubreddit && !this.selectedTargetSubreddit) {
         this.fetchData()
       }
     },
-    selectedTargetSubreddit () {
+    selectedTargetSubreddit() {
       if (!this.selectedSourceSubreddit && !this.selectedTargetSubreddit) {
         this.fetchData()
       }
     },
     sourceSubredditQuery: function (query) {
-      if (query != null) { 
+      if (query != null) {
         this.handleSubredditQueryChange(type = "source")
       }
     },
     targetSubredditQuery: function (query) {
-      if (query != null) { 
+      if (query != null) {
         this.handleSubredditQueryChange(type = "target")
       }
     },

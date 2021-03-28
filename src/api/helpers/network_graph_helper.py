@@ -10,9 +10,7 @@ class NetworkGraphHelper:
     @staticmethod
     def to_network_graph(data: pd.DataFrame) -> dict:
         def to_links(data):
-            return data[
-                ["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT", "count"]
-            ].values.tolist()
+            return data.values.tolist()
 
         def to_nodes_with_cluster():
             """Add cluster data to nodes.
