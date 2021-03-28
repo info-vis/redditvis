@@ -3,8 +3,8 @@ Vue.component("app-container", {
   data: function () {
     return {
       networkData: null, // The raw data used in the graph-network component
-      numberOfLinks: 2000,
-      numberOfLinksSliderValue: 2000,
+      numberOfLinks: 500,
+      numberOfLinksSliderValue: 500,
       isLoadingData: false, // Whether network data is currently being loaded
       selectedSourceSubreddit: null, // The selected source subreddit after going through validation
       selectedTargetSubreddit: null, // The selected target subreddit after going through validation
