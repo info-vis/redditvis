@@ -158,8 +158,8 @@ Vue.component("app-container", {
       }
     },
     handleNodeSelected: function (payload) {
-      this.$refs.selectSourceSubreddit.selectedSubredditInput = payload.id
-      this.$refs.selectTargetSubreddit.selectedSubredditInput = payload.id
+      this.$refs.selectSourceSubreddit.selectedSubredditInput = payload
+      this.$refs.selectTargetSubreddit.selectedSubredditInput = payload
     },
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
