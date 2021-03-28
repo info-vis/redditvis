@@ -14,6 +14,7 @@ class BodyModel:
     This returns a reference to the singleton object.
     """
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
+    NETWORK_BODY_DATA_PATH = os.getenv("NETWORK_BODY_DATA_PATH")
     AGGREGATE_COLUMNS = [
         'Automated readability index',
         'Average word length',
@@ -38,6 +39,8 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
+        self.network_data = pd.read_parquet(self.NETWORK_BODY_DATA_PATH, engine="pyarrow")
+
         result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
                 .size()\
                 .reset_index()\
@@ -98,19 +101,9 @@ class BodyModel:
             128037  trendingsubreddits        changelog    548
             114895       streetfighter              sf4    279
         """
-        if self.data is None:
-            raise ValueError("No data has been loaded in BodyModel.")
-
-        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-                .size()\
-                .reset_index()\
-                .rename(columns={0: "count"})\
-                .sort_values("count", ascending=False)
-
-        
         if n_links is not None:
-            return result.head(n_links)
-        return result
+            return self.network_data.head(n_links)
+        return self.network_data
 
     def get_subgraph_for_subreddit(self, subreddit: str, min_count = 5) -> pd.DataFrame:
         """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
@@ -129,7 +122,7 @@ class BodyModel:
                     30	changelog	redditdev	7
         """
         ######## v3 begin ########
-        df = self.data
+        df = self.network_data
         
         def get_neighbors(subreddit, graph):
             neighbors = list(nx.all_neighbors(graph, subreddit))
@@ -137,18 +130,8 @@ class BodyModel:
 
         neighbors = get_neighbors(subreddit, self.graph)
         
-        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]\
-            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-            .size()\
-            .reset_index()\
-            .rename(columns={0: "count"})\
-            .sort_values("count", ascending=False)
-        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]\
-            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-            .size()\
-            .reset_index()\
-            .rename(columns={0: "count"})\
-            .sort_values("count", ascending=False)
+        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]
+        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]
         # Reduce size
         neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > min_count]
 

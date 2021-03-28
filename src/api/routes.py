@@ -231,7 +231,7 @@ def correlation_plot():
 	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(
 		width=400,
-		height=300,
+		height=250,
 		font={'size':9},
 		margin={"t": 0})
 	
