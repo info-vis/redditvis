@@ -9,11 +9,10 @@ Vue.component('select-subreddit', {
         selectedSubreddit: String,
         subredditOptions: Array,
         borderColor: {
-            type: String, 
+            type: String,
             default: "#dee2e6"
         }
     },
-
     computed: {
         subredditLink: function () {
             return `https://www.reddit.com/r/${this.selectedSubreddit}/`
@@ -21,21 +20,19 @@ Vue.component('select-subreddit', {
         styleObject() {
             return {
                 border: `1px solid ${this.borderColor}`,
-                "background-color": "#eeeeee"
+                "background-color": "white"
             }
         },
         subredditOptionsId() {
             return `subreddit-options-${this.type}`
-        }
+        },
     },
     methods: {
         selectSubreddit() {
-            if (this.subredditOptions.includes(this.selectedSubredditInput)) {
-                this.$emit("select-subreddit", {
-                    type: this.type,
-                    selectedSubredditInput: this.selectedSubredditInput
-                })
-            }
+            this.$emit("select-subreddit", {
+                type: this.type,
+                selectedSubredditInput: this.selectedSubredditInput
+            })
         },
         clearSubreddit() {
             this.$emit('clear-subreddit', this.type)
@@ -51,18 +48,18 @@ Vue.component('select-subreddit', {
                     <div class="row">
                         <div class="col">
                             <strong>Selected {{ type }} subreddit:</strong> 
-                            <div>
+                            <div style="font-size: 14px">
                                 <a v-if="selectedSubreddit"
-                                class="" 
-                                target="_blank" 
-                                v-bind:href="subredditLink"
-                                role="button"
-                                v-bind:title="subredditLink"
+                                    class="" 
+                                    target="_blank" 
+                                    v-bind:href="subredditLink"
+                                    role="button"
+                                    v-bind:title="subredditLink"
                                 >
-                                r/{{ selectedSubreddit }}
+                                    r/{{ selectedSubreddit }}
                                 </a>
+                                <div v-if="!selectedSubreddit" style="font-size: 10px" >None</div>
                             </div>
-                            <div v-if="!selectedSubreddit">None</div>
                         </div>
                     </div>
 
@@ -70,37 +67,41 @@ Vue.component('select-subreddit', {
                         <div class="col">
                             <div class="my-2">
                                 <div class="row">
-                                    <div class="col-8">
+                                    <div class="col-7">
                                         <label for="selectSubredditInput" class="form-label">Select a subreddit</label>
                                     </div>
                                     <div class="col">
                                         <div class="float-end">
-                                            <button class="btn btn-primary btn-sm" v-bind:disabled="!selectedSubreddit" @click="$emit('pan-to-subreddit', type)">
-                                            <i class="bi bi-geo-fill"></i>              
+                                            <button class="btn btn-primary btn-sm btn-secondary" v-bind:disabled="!selectedSubreddit" @click="$emit('pan-to-subreddit', type)">
+                                                <i class="bi bi-geo-fill"></i>              
                                             </button>
                                             <button class="btn btn-danger btn-sm" v-bind:disabled="!selectedSubreddit" @click="clearSubreddit">
-                                            <i class="bi bi-x-circle"></i>
+                                                <i class="bi bi-x-circle"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <input
-                                    class="form-control" 
-                                    :list="subredditOptionsId"
-                                    placeholder="Type a subreddit name.."
-                                    v-on:keyup.enter="selectSubreddit"
-                                    v-model="selectedSubredditInput"
-                                >
-                                <datalist :id="subredditOptionsId">
-                                    <option v-for="subreddit in subredditOptions">{{ subreddit }}</option>
-                                </datalist>
-                            </div>        
-                        </div>
-                    </div>
+                                <div class="row g-1">
+                                    <div class="col-md-10">
+                                        <input
+                                            class="form-control" 
+                                            :list="subredditOptionsId"
+                                            placeholder="Type a subreddit name.."
+                                            v-on:keyup.enter="selectSubreddit"
+                                            v-model="selectedSubredditInput"
+                                        >
+                                        <datalist :id="subredditOptionsId">
+                                            <option v-for="subreddit in subredditOptions">{{ subreddit }}</option>
+                                        </datalist>
+                                    </div>
 
-                    <div class="row mb-2">
-                        <div class="col">
-                            <button @click="selectSubreddit" class="btn btn-primary btn-sm">Select {{ type }} subreddit</button>
+                                    <div class="col-md-2 d-grid">
+                                        <button @click="selectSubreddit" :disabled="!selectedSubredditInput" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-caret-right-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>        
                         </div>
                     </div>
             </div>
