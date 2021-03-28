@@ -309,6 +309,10 @@ Vue.component('graph-network', {
             this.d3Context.fillText(node.id, node.x + offset, node.y);
             // this.d3Context.fillText(`id: ${node.id} g: ${node.group} t: ${node.type} c: ${node.collapsed}`, node.x + offset, node.y);
         },
+        /**
+         * Retrieve the node in this.nodes by doing a lookup in the 
+         * node dictionary.
+         */
         getNodeById(nodeId) { // nodeId = subreddit
             const index = this.nodesDictionary[nodeId]
             return this.nodes[index]
@@ -539,6 +543,15 @@ Vue.component('graph-network', {
             this.generateDictionary()
             this.networkDataIsReady = true
         },
+        /**
+         * Dictionary for node lookup. Ensures lookup in this.nodes by node id is fast and does not
+         * require a loop through the entire list of this.nodes each time.
+         * 
+         * See this.getNodeById(nodeId) for the lookup function.
+         * 
+         * Key: node.id
+         * Value: index in this.nodes
+         */
         generateDictionary() {
             this.nodesDictionary = {}
             this.nodes.forEach((node, index) => {
