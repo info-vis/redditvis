@@ -100,10 +100,8 @@ Vue.component("aggregates-component", {
       <div class="col d-flex align-items-stretch mt-2">
         <div class="card" style="background-color: #eeeeee; width: 10rem">
           <div class="card-body" style="text-align:center">
-<<<<<<< HEAD
             <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["FRACTION_OF_WHITESPACE"]}}%</h3>
             <h6 class="card-subtitle mb-2 text-muted" style="font-size:15px">Global Average: {{aggs.data_avg["FRACTION_OF_WHITESPACE"]}}%</h6>
-=======
             <h3 class="card-title" style="font-size:25px; color:#408acf">{{aggs.data["Fraction of white spaces"]}}%</h3>
         </div>
       </div>
