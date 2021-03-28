@@ -4,7 +4,7 @@ Vue.component('properties-radar', {
             isLoading: false
         }
     },
-    props:{
+    props: {
         sourceSubreddit: String,
         targetSubreddit: String
     },
@@ -28,15 +28,15 @@ Vue.component('properties-radar', {
             const propertiesResponse = await fetch(url);
             const propertiesRadar = await propertiesResponse.json();
             const graphDiv = document.getElementById("properties-radar")
-            Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, {displayModeBar: false})
+            Plotly.react(graphDiv, propertiesRadar.data, propertiesRadar.layout, { displayModeBar: false })
             this.isLoading = false
         },
-        async fetchAPIData () {
+        async fetchAPIData() {
             this.fetchPlot()
         }
     },
 
-    created: async function(){
+    created: async function () {
         this.fetchAPIData()
     },
 
@@ -44,8 +44,14 @@ Vue.component('properties-radar', {
     <div>
         <div class="row">
             <div class="col-md-10">
-                <p class="mb-0 mt-1" >
-                <small> <strong> Topical processes of posts </strong></small>
+                <p class="mb-0 mt-1" > 
+                    <small> <strong> Psychological processes of posts </strong></small>
+                    <info-button
+                        title="Psychological processes of posts"
+                        text="The average values for the psychological processes (an overarching categorisation of topics) of the posts.
+                        The processes are computed using LIWC dictionary dimensions."    
+                    >
+                    </info-button>
                 </p>
             </div>
             <div class="col-md-2">
