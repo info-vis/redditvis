@@ -24,7 +24,6 @@ Vue.component('graph-network', {
             d3Context: null,
             d3Transform: null,
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
-            d3NodeRadius: 5,
             d3LinkWidth: 1,
             ...d3ForceInitialState(),
             selectedNodeId: null,
@@ -122,7 +121,7 @@ Vue.component('graph-network', {
             this.drawArrows(linksToDraw)
             // Draw the nodes
             const nodesToDraw = this.getNodesToDraw
-            nodesToDraw.forEach(node => this.drawNode(node, this.d3NodeRadius))
+            nodesToDraw.forEach(node => this.drawNode(node))
             this.drawSelectedNode()
             this.drawSelectedSubreddits()
 
@@ -363,7 +362,7 @@ Vue.component('graph-network', {
         drawSelectedSubreddits() {
             const drawSelection = (node, color) => {
                 this.d3Context.beginPath();
-                this.drawNode(node, this.d3NodeRadius * 2)
+                this.drawNode(node)
                 this.d3Context.fill();
                 this.d3Context.strokeStyle = color;
                 this.d3Context.lineWidth = .7;
@@ -387,7 +386,7 @@ Vue.component('graph-network', {
                 const node = this.getNodeById(this.selectedNodeId)
                 if (node) {
                     this.d3Context.beginPath();
-                    this.drawNode(node, this.d3NodeRadius)
+                    this.drawNode(node)
                     this.d3Context.fill();
                     this.d3Context.strokeStyle = "orange";
                     this.d3Context.lineWidth = 1;
