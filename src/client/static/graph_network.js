@@ -28,21 +28,19 @@ Vue.component('graph-network', {
             d3LinkWidth: 1,
             ...d3ForceInitialState(),
             selectedNodeId: null,
-            networkDataIsReady: false,
-            nodeIdsToDraw: [],
+            highlightedNodeIds: [],
+            highlightColor: "#0e6efdc2",
             nodesDictionary: {} // Used to store the index of each node in this.nodes
         }
     },
     computed: {
-        width: function () { return this.d3Canvas && this.d3Canvas.width || null },
-        height: function () { return this.d3Canvas && this.d3Canvas.height || null },
         getNodesToDraw() {
             return this.nodes.filter(node => (!node.collapsed || node.type != "child"))
         },
         getLinksToDraw() {
-            const nodeIdsToDraw = this.getNodesToDraw.map(x => x.id)
+            const highlightedNodeIds = this.getNodesToDraw.map(x => x.id)
             return this.links.filter(link => (
-                nodeIdsToDraw.includes(link.source.id) && nodeIdsToDraw.includes(link.target.id)
+                highlightedNodeIds.includes(link.source.id) && highlightedNodeIds.includes(link.target.id)
             ))
         },
     },
@@ -91,15 +89,22 @@ Vue.component('graph-network', {
             }
             if (oldNodeId) {
                 const oldNode = this.getNodeById(oldNodeId)
-                oldNode.fx = null
-                oldNode.fy = null
+                if (oldNode) {
+                    oldNode.fx = null
+                    oldNode.fy = null
+                }
             }
         },
-        networkDataIsReady: function() {
-            this.highlightSelectedNodeLinks()
-        }
     },
     methods: {
+        afterSimulationIsReady() {
+            console.log("afterSimulationIsReady")
+            this.generateDictionary()
+            this.highlightSelectedNodeLinks()
+            if (this.selectedNodeId) {
+                this.panToCenter()
+            }
+        },
         setBackgroundColor(color = "white") {
             this.d3Context.fillStyle = color;
             this.d3Context.fillRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
@@ -132,10 +137,10 @@ Vue.component('graph-network', {
             return this.d3Scale(d.group)
         },
         clearCanvas() {
-            this.d3Context.clearRect(0, 0, this.width, this.height);
+            this.d3Context.clearRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
         },
         drawLinks(links) {
-            const getColor = (d) => d.highlight ? "#0e6efdc2" : "#0000001a";
+            const getColor = (d) => d.highlight ? this.highlightColor : "#0000001a";
             const getWidth = (d) => d.normalizedCount
             const getCurvature = () => .3;
 
@@ -268,6 +273,13 @@ Vue.component('graph-network', {
             const nodeIsSelectedTargetSubreddit = node.id == this.selectedTargetSubreddit
             const nodeIsSelectedNode = node.id == (this.selectedNodeId)
 
+            if (node.type == "parent") {
+                this.drawParentNode(node)
+            }
+            if (node.type == "child") {
+                this.drawChildNode(node)
+            }
+
             if (nodeIsSelectedSourceSubreddit) {
                 this.drawNodeName(node, offset = 12)
             } else if (nodeIsSelectedTargetSubreddit) {
@@ -280,12 +292,15 @@ Vue.component('graph-network', {
                 this.drawNodeName(node)
             }
 
-            if (node.type == "parent") {
-                this.drawParentNode(node)
+            if (node.highlight == true) {
+                this.drawHighlightedNode(node)
             }
-            if (node.type == "child") {
-                this.drawChildNode(node)
-            }
+            this.d3Context.fillStyle = this.colorNode(node);
+        },
+        drawHighlightedNode() {
+            this.d3Context.lineWidth = 1;
+            this.d3Context.strokeStyle = this.highlightColor;
+            this.d3Context.stroke();
         },
         drawParentNode(node) {
             this.d3Context.lineWidth = 1;
@@ -310,9 +325,13 @@ Vue.component('graph-network', {
             }
         },
         drawNodeName(node, offset = 8) {
-            this.d3Context.font = "5px Verdana";
-            this.d3Context.fillText(node.id, node.x + offset, node.y);
-            // this.d3Context.fillText(`id: ${node.id} g: ${node.group} t: ${node.type} c: ${node.collapsed}`, node.x + offset, node.y);
+            this.d3Context.font = "6px Verdana";
+            this.d3Context.lineJoin = "round";
+            this.d3Context.strokeStyle = 'black';
+            this.d3Context.lineWidth = 1;
+            this.d3Context.strokeText(node.id, node.x + offset, node.y);
+            this.d3Context.fillStyle = 'white';
+            this.d3Context.fillText(node.id, node.x + offset, node.y);        
         },
         /**
          * Retrieve the node in this.nodes by doing a lookup in the 
@@ -324,10 +343,22 @@ Vue.component('graph-network', {
         },
         panToNode(nodeId) {
             const selectedNode = this.getNodeById(nodeId)
+            console.log(Object.freeze({...selectedNode}))
+            console.log(Object.freeze({...this.nodes.filter(x => x.id == selectedNode.id)[0]}))
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2
-            const transform = d3.zoomIdentity.translate(this.width / 2, this.height / 2).scale(zoomLevel).translate(-x, -y)
+            const transform = d3.zoomIdentity.translate(this.d3Canvas.width / 2, this.d3Canvas.height / 2).scale(zoomLevel).translate(-x, -y)
+            this.d3Transform = transform
+            d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
+            this.simulationUpdate()
+        },
+        panToCenter() {
+            const selectedNode = this.getNodeById(this.selectedNodeId)
+            const x = selectedNode.x
+            const y = selectedNode.y
+            const zoomLevel = 1
+            const transform = d3.zoomIdentity.translate(this.d3Canvas.width / 2, this.d3Canvas.height / 2).scale(zoomLevel).translate(-(this.d3Canvas.width / 2), -(this.d3Canvas.height / 2))
             this.d3Transform = transform
             d3.select(this.d3Canvas).call(d3.zoom().transform, transform)
             this.simulationUpdate()
@@ -380,7 +411,8 @@ Vue.component('graph-network', {
         },
         handleCanvasClick() {
             this.unhighlightAllLinks()
-            this.unsetDrawName()
+            this.setAttributesOnNodes(this.highlightedNodeIds, {highlight: false, drawName: false})
+            this.highlightedNodeIds = []
             this.selectedNodeId = null
         },
         dragSubject(event) {
@@ -502,22 +534,17 @@ Vue.component('graph-network', {
         unhighlightAllLinks() {
             this.links = this.links.map(link => ({...link, highlight: false}))
         },
-        unsetDrawName() {
-            this.nodeIdsToDraw.forEach(nodeId => {
-                const node = this.getNodeById(nodeId)
-                node.drawName = false
-                this.mutateNode(nodeId, node)
-            })  
-            this.nodeIdsToDraw = []          
-        },
-        setDrawName(nodeIds) {
-            this.unsetDrawName()
+        setAttributesOnNodes(nodeIds, attributes) {
             nodeIds.forEach((nodeId) => {
                 const node = this.getNodeById(nodeId)
-                node.drawName = true
-                this.mutateNode(nodeId, node)
+                if (node) {
+                    // node = {...node,  ...attributes}
+                    for (const [key, value] of Object.entries(attributes)) {
+                        node[key] = value
+                    }
+                    this.mutateNode(nodeId, node)
+                }
             })
-            this.nodeIdsToDraw = nodeIds
         },
         highlightSelectedNodeLinks() {
             this.unhighlightAllLinks()
@@ -527,12 +554,15 @@ Vue.component('graph-network', {
                 if ((link.source.id == nodeId) || (link.target.id == nodeId)) {
                     nodeIds.push(link.source.id)
                     nodeIds.push(link.target.id)
-                    return {...link, highlight: true}
+                    link.highlight = true
+                    return link
                 }
                 return link                
             })
             nodeIds = [...new Set(nodeIds)]
-            this.setDrawName(nodeIds)
+            this.setAttributesOnNodes(this.highlightedNodeIds, {highlight: false, drawName: false})
+            this.highlightedNodeIds = nodeIds
+            this.setAttributesOnNodes(nodeIds, {highlight: true, drawName: true})
         },
         // Should be called whenever this.nodes and this.links changes.
         loadDataIntoSimulation() {
@@ -540,14 +570,13 @@ Vue.component('graph-network', {
             if (!dataHasBeenInitializedIntoSimulation) {
                 // Initialize data into simulation
                 this.d3Simulation.nodes(this.nodes).force("link").links(this.links)
+                this.afterSimulationIsReady()
             }
             const linksToDraw = this.getLinksToDraw
             const nodesToDraw = this.getNodesToDraw
 
             this.d3Simulation.nodes(nodesToDraw).force("link").links(linksToDraw)
             this.burstSimulation(0.1)
-            this.generateDictionary()
-            this.networkDataIsReady = true
         },
         /**
          * Dictionary for node lookup. Ensures lookup in this.nodes by node id is fast and does not
@@ -567,7 +596,7 @@ Vue.component('graph-network', {
         handleSelectedSubreddit(newSubreddit, oldSubreddit) {
             this.expandNode(newSubreddit, oldSubreddit)
             this.selectedNodeId = newSubreddit
-            this.simulationUpdate()        
+            this.simulationUpdate()
         },
         handleNetworkDataChange() {
             this.setDataFromNetworkData()
@@ -589,7 +618,7 @@ Vue.component('graph-network', {
                 .distanceMin(this.d3ForceChargeDistanceMin)
                 .distanceMax(this.d3ForceChargeDistanceMax)
             )
-            this.d3Simulation.force("center", d3.forceCenter(this.width / 2, this.height / 2)
+            this.d3Simulation.force("center", d3.forceCenter(this.d3Canvas.width / 2, this.d3Canvas.height / 2)
                 .strength(this.d3ForceCenterStrength)
             )
             this.loadDataIntoSimulation()
@@ -613,7 +642,7 @@ Vue.component('graph-network', {
             requestAnimationFrame(animate);
         },
         setDataFromNetworkData() {
-            this.networkDataIsReady = false
+            console.log("Setting data from network data")
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], count: d[2], normalizedCount: d[3] }))
             this.nodes = this.networkData.nodes.map(d => ({ id: d[0], type: d[1], group: d[2], collapsed: this.collapseAll }))
