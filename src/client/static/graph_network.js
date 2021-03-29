@@ -84,10 +84,15 @@ Vue.component('graph-network', {
             this.setForceSimulation()
         },
         collapseAll: "toggleCollapseAllChildren",
-        selectedNodeId: function() {
+        selectedNodeId: function(newNodeId, oldNodeId) {
             if (this.selectedNodeId) {
                 this.$emit("node-selected", this.selectedNodeId)
                 this.highlightSelectedNodeLinks()
+            }
+            if (oldNodeId) {
+                const oldNode = this.getNodeById(oldNodeId)
+                oldNode.fx = null
+                oldNode.fy = null
             }
         },
         networkDataIsReady: function() {
@@ -410,8 +415,9 @@ Vue.component('graph-network', {
         },
         dragEnded(event) {
             if (!event.active) this.d3Simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
+            // Fixate
+            event.subject.fx = event.subject.x
+            event.subject.fy = event.subject.y
         },
         findNode(nodes, x, y) {
             const rSq = this.d3NodeRadius * this.d3NodeRadius;
