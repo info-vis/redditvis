@@ -13,7 +13,7 @@ class NetworkGraphHelper:
     )
 
     def _merge_attributes(self, nodes):
-        nodes_df = pd.DataFrame(nodes)
+        nodes_df = pd.DataFrame(nodes, dtype=object)
         return (
             pd.merge(
                 nodes_df, self.node_attribute_data, left_on=0, right_on="subreddit"

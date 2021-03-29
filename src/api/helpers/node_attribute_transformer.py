@@ -16,7 +16,7 @@ class NodeAttributeTransformer:
         source_count = self.data.groupby("SOURCE_SUBREDDIT").size().reset_index().rename(columns={0: "count", "SOURCE_SUBREDDIT": "subreddit"})
         target_count = self.data.groupby("TARGET_SUBREDDIT").size().reset_index().rename(columns={0: "count", "TARGET_SUBREDDIT": "subreddit"})
 
-        result = pd.merge(source_count, target_count, on="subreddit").set_index("subreddit")
+        result = pd.merge(source_count, target_count, on="subreddit", how="outer").set_index("subreddit")
         result = result.sum(axis=1).reset_index().rename(columns={0: "total_posts"})
         result.to_parquet(self.OUTPUT_FILE_NAME, engine="pyarrow")
         print("Transform successfull!")

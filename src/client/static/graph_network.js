@@ -98,7 +98,6 @@ Vue.component('graph-network', {
     },
     methods: {
         afterSimulationIsReady() {
-            console.log("afterSimulationIsReady")
             this.generateDictionary()
             this.highlightSelectedNodeLinks()
             if (this.selectedNodeId) {
@@ -259,12 +258,13 @@ Vue.component('graph-network', {
                 this.d3Context.fill();
             })
         },
-        drawNode(node, nodeRadius) {
+        drawNode(node) {
+            const radius = node.normalizedPostCount
             this.d3Context.strokeStyle = "#fff";
             this.d3Context.beginPath();
             this.d3Context.lineWidth = 1;
-            this.d3Context.moveTo(node.x + nodeRadius, node.y);
-            this.d3Context.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+            this.d3Context.moveTo(node.x + radius, node.y);
+            this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
 
             this.d3Context.fillStyle = this.colorNode(node);
             this.d3Context.fill();
@@ -277,23 +277,22 @@ Vue.component('graph-network', {
                 this.drawParentNode(node)
             }
             if (node.type == "child") {
-                this.drawChildNode(node)
+                this.drawChildNode(node, radius)
+            }
+            if (node.highlight == true) {
+                this.drawHighlightedNode(node)
             }
 
             if (nodeIsSelectedSourceSubreddit) {
-                this.drawNodeName(node, offset = 12)
+                this.drawNodeName(node, radius)
             } else if (nodeIsSelectedTargetSubreddit) {
-                this.drawNodeName(node, offset = 12)
+                this.drawNodeName(node, radius)
             } else if (this.showSubredditNames) {
-                this.drawNodeName(node)
+                this.drawNodeName(node, radius)
             } else if (nodeIsSelectedNode) {
-                this.drawNodeName(node)
+                this.drawNodeName(node, radius)
             } else if (node.drawName) {
-                this.drawNodeName(node)
-            }
-
-            if (node.highlight == true) {
-                this.drawHighlightedNode(node)
+                this.drawNodeName(node, radius)
             }
             this.d3Context.fillStyle = this.colorNode(node);
         },
@@ -311,11 +310,11 @@ Vue.component('graph-network', {
             }
             this.d3Context.stroke();
         },
-        drawChildNode(node) {
+        drawChildNode(node, radius) {
             this.d3Context.beginPath();
-            this.d3Context.lineWidth = 1;
-            this.d3Context.moveTo(node.x + this.d3NodeRadius, node.y);
-            this.d3Context.arc(node.x, node.y, this.d3NodeRadius / 2, 0, 2 * Math.PI);
+            this.d3Context.lineWidth = .5;
+            this.d3Context.moveTo(node.x + radius / 1.2, node.y);
+            this.d3Context.arc(node.x, node.y, radius / 1.2, 0, 2 * Math.PI);
             this.d3Context.fillStyle = "white"
             this.d3Context.fill();
             if (node.collapsed) {
@@ -324,14 +323,14 @@ Vue.component('graph-network', {
                 this.d3Context.strokeStyle = "#0dcaf0";
             }
         },
-        drawNodeName(node, offset = 8) {
+        drawNodeName(node, radius) {
             this.d3Context.font = "6px Verdana";
             this.d3Context.lineJoin = "round";
             this.d3Context.strokeStyle = 'black';
             this.d3Context.lineWidth = 1;
-            this.d3Context.strokeText(node.id, node.x + offset, node.y);
+            this.d3Context.strokeText(node.id, node.x + radius + 2, node.y);
             this.d3Context.fillStyle = 'white';
-            this.d3Context.fillText(node.id, node.x + offset, node.y);        
+            this.d3Context.fillText(node.id, node.x + radius + 2, node.y);        
         },
         /**
          * Retrieve the node in this.nodes by doing a lookup in the 
@@ -343,8 +342,6 @@ Vue.component('graph-network', {
         },
         panToNode(nodeId) {
             const selectedNode = this.getNodeById(nodeId)
-            console.log(Object.freeze({...selectedNode}))
-            console.log(Object.freeze({...this.nodes.filter(x => x.id == selectedNode.id)[0]}))
             const x = selectedNode.x
             const y = selectedNode.y
             const zoomLevel = 2
@@ -452,8 +449,8 @@ Vue.component('graph-network', {
             event.subject.fy = event.subject.y
         },
         findNode(nodes, x, y) {
-            const rSq = this.d3NodeRadius * this.d3NodeRadius;
             for (node of nodes) {
+                const rSq = node.normalizedPostCount * node.normalizedPostCount
                 const dx = x - node.x
                 const dy = y - node.y
                 const distSq = (dx * dx) + (dy * dy)
@@ -613,7 +610,7 @@ Vue.component('graph-network', {
                 .distance(this.d3ForceLinkDistance)
             )
             this.d3Simulation.force("charge", d3.forceManyBody()
-                .strength(this.d3ForceChargeStrength)
+                .strength(d => this.d3ForceChargeStrength * d.normalizedPostCount)
                 .theta(this.d3ForceChargeTheta)
                 .distanceMin(this.d3ForceChargeDistanceMin)
                 .distanceMax(this.d3ForceChargeDistanceMax)
@@ -642,10 +639,16 @@ Vue.component('graph-network', {
             requestAnimationFrame(animate);
         },
         setDataFromNetworkData() {
-            console.log("Setting data from network data")
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], count: d[2], normalizedCount: d[3] }))
-            this.nodes = this.networkData.nodes.map(d => ({ id: d[0], type: d[1], group: d[2], collapsed: this.collapseAll }))
+            this.nodes = this.networkData.nodes.map(d => ({ 
+                id: d[0], 
+                type: d[1], 
+                group: d[2], 
+                collapsed: this.collapseAll, 
+                postCount: d[3],
+                normalizedPostCount: parseFloat((Math.log2(d[3]) * 1.3 ).toFixed(2))
+            }))
         },
         init() {
             this.setDataFromNetworkData()
