@@ -27,7 +27,10 @@ Vue.component('graph-network', {
             d3NodeRadius: 5,
             d3LinkWidth: 1,
             ...d3ForceInitialState(),
-            selectedNode: null
+            selectedNodeId: null,
+            networkDataIsReady: false,
+            nodeIdsToDraw: [],
+            nodesDictionary: {} // Used to store the index of each node in this.nodes
         }
     },
     computed: {
@@ -52,15 +55,16 @@ Vue.component('graph-network', {
     watch: {
         showSubredditNames: "simulationUpdate",
         selectedSourceSubreddit: function (newSubreddit, oldSubreddit) {
-            this.expandNode(newSubreddit, oldSubreddit)
-            this.simulationUpdate()
+            this.handleSelectedSubreddit(newSubreddit, oldSubreddit)
         },
         selectedTargetSubreddit: function (newSubreddit, oldSubreddit) {
-            this.expandNode(newSubreddit, oldSubreddit)
-            this.simulationUpdate()
+            this.handleSelectedSubreddit(newSubreddit, oldSubreddit)
         },
         networkData: "handleNetworkDataChange",
-        nodes: "handleNodesChange",
+        nodes: function() {
+            this.loadDataIntoSimulation()
+            this.burstSimulation()
+        },
         d3ForceChargeStrength: function () {
             this.setForceSimulation()
         },
@@ -79,7 +83,21 @@ Vue.component('graph-network', {
         d3ForceCenterStrength: function () {
             this.setForceSimulation()
         },
-        collapseAll: "toggleCollapseAllChildren"
+        collapseAll: "toggleCollapseAllChildren",
+        selectedNodeId: function(newNodeId, oldNodeId) {
+            if (this.selectedNodeId) {
+                this.$emit("node-selected", this.selectedNodeId)
+                this.highlightSelectedNodeLinks()
+            }
+            if (oldNodeId) {
+                const oldNode = this.getNodeById(oldNodeId)
+                oldNode.fx = null
+                oldNode.fy = null
+            }
+        },
+        networkDataIsReady: function() {
+            this.highlightSelectedNodeLinks()
+        }
     },
     methods: {
         setBackgroundColor(color = "white") {
@@ -117,7 +135,7 @@ Vue.component('graph-network', {
             this.d3Context.clearRect(0, 0, this.width, this.height);
         },
         drawLinks(links) {
-            const getColor = () => "#0000001a";
+            const getColor = (d) => d.highlight ? "#0e6efdc2" : "#0000001a";
             const getWidth = (d) => d.normalizedCount
             const getCurvature = () => .3;
 
@@ -248,8 +266,7 @@ Vue.component('graph-network', {
 
             const nodeIsSelectedSourceSubreddit = node.id == this.selectedSourceSubreddit
             const nodeIsSelectedTargetSubreddit = node.id == this.selectedTargetSubreddit
-            const nodeIsSelectedNode = node.id == (this.selectedNode && this.selectedNode.id)
-
+            const nodeIsSelectedNode = node.id == (this.selectedNodeId)
 
             if (nodeIsSelectedSourceSubreddit) {
                 this.drawNodeName(node, offset = 12)
@@ -258,6 +275,8 @@ Vue.component('graph-network', {
             } else if (this.showSubredditNames) {
                 this.drawNodeName(node)
             } else if (nodeIsSelectedNode) {
+                this.drawNodeName(node)
+            } else if (node.drawName) {
                 this.drawNodeName(node)
             }
 
@@ -295,8 +314,13 @@ Vue.component('graph-network', {
             this.d3Context.fillText(node.id, node.x + offset, node.y);
             // this.d3Context.fillText(`id: ${node.id} g: ${node.group} t: ${node.type} c: ${node.collapsed}`, node.x + offset, node.y);
         },
-        getNodeById(id) { // id = subreddit
-            return this.nodes.filter(node => node.id == id)[0]
+        /**
+         * Retrieve the node in this.nodes by doing a lookup in the 
+         * node dictionary.
+         */
+        getNodeById(nodeId) { // nodeId = subreddit
+            const index = this.nodesDictionary[nodeId]
+            return this.nodes[index]
         },
         panToNode(nodeId) {
             const selectedNode = this.getNodeById(nodeId)
@@ -331,8 +355,8 @@ Vue.component('graph-network', {
             }
         },
         drawSelectedNode() {
-            if (this.selectedNode) {
-                const node = this.getNodeById(this.selectedNode.id)
+            if (this.selectedNodeId) {
+                const node = this.getNodeById(this.selectedNodeId)
                 if (node) {
                     this.d3Context.beginPath();
                     this.drawNode(node, this.d3NodeRadius)
@@ -344,11 +368,10 @@ Vue.component('graph-network', {
             }
         },
         handleNodeClick(node) {
-            if (node.type == 'parent' && this.selectedNode && this.selectedNode.id == node.id) {
+            if (node.type == 'parent' && this.selectedNodeId == node.id) {
                 this.handleSecondNodeClick(node)
             }
-            this.selectedNode = node
-            this.$emit("node-selected", node)
+            this.selectedNodeId = node.id
             return this.getNodeById(node.id)
         },
         handleSecondNodeClick(node) {
@@ -356,7 +379,9 @@ Vue.component('graph-network', {
             this.loadDataIntoSimulation()
         },
         handleCanvasClick() {
-            this.selectedNode = null
+            this.unhighlightAllLinks()
+            this.unsetDrawName()
+            this.selectedNodeId = null
         },
         dragSubject(event) {
             const x = this.d3Transform.invertX(event.x);
@@ -390,8 +415,9 @@ Vue.component('graph-network', {
         },
         dragEnded(event) {
             if (!event.active) this.d3Simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
+            // Fixate
+            event.subject.fx = event.subject.x
+            event.subject.fy = event.subject.y
         },
         findNode(nodes, x, y) {
             const rSq = this.d3NodeRadius * this.d3NodeRadius;
@@ -431,7 +457,6 @@ Vue.component('graph-network', {
             this.nodes.forEach(x => x.collapsed = this.collapseAll)
             this.loadDataIntoSimulation()
         },
-
         setDimensionsOfCanvas(withUpdate = true) {
             var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
             this.d3Canvas.width = containerDimensions.width; // The width of the parent div of the canvas
@@ -454,6 +479,11 @@ Vue.component('graph-network', {
             this.links = this.links.filter(node => node.target.id != id)
             this.loadDataIntoSimulation()
         },
+        /**
+         * @param {String} idOfNodeToMutate 
+         * @param {node} newNode Ensure that this is not a clone, but a reference to the node in this.nodes, 
+         *  since D3 might mutate the node before you mutate, resulting in a stale node.
+         */
         mutateNode(idOfNodeToMutate, newNode) {
             const indexOfNode = this.nodes.findIndex(x => x.id == idOfNodeToMutate)
 
@@ -468,10 +498,41 @@ Vue.component('graph-network', {
                     this.$set(this.links, index, { ...this.links[index], target: newNode })
                 }
             })
-            return newNode
         },
-        getLinksFor(nodeId) {
-            return this.links.filter(link => (link.source.id == nodeId) || (link.target.id == nodeId))
+        unhighlightAllLinks() {
+            this.links = this.links.map(link => ({...link, highlight: false}))
+        },
+        unsetDrawName() {
+            this.nodeIdsToDraw.forEach(nodeId => {
+                const node = this.getNodeById(nodeId)
+                node.drawName = false
+                this.mutateNode(nodeId, node)
+            })  
+            this.nodeIdsToDraw = []          
+        },
+        setDrawName(nodeIds) {
+            this.unsetDrawName()
+            nodeIds.forEach((nodeId) => {
+                const node = this.getNodeById(nodeId)
+                node.drawName = true
+                this.mutateNode(nodeId, node)
+            })
+            this.nodeIdsToDraw = nodeIds
+        },
+        highlightSelectedNodeLinks() {
+            this.unhighlightAllLinks()
+            const nodeId = this.selectedNodeId
+            let nodeIds = []
+            this.links = this.links.map(link => {
+                if ((link.source.id == nodeId) || (link.target.id == nodeId)) {
+                    nodeIds.push(link.source.id)
+                    nodeIds.push(link.target.id)
+                    return {...link, highlight: true}
+                }
+                return link                
+            })
+            nodeIds = [...new Set(nodeIds)]
+            this.setDrawName(nodeIds)
         },
         // Should be called whenever this.nodes and this.links changes.
         loadDataIntoSimulation() {
@@ -485,15 +546,33 @@ Vue.component('graph-network', {
 
             this.d3Simulation.nodes(nodesToDraw).force("link").links(linksToDraw)
             this.burstSimulation(0.1)
+            this.generateDictionary()
+            this.networkDataIsReady = true
+        },
+        /**
+         * Dictionary for node lookup. Ensures lookup in this.nodes by node id is fast and does not
+         * require a loop through the entire list of this.nodes each time.
+         * 
+         * See this.getNodeById(nodeId) for the lookup function.
+         * 
+         * Key: node.id
+         * Value: index in this.nodes
+         */
+        generateDictionary() {
+            this.nodesDictionary = {}
+            this.nodes.forEach((node, index) => {
+                this.nodesDictionary[node.id] = index
+            })
+        },
+        handleSelectedSubreddit(newSubreddit, oldSubreddit) {
+            this.expandNode(newSubreddit, oldSubreddit)
+            this.selectedNodeId = newSubreddit
+            this.simulationUpdate()        
         },
         handleNetworkDataChange() {
             this.setDataFromNetworkData()
             this.expandNode(this.selectedSourceSubreddit) // Expand in the case that the node is a child node
             this.expandNode(this.selectedTargetSubreddit) // Expand in the case that the node is a child node
-        },
-        handleNodesChange() {
-            this.loadDataIntoSimulation()
-            this.burstSimulation()
         },
         resetForceData() {
             Object.assign(this.$data, { ...this.$data, ...d3ForceInitialState() })
@@ -534,6 +613,7 @@ Vue.component('graph-network', {
             requestAnimationFrame(animate);
         },
         setDataFromNetworkData() {
+            this.networkDataIsReady = false
             // Transform the rows from being arrays of values to objects.
             this.links = this.networkData.links.map(d => ({ source: d[0], target: d[1], count: d[2], normalizedCount: d[3] }))
             this.nodes = this.networkData.nodes.map(d => ({ id: d[0], type: d[1], group: d[2], collapsed: this.collapseAll }))
