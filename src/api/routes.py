@@ -23,24 +23,16 @@ def resource_not_found(e):
 
 @bp.route('/sentiment-box')
 def sentiment_box():
+	
 	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
 
-	if source_subreddit is None:
-		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
-
-	sentiments = BodyModel.get_instance().get_sentiments(source_subreddit)
-
-	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
-	p.axis.visible = False
-	p.toolbar.logo = None
-	p.toolbar_location = None
-
-	for i in range(len(sentiments)):
-		if sentiments[i] == 1:
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
-		else:
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')
-	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
+	if source_subreddit is None and target_subreddit is None:
+		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
+	
+	sentiments = BodyModel.get_instance().get_sentiments(target_subreddit, source_subreddit)
+  
+	return jsonify(sentiments)
 
 @bp.route('/top-properties')
 def top_properties():
@@ -98,6 +90,19 @@ def top_properties():
 	)
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
+
+@bp.route('/average-sentiment')
+def average_sentiment():
+	
+	source_subreddit = request.args.get('source-subreddit')
+	target_subreddit = request.args.get('target-subreddit')
+
+	if source_subreddit is None and target_subreddit is None:
+		raise ValueError("Cannot load average sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
+	
+	average = BodyModel.getInstance().get_average_sentiments(target_subreddit, source_subreddit)
+  
+	return jsonify(average)
 
 @bp.route('/source-target-frequencies')
 def plot_source_target_frequencies():
@@ -249,9 +254,7 @@ def aggregates():
 			"data_avg": data.to_dict()
 		})
 	data = BodyModel.get_instance().get_aggregates(source_subreddit, target_subreddit)
-	print(data)
 	average_data = BodyModel.get_instance().get_global_aggregates()
-	print(average_data)
 	return jsonify({
 		"data": data.to_dict(),
 		"data_avg": average_data.to_dict()

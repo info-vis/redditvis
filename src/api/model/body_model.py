@@ -5,7 +5,6 @@ import networkx as nx
 import pandas as pd
 from numpy.lib.utils import source
 from src.api.helpers.body_data_transformer import BodyDataTransformer
-from src.api.helpers.network_graph_helper import NetworkGraphHelper
 
 
 class BodyModel:
@@ -24,6 +23,7 @@ class BodyModel:
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
     graph = None
+
 
     @staticmethod
     def get_instance():
@@ -48,13 +48,57 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
+        self.max_sentiment = self._get_max_sentiment()
 
-    def get_sentiments(self, target):
-        posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
-        posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
-        sentiments = list(posts_for_target['LINK_SENTIMENT'])
-        return sentiments 
+    def _get_max_sentiment(self):
+            return (
+                self.data.groupby(["DATE", "SOURCE_SUBREDDIT"])['LINK_SENTIMENT'].sum()
+                .reset_index()['LINK_SENTIMENT'].max()
+            )
+
+    def get_top_target_subreddits(self, num):
+        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
+            .sort_values("counts", ascending=False).head(num)
+
+    def get_sentiments(self, target_subreddit, source_subreddit):
         
+        FIRST_DATE_IN_DATA_SET = '01-02-2014'
+        LATEST_DATE_IN_DATA_SET = '12-31-2017'
+        daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
+
+        
+    
+        if target_subreddit is not None and source_subreddit is not None:
+            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit is not None:
+            result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+        elif target_subreddit is not None:
+            result = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
+        else:
+            raise ValueError("source_subreddit and target_subreddit cannot both be None")
+   
+        return result.sort_values(by=['DATE','TIMEOFDAY']) \
+                                .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
+                                .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .div(self.max_sentiment) \
+                                .reindex(daterange, fill_value = 0) \
+                                .reset_index() \
+                                .rename(columns={'index': 'DATE'}) \
+                                .to_dict('records')
+
+    def get_average_sentiments(self, target_subreddit, source_subreddit):
+        if target_subreddit != None and source_subreddit != None:
+            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit != None:
+            result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+        elif target_subreddit != None:
+            result = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
+        else:
+            raise ValueError("source_subreddit and target_subreddit cannot both be None")
+        
+        result = result.loc['LINK_SENTIMENT'].mean()
+        return float(result)
+
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
 
