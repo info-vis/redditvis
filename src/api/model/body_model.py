@@ -1,12 +1,10 @@
 import os
 from typing import Optional
-from src.api.helpers.sentiment_box_helper import SentimentBoxHelper
 
 import networkx as nx
 import pandas as pd
 from numpy.lib.utils import source
 from src.api.helpers.body_data_transformer import BodyDataTransformer
-from src.api.helpers.network_graph_helper import NetworkGraphHelper
 
 
 class BodyModel:
@@ -50,8 +48,13 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
-        self.sentimentboxhelper = SentimentBoxHelper(self.data)
-        self.MIN_SENTIMENT, self.MAX_SENTIMENT = self.sentimentboxhelper.run()
+        self.max_sentiment = self._get_max_sentiment()
+
+    def _get_max_sentiment(self):
+            return (
+                self.data.groupby(["DATE", "SOURCE_SUBREDDIT"])['LINK_SENTIMENT'].sum()
+                .reset_index()['LINK_SENTIMENT'].max()
+            )
 
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
@@ -77,7 +80,7 @@ class BodyModel:
         return result.sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .div(self.MAX_SENTIMENT) \
+                                .div(self.max_sentiment) \
                                 .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
                                 .rename(columns={'index': 'DATE'}) \
