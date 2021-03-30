@@ -351,8 +351,6 @@ Vue.component('graph-network', {
         },
         panToCenter() {
             const selectedNode = this.getNodeById(this.selectedNodeId)
-            const x = selectedNode.x
-            const y = selectedNode.y
             const zoomLevel = 1
             const transform = d3.zoomIdentity.translate(this.d3Canvas.width / 2, this.d3Canvas.height / 2).scale(zoomLevel).translate(-(this.d3Canvas.width / 2), -(this.d3Canvas.height / 2))
             this.d3Transform = transform
