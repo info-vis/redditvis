@@ -254,9 +254,7 @@ def aggregates():
 			"data_avg": data.to_dict()
 		})
 	data = BodyModel.get_instance().get_aggregates(source_subreddit, target_subreddit)
-	print(data)
 	average_data = BodyModel.get_instance().get_global_aggregates()
-	print(average_data)
 	return jsonify({
 		"data": data.to_dict(),
 		"data_avg": average_data.to_dict()
