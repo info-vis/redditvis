@@ -172,7 +172,7 @@ Vue.component('sentiment-box', {
 
     mounted: async function () {
         this.createPlot()
-
+    
 
     template: `
     <div>

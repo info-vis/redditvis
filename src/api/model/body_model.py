@@ -49,9 +49,6 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
-        self.sentimentboxhelper = SentimentBoxHelper(self.data)
-        self.MAX_SENTIMENT, self.MIN_SENTIMENT = self.sentimentboxhelper.run()
-
 
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
@@ -64,7 +61,7 @@ class BodyModel:
         daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
 
         self.sentimentboxhelper = SentimentBoxHelper(self.data)
-        self.MAX_SENTIMENT, self.MIN_SENTIMENT = self.sentimentboxhelper.run()
+        self.MIN_SENTIMENT, self.MAX_SENTIMENT = self.sentimentboxhelper.run()
     
         if target_subreddit is not None and source_subreddit is not None:
             result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
@@ -78,6 +75,7 @@ class BodyModel:
         return result.sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
+                                .div(self.MAX_SENTIMENT) \
                                 .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
                                 .rename(columns={'index': 'DATE'}) \

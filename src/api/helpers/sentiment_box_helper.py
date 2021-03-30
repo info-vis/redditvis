@@ -11,7 +11,6 @@ class SentimentBoxHelper:
         self.data = data
 
     def run(self):
-        print('THIS HAPPENS')
         result = self.sum_sentiments()
         return self.get_minmax_values(result)
 
@@ -23,6 +22,6 @@ class SentimentBoxHelper:
     
     def get_minmax_values(self,data: pd.DataFrame):
         return (
-            data.min(),
-            data.max()
+            data['LINK_SENTIMENT'].min(),
+            data['LINK_SENTIMENT'].max()
         )
