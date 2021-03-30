@@ -29,7 +29,7 @@ Vue.component('sentiment-box', {
             return this.cellSize * 7 + 15
         },
         shouldLoadComponent() {
-            return this.sourceSubreddit || this.targetSubreddit
+            return (this.sourceSubreddit || this.targetSubreddit) ? true : false
         }
     },
     methods: {
@@ -129,8 +129,6 @@ Vue.component('sentiment-box', {
             const values = dateValues.map(c => c.value);
             const maxValue = d3.max(values);
             const minValue = d3.min(values);
-
-            console.log(minValue)
 
             var svg = this.createSvg();
 
