@@ -29,7 +29,6 @@ Vue.component('sentiment-box', {
             return this.cellSize * 7 + 15
         }
     },
-
     methods: {
         async fetchAPIData() {
             document.getElementById("sentiment-box").innerHTML = "";
@@ -46,7 +45,6 @@ Vue.component('sentiment-box', {
             this.data = await sentimentResponse.json();
             this.isLoading = false
         },
-
         drawDayCells: function (year, timeWeek, countDay, colorFn, formatDate) {
             year
                 .append("g")
@@ -67,7 +65,6 @@ Vue.component('sentiment-box', {
                 .append("title")
                 .text(d => `${formatDate(d.date)}: ${d.value.toFixed(6)}`);
         },
-
         drawDayNames: function (year, countDay, formatDay) {
             year
                 .append("g")
@@ -81,7 +78,6 @@ Vue.component('sentiment-box', {
                 .attr("font-size", 12)
                 .text(formatDay);
         },
-
         drawYearNames: function (year) {
             year
                 .append("text")
@@ -93,14 +89,12 @@ Vue.component('sentiment-box', {
                 .attr("transform", "rotate(270)")
                 .text(d => d[0]);
         },
-
         createSvg: function () {
             return d3.select("#sentiment-box")
                 .append("svg")
                 .attr("width", this.width)
                 .attr("height", this.height);
         },
-
         bindData: function (group, years) {
             return group
                 .selectAll("g")
@@ -111,9 +105,6 @@ Vue.component('sentiment-box', {
                     (d, i) => `translate(50, ${this.yearHeight * i + this.cellSize * 1.5})`
                 );
         },
-
-
-
         createPlot: async function () {
             await this.fetchAPIData()
             if (!this.data) {
@@ -130,17 +121,13 @@ Vue.component('sentiment-box', {
             const values = dateValues.map(c => c.value);
             const maxValue = d3.max(values);
             const minValue = d3.min(values);
-            
-            console.log(minValue)
 
+            console.log(minValue)
 
             var svg = this.createSvg();
 
-
             // wrangles data into array of arrays format
-            const years = d3
-                .group(dateValues, d => d.date.getUTCFullYear());
-
+            const years = d3.group(dateValues, d => d.date.getUTCFullYear());
 
             const group = svg.append("g");
 
@@ -150,14 +137,12 @@ Vue.component('sentiment-box', {
             // writes year names on the left
             this.drawYearNames(year);
 
-            const formatDay = d =>
-                ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
+            const formatDay = d =>["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
             const countDay = d => d.getUTCDay();
             const timeWeek = d3.utcSunday;
             const formatDate = d3.utcFormat("%x");
-            const colorFn = d3
-                .scaleSequential(d3.interpolateRdYlGn)
-                .domain([minValue, 0, maxValue]); //should be dynamic base on minValue, maxValue
+            const colorFn = d3.scaleSequential(d3.interpolateRdYlGn)
+                                .domain([minValue, 0, maxValue]); //should be dynamic base on minValue, maxValue
             const format = d3.format("+.2%");
 
             // Writes daynames on the left
@@ -165,33 +150,30 @@ Vue.component('sentiment-box', {
 
             // draws rectangles based on values               
             this.drawDayCells(year, timeWeek, countDay, colorFn, formatDate);
-
         },
-
     },
-
-
     mounted: async function () {
         this.createPlot()
-    
+
     },
     template: `
-    <div>
-        <div v-if="isLoading" class="d-flex justify-content-center">
-            <div class="spinner-grow my-5" role="status">
+        <div>
+            <div v-if="isLoading" class="d-flex justify-content-center">
+                <div class="spinner-grow my-5" role="status">
+                </div>
             </div>
+            <div v-show="!isLoading">
+                <p class="mb-0 mt-1" >
+                    <small> <strong> Post sentiment per time </strong></small>
+                    <info-button
+                        title="Sentiment plot"
+                        text="The sum of all sentiments of the posts on one day is computed and displayed according to a color scale, 
+                            depending on the overall positivity or negativity of the posts."
+                    >
+                    </info-button>
+                </p>
+            </div>
+            <div v-show="!isLoading" id="sentiment-box"></div>
         </div>
-        <div v-show="!isLoading">
-            <p class="mb-0 mt-1" >
-                <small> <strong> Post sentiment per time </strong></small>
-                <info-button
-                    title="Sentiment plot"
-                    text="The sum of all sentiments of the posts on one day is computed and displayed according to a color scale, 
-                        depending on the overall positivity or negativity of the posts."
-                >
-                </info-button>
-            </p>
-        </div>
-        <div v-show="!isLoading" id="sentiment-box"></div>
-    </div> `
+    `
 })
