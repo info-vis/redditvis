@@ -65,7 +65,7 @@ Vue.component('sentiment-box', {
                     } else { return colorFn(d.value); }
                 })
                 .append("title")
-                .text(d => `${formatDate(d.date)}: ${d.value.toFixed(2)}`);
+                .text(d => `${formatDate(d.date)}: ${d.value.toFixed(6)}`);
         },
 
         drawDayNames: function (year, countDay, formatDay) {
@@ -130,7 +130,8 @@ Vue.component('sentiment-box', {
             const values = dateValues.map(c => c.value);
             const maxValue = d3.max(values);
             const minValue = d3.min(values);
-
+            
+            console.log(minValue)
 
 
             var svg = this.createSvg();
@@ -156,7 +157,7 @@ Vue.component('sentiment-box', {
             const formatDate = d3.utcFormat("%x");
             const colorFn = d3
                 .scaleSequential(d3.interpolateRdYlGn)
-                .domain([-3, 0, 3]); //should be dynamic base on minValue, maxValue
+                .domain([minValue, 0, maxValue]); //should be dynamic base on minValue, maxValue
             const format = d3.format("+.2%");
 
             // Writes daynames on the left
@@ -173,7 +174,7 @@ Vue.component('sentiment-box', {
     mounted: async function () {
         this.createPlot()
     
-
+    },
     template: `
     <div>
         <div v-if="isLoading" class="d-flex justify-content-center">
