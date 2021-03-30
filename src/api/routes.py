@@ -1,14 +1,11 @@
 import json
-from math import pi
 
 from numpy.lib.function_base import average
 
-import bokeh
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from bokeh.plotting import figure
 from flask import abort, jsonify, request
 from plotly import utils
 from src.api import bp
@@ -23,7 +20,6 @@ def resource_not_found(e):
 
 @bp.route('/sentiment-box')
 def sentiment_box():
-	
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 

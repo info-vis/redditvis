@@ -1,4 +1,6 @@
+import collections
 import os
+from datetime import datetime
 from typing import Optional
 
 import networkx as nx
@@ -61,30 +63,35 @@ class BodyModel:
             .sort_values("counts", ascending=False).head(num)
 
     def get_sentiments(self, target_subreddit, source_subreddit):
-        
         FIRST_DATE_IN_DATA_SET = '01-02-2014'
         LATEST_DATE_IN_DATA_SET = '12-31-2017'
         daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
 
-        
-    
         if target_subreddit is not None and source_subreddit is not None:
-            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+            intermediate = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
         elif source_subreddit is not None:
-            result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+            intermediate = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
         elif target_subreddit is not None:
-            result = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
+            intermediate = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
         else:
             raise ValueError("source_subreddit and target_subreddit cannot both be None")
    
-        return result.sort_values(by=['DATE','TIMEOFDAY']) \
+        intermediate = intermediate.sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
                                 .div(self.max_sentiment) \
                                 .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
-                                .rename(columns={'index': 'DATE'}) \
-                                .to_dict('records')
+                                .rename(columns={'index': 'DATE'})
+        intermediate["LINK_SENTIMENT"] = round(intermediate["LINK_SENTIMENT"], 4)
+
+
+        intermediate['year'] = intermediate["DATE"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
+        unique_years = intermediate["year"].unique()
+        result = collections.defaultdict(list)
+        for year in unique_years:
+            result[str(year)] = intermediate[intermediate["year"] == year].loc[:, ["DATE", "LINK_SENTIMENT"]].to_dict('records')
+        return result
 
     def get_average_sentiments(self, target_subreddit, source_subreddit):
         if target_subreddit != None and source_subreddit != None:

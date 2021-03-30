@@ -354,9 +354,12 @@ Vue.component("app-container", {
 
             <div class="card-body">
               <div class="row">
-                <div class="col-md-7">
+                <div class="col-md-6">
                   <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </aggregate-container>
+                </div>
+                <div class="col-md-6">
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></sentiment-box>
                 </div>
               </div>
 
@@ -373,9 +376,6 @@ Vue.component("app-container", {
                 </div>
                 <div class="col-md-3">
                   <correlation-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></correlation-plot>
-                </div>
-                <div class="col">
-                  <sentiment-box :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></sentiment-box>
                 </div>
               </div>
 
