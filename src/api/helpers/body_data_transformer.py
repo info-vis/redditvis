@@ -6,7 +6,7 @@ import pandas as pd
 class BodyDataTransformer:
     """Transforms the body data into data that the network reads."""
 
-    OUTPUT_FILE_NAME = os.getenv("NETWORK_BODY_DATA_PATH")
+    OUTPUT_FILE_NAME = "src/data/network_data.parquet.gzip"
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
 
     def __init__(self) -> None:

@@ -15,6 +15,7 @@ from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
 
+network_graph_helper = NetworkGraphHelper()
 
 @bp.errorhandler(404)
 def resource_not_found(e):
@@ -157,7 +158,7 @@ def network():
 			abort(404, description="Resource not found")
 	else:
 		data = BodyModel.get_instance().get_network_data(n_links=n_links)
-	network_graph = NetworkGraphHelper.to_network_graph(data)
+	network_graph = network_graph_helper.to_network_graph(data)
 	return jsonify(network_graph)
 
 @bp.route("/properties-radar")
