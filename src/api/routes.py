@@ -26,31 +26,12 @@ def sentiment_box():
 	source_subreddit = request.args.get('source-subreddit')
 	target_subreddit = request.args.get('target-subreddit')
 
-<<<<<<< HEAD
 	if source_subreddit is None and target_subreddit is None:
 		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
 	
-	sentiments = BodyModel.getInstance().get_sentiments(target_subreddit, source_subreddit)
+	sentiments = BodyModel.get_instance().get_sentiments(target_subreddit, source_subreddit)
   
 	return jsonify(sentiments)
-=======
-	if source_subreddit is None:
-		raise ValueError("Cannot load sentiments for the entire data set. A source-subreddit as a query parameter is mandatory.")
-
-	sentiments = BodyModel.get_instance().get_sentiments(source_subreddit)
-
-	p = figure(plot_width=350, plot_height=100, tools ='') # The width and height may have to change
-	p.axis.visible = False
-	p.toolbar.logo = None
-	p.toolbar_location = None
-
-	for i in range(len(sentiments)):
-		if sentiments[i] == 1:
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='green')
-		else:
-				p.quad(top=[2], bottom=[1], left=[i-1], right=[i], color='red')
-	return json.dumps(bokeh.embed.json_item(p, "sentiment-box"))
->>>>>>> 21cda0f48f11c5658ea41df815d0b67082eb90a3
 
 @bp.route('/top-properties')
 def top_properties():

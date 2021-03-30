@@ -3,6 +3,7 @@ import os
 from numpy.lib.utils import source
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from typing import Optional
+from src.api.helpers.sentiment_box_helper import SentimentBoxHelper
 
 import networkx as nx
 import pandas as pd
@@ -48,6 +49,9 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
+        self.sentimentboxhelper = SentimentBoxHelper(self.data)
+        self.MAX_SENTIMENT, self.MIN_SENTIMENT = self.sentimentboxhelper.run()
+
 
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
@@ -59,6 +63,8 @@ class BodyModel:
         LATEST_DATE_IN_DATA_SET = '12-31-2017'
         daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
 
+        self.sentimentboxhelper = SentimentBoxHelper(self.data)
+        self.MAX_SENTIMENT, self.MIN_SENTIMENT = self.sentimentboxhelper.run()
     
         if target_subreddit is not None and source_subreddit is not None:
             result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
