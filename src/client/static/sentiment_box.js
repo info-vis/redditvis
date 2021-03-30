@@ -168,17 +168,12 @@ Vue.component('sentiment-box', {
         },
 
     },
-<<<<<<< HEAD
 
 
     mounted: async function () {
         this.createPlot()
 
-=======
-    mounted: async function () {
-        this.fetchAPIData()
->>>>>>> 21cda0f48f11c5658ea41df815d0b67082eb90a3
-    },
+
     template: `
     <div>
         <div v-if="isLoading" class="d-flex justify-content-center">
