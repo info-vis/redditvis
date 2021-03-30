@@ -5,9 +5,46 @@
         <img class="me-2" src="/client/static/assets/reddit-logo.png" width="20" height="20" style="margin-bottom: 4px"> 
         RedditVis
       </a>
+      <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        About RedditVis
+      </button>
+     
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
 </nav>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Welcome to RedditVis!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <b>RedditVis</b> is a multiview visual analytics system that allows you to explore the network of 
+          subreddit relations and analyse the details of linguistic and semantic post properties 
+          between selected subreddits. You can interactively select subreddits of interest that exist 
+          in the network and explore further details, identify relationships, 
+          patterns and trends within the data.
+        </p>
+        <p>
+          The data set used by RedditVis is the <a href="https://snap.stanford.edu/data/soc-RedditHyperlinks.html" target="_blank">
+          Social Network: Reddit Hyperlink Network data set </a> from the Stanford Network Analysis Platform (SNAP) 
+          at the Stanford University. The data set consists of a Reddit hyperlink network 
+          from January 2014 to April 2017. The data covers 137,113 cross-link interactions made 
+          between 36,000 subreddits.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
