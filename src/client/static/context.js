@@ -24,20 +24,10 @@ Vue.component('context-box', {
             </p>
 
             <p>
-            To the <b>left</b> of the network, you see the force control. This allows you to alter 
-            certain elements of the networks appearance.
-            </p>
-            
-            <p>
-            To the <b>right</b> of the network, you see the subreddit selection boxes. 
-            Simply type your desired subreddit or select from the dropdown menu. 
-            Once you have written your selection, simply press the blue button to select the subreddit. Press
-            the gray button to pipoint on the network and press the red button to delete your selection.
-            </p> 
-
-            <p>
-            <b>Below</b> the network, you can see the aggregate values and plots associated with the data. 
-            The "i" button next to the plots will give you extra information about themselves.
+            As a basis for the RedditVis development, a dataset from the Stanford Network Analysis Platform (SNAP) 
+            at the Stanford University was used. The dataset consists of a Reddit hyperlink network data 
+            from January 2014 to April 2017. The data covers 137,113 cross-link interactions made 
+            between 36,000 subreddits.
             </p>
             </div>
         </div>  `
