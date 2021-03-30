@@ -136,6 +136,7 @@ Vue.component('sentiment-box', {
                 date: d3.timeDay(new Date(dv.DATE)),
                 value: Number(dv.LINK_SENTIMENT)
             }));
+            console.log(dateValues)
             // wrangles data into array of arrays format
             const years = d3.group(dateValues, d => d.date.getFullYear());
             
@@ -149,7 +150,7 @@ Vue.component('sentiment-box', {
             const maxValue = d3.max(values);
             const minValue = d3.min(values);
             const colorFn = d3.scaleLinear()
-                .domain([minValue, 0, maxValue])
+                .domain([-1, 0, 1])
                 .range([this.colors.negative, this.colors.neutral, this.colors.positive])
                 .interpolate(d3.interpolateRgb.gamma(2.2))
 

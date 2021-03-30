@@ -50,14 +50,6 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
-        self.max_sentiment = self._get_max_sentiment()
-
-    def _get_max_sentiment(self):
-            return (
-                self.data.groupby(["DATE", "SOURCE_SUBREDDIT"])['LINK_SENTIMENT'].sum()
-                .reset_index()['LINK_SENTIMENT'].max()
-            )
-
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
@@ -79,12 +71,13 @@ class BodyModel:
         intermediate = intermediate.sort_values(by=['DATE','TIMEOFDAY']) \
                                 .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
                                 .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .div(self.max_sentiment) \
                                 .reindex(daterange, fill_value = 0) \
                                 .reset_index() \
                                 .rename(columns={'index': 'DATE'})
         intermediate["LINK_SENTIMENT"] = round(intermediate["LINK_SENTIMENT"], 4)
-
+        
+        max_sentiment = intermediate['LINK_SENTIMENT'].abs().max()
+        intermediate["LINK_SENTIMENT"] = intermediate['LINK_SENTIMENT'].div(max_sentiment)
 
         intermediate['year'] = intermediate["DATE"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
         unique_years = intermediate["year"].unique()
