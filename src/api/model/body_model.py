@@ -1,11 +1,11 @@
 import os
-
-from numpy.lib.utils import source
-from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from typing import Optional
 
 import networkx as nx
 import pandas as pd
+from numpy.lib.utils import source
+from src.api.helpers.body_data_transformer import BodyDataTransformer
+from src.api.helpers.network_graph_helper import NetworkGraphHelper
 
 
 class BodyModel:
@@ -14,7 +14,7 @@ class BodyModel:
     This returns a reference to the singleton object.
     """
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
-    NETWORK_BODY_DATA_PATH = os.getenv("NETWORK_BODY_DATA_PATH")
+    NETWORK_BODY_DATA_PATH = BodyDataTransformer.OUTPUT_FILE_NAME
     AGGREGATE_COLUMNS = [
         'Automated readability index',
         'Average word length',
