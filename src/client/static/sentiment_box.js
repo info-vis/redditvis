@@ -164,10 +164,10 @@ Vue.component('sentiment-box', {
             this.drawDayCells(boundYears, timeWeek, countDay, colorFn, formatDate);
         },
         createPlot: async function () {
-            await this.fetchAPIData()
             if (!this.shouldLoadComponent) {
                 return
             }
+            await this.fetchAPIData()
             this.renderSVG()
         },
     },
