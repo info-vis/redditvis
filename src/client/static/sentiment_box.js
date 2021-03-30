@@ -27,6 +27,9 @@ Vue.component('sentiment-box', {
     computed: {
         yearHeight() {
             return this.cellSize * 7 + 15
+        },
+        shouldLoadComponent() {
+            return this.sourceSubreddit || this.targetSubreddit
         }
     },
     methods: {
@@ -41,8 +44,13 @@ Vue.component('sentiment-box', {
             } else if (this.targetSubreddit) {
                 url = `${url}?target-subreddit=${this.targetSubreddit}`
             }
-            const sentimentResponse = await fetch(url);
-            this.data = await sentimentResponse.json();
+            const response = await fetch(url);
+            if (response.status != 200) { // Handle failed responses
+                console.log("Failed sentiment data call")
+                this.isLoading = false
+                return
+            }
+            this.data = await response.json();
             this.isLoading = false
         },
         drawDayCells: function (year, timeWeek, countDay, colorFn, formatDate) {
@@ -107,7 +115,7 @@ Vue.component('sentiment-box', {
         },
         createPlot: async function () {
             await this.fetchAPIData()
-            if (!this.data) {
+            if (!this.shouldLoadComponent) {
                 return
             }
 
@@ -137,12 +145,12 @@ Vue.component('sentiment-box', {
             // writes year names on the left
             this.drawYearNames(year);
 
-            const formatDay = d =>["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
+            const formatDay = d => ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
             const countDay = d => d.getUTCDay();
             const timeWeek = d3.utcSunday;
             const formatDate = d3.utcFormat("%x");
             const colorFn = d3.scaleSequential(d3.interpolateRdYlGn)
-                                .domain([minValue, 0, maxValue]); //should be dynamic base on minValue, maxValue
+                .domain([minValue, 0, maxValue]); //should be dynamic base on minValue, maxValue
             const format = d3.format("+.2%");
 
             // Writes daynames on the left
@@ -153,11 +161,12 @@ Vue.component('sentiment-box', {
         },
     },
     mounted: async function () {
-        this.createPlot()
-
+        if (this.shouldLoadComponent) {
+            this.createPlot()
+        }
     },
     template: `
-        <div>
+        <div v-show="shouldLoadComponent">
             <div v-if="isLoading" class="d-flex justify-content-center">
                 <div class="spinner-grow my-5" role="status">
                 </div>
