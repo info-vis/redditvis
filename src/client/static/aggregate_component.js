@@ -10,7 +10,7 @@ Vue.component("aggregate-component", {
   computed: {
     difference: function() {
       const result = this.value - this.globalAverage
-      return Number.parseFloat(result).toFixed(2)
+      return Number.parseFloat(result).toPrecision(2)
     },
     differenceStyle: function() {
       if (this.difference > 0) {
