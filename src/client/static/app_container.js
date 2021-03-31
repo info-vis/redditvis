@@ -233,8 +233,19 @@ Vue.component("app-container", {
               <a :href="subredditLink" target="_blank">
                 <strong>r/{{ shownSubgraph }}</strong>
               </a>
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
+              >
+              </info-button>
             </p>
-            <p v-else>Showing network for top subreddits</p>
+            <p v-else>Showing network for top subreddits
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
+              >
+              </info-button>
+            </p>
           </div>
           <graph-network
             v-if="networkData"
