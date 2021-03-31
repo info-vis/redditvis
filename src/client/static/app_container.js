@@ -3,8 +3,8 @@ Vue.component("app-container", {
   data: function () {
     return {
       networkData: null, // The raw data used in the graph-network component
-      numberOfLinks: 2000,
-      numberOfLinksSliderValue: 2000,
+      numberOfLinks: 500,
+      numberOfLinksSliderValue: 500,
       isLoadingData: false, // Whether network data is currently being loaded
       selectedSourceSubreddit: null, // The selected source subreddit after going through validation
       selectedTargetSubreddit: null, // The selected target subreddit after going through validation
@@ -158,8 +158,8 @@ Vue.component("app-container", {
       }
     },
     handleNodeSelected: function (payload) {
-      this.$refs.selectSourceSubreddit.selectedSubredditInput = payload.id
-      this.$refs.selectTargetSubreddit.selectedSubredditInput = payload.id
+      this.$refs.selectSourceSubreddit.selectedSubredditInput = payload
+      this.$refs.selectTargetSubreddit.selectedSubredditInput = payload
     },
     changeNumberOfLinks: function () {
       this.numberOfLinks = this.numberOfLinksSliderValue
@@ -224,7 +224,6 @@ Vue.component("app-container", {
   },
   template: `
     <div id="wrapper">
-
       <div class="row my-3 mb-3">
         <!-- Graph network -->
         <div class="col-md-10 pe-0 mb-2">
@@ -355,9 +354,12 @@ Vue.component("app-container", {
 
             <div class="card-body">
               <div class="row">
-                <div class="col-md-7">
+                <div class="col-md-6">
                   <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                   </aggregate-container>
+                </div>
+                <div class="col-md-6">
+                  <sentiment-box :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></sentiment-box>
                 </div>
               </div>
 
@@ -374,9 +376,6 @@ Vue.component("app-container", {
                 </div>
                 <div class="col-md-3">
                   <correlation-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></correlation-plot>
-                </div>
-                <div class="col">
-                  <sentiment-box :source-subreddit="selectedSourceSubreddit" v-if="selectedSourceSubreddit"></sentiment-box>
                 </div>
               </div>
 
