@@ -134,8 +134,9 @@ Vue.component('sentiment-box', {
             // wrangles data into more useable format
             const dateValues = this.data[this.selectedYear].map(dv => ({
                 date: d3.timeDay(new Date(dv.DATE)),
-                value: Number(dv.LINK_SENTIMENT)
+                value: dv.AVG_SENT_DAY
             }));
+            console.log(this.data)
             console.log(dateValues)
             // wrangles data into array of arrays format
             const years = d3.group(dateValues, d => d.date.getFullYear());

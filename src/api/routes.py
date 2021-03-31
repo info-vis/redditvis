@@ -96,7 +96,7 @@ def average_sentiment():
 	if source_subreddit is None and target_subreddit is None:
 		raise ValueError("Cannot load average sentiments for the entire data set. A source-subreddit or target-subreddit as a query parameter is mandatory.")
 	
-	average = BodyModel.getInstance().get_average_sentiments(target_subreddit, source_subreddit)
+	average = BodyModel.get_instance().get_average_sentiments(target_subreddit, source_subreddit)
   
 	return jsonify(average)
 
