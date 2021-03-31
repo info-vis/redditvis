@@ -15,6 +15,7 @@ pyarrow = "^3.0.0"
 networkx = "^2.5"
 plotly = "^4.14.3"
 plotly-express = "^0.4.1"
+bokeh = "2.3.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.18.0"
