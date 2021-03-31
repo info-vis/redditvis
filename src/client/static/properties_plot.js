@@ -43,9 +43,9 @@ Vue.component('properties-plot', {
         <div class="row">
             <div class="col-md-10">
                 <p class="mb-0 mt-1">
-                    <small> <strong> Top topics of the post </strong></small>
+                    <small> <strong> Top topics of posts</strong></small>
                     <info-button
-                        title="Top topics of the post"
+                        title="Top topics of posts"
                         text="The top 10 highest averages of each topic for the selected posts are displayed. 
                             The topics are computed using LIWC dictionary dimensions."
                     >

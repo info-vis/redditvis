@@ -17,7 +17,6 @@ Vue.component('graph-network', {
         return {
             links: null,
             nodes: null,
-            collapseAll: true,
 
             d3Simulation: null,
             d3Canvas: null,
@@ -26,23 +25,25 @@ Vue.component('graph-network', {
             d3Scale: d3.scaleOrdinal(d3.schemeCategory10),
             d3LinkWidth: 1,
             ...d3ForceInitialState(),
+            
+            collapseAll: true,
             selectedNodeId: null,
             highlightedNodeIds: [],
             nodesDictionary: {}, // Used to store the index of each node in this.nodes
             colors: {
                 backgroundColor: "white",
                 highlightColor: "#0e6efdc2",
-                // nodeColor: "#408acf",
                 nodeColor: "#90a4ae",
-                nodeBorderColor: "#c1d5e0",
+                nodeOutlineColor: "#c1d5e0",
                 selectedColor: "#e5d163",
                 parentExpanded: "#0dcaf0",
                 childNode: "white",
                 linkColor: "#48484826",
-                arrowColor: "#bdbdbd"
-                // arrowColor: "black"
+                arrowColor: "#bdbdbd",
+                selectedSourceColor: "#03a9f4",
+                selectedTargetColor: "#ff9800"
             },
-            baseRadius: 3
+            baseNodeRadius: 3
         }
     },
     computed: {
@@ -142,7 +143,7 @@ Vue.component('graph-network', {
             this.d3Transform = event.transform
             this.simulationUpdate()
         },
-        getNodeColor(d) {
+        getGroupColor(d) {
             return this.d3Scale(d.group)
         },
         clearCanvas() {
@@ -272,18 +273,18 @@ Vue.component('graph-network', {
         drawNodes() {
             const nodesToDraw = this.getNodesToDraw
             nodesToDraw.forEach(node => this.drawNode(node))
-            this.drawSelectedNode()
             this.drawSelectedSubreddits()
+            this.drawSelectedNode()
         },
-        drawNode(node) {
+        drawNode(node, colorOverride = null) {
             const radius = this.getNodeRadius(node)
 
             if (node.type == "parent") {
-                this.drawParentNode(node, radius)
+                this.drawParentNode(node, radius, colorOverride)
             } else if (node.type == "child") {
-                this.drawChildNode(node, radius)
+                this.drawChildNode(node, radius, colorOverride)
             } else {
-                this.drawRegularNode(node, radius)
+                this.drawRegularNode(node, radius, colorOverride)
             }
 
             if (node.highlight == true) {
@@ -308,111 +309,83 @@ Vue.component('graph-network', {
             }
             return false
         },
-        drawRegularNode(node, radius) {
-            // Node fill
-            this.d3Context.beginPath();
-            this.d3Context.moveTo(node.x + radius, node.y);
-            this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-            this.d3Context.fillStyle = this.colors.nodeColor;
-            this.d3Context.fill();
-
-            // Node outline
-            this.d3Context.strokeStyle = this.colors.nodeBorderColor;
-            this.d3Context.lineWidth = 2;
-            this.d3Context.stroke()
+        drawRegularNode(node, radius, colorOverride = null) {
+            this.drawFilledCircleWithOutline(node.x, node.y, radius, 
+                colorOverride ? colorOverride : this.colors.nodeColor, this.colors.nodeOutlineColor, 2)
         },
         drawHighlightedNode(node, radius) {
-            const highlightRadius = radius + 1
-            this.d3Context.beginPath();
-            this.d3Context.moveTo(node.x + highlightRadius, node.y);
-            this.d3Context.arc(node.x, node.y, highlightRadius, 0, 2 * Math.PI);
-
-            this.d3Context.lineWidth = 2;
-            this.d3Context.strokeStyle = this.colors.highlightColor;
-            this.d3Context.stroke();
+            const highlightRadius = radius + 2
+            this.drawOutline(
+                node.x, 
+                node.y, 
+                highlightRadius, 
+                this.colors.highlightColor,
+                2
+            )
         },
-        drawParentNode(node, radius) {
-            const smallRadius = Math.max(radius * 0.7)
-
-            if (node.collapsed) {
-                // Node fill
-                this.d3Context.beginPath();
-                this.d3Context.moveTo(node.x + radius, node.y);
-                this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-                this.d3Context.fillStyle = "white";
-                this.d3Context.fill();
-                // Inner node fill
-                this.d3Context.beginPath();
-                this.d3Context.moveTo(node.x + smallRadius, node.y);
-                this.d3Context.arc(node.x, node.y, smallRadius, 0, 2 * Math.PI);
-                this.d3Context.fillStyle = this.getNodeColor(node);
-                this.d3Context.fill();
-            } else { // node is expanded
-                // Node fill
-                this.d3Context.beginPath();
-                this.d3Context.moveTo(node.x + radius, node.y);
-                this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-                this.d3Context.fillStyle = this.getNodeColor(node);;
-                this.d3Context.fill();
-                // Inner node fill
-                this.d3Context.beginPath();
-                this.d3Context.moveTo(node.x + smallRadius, node.y);
-                this.d3Context.arc(node.x, node.y, smallRadius, 0, 2 * Math.PI);
-                this.d3Context.fillStyle = "white"
-                this.d3Context.fill();
-            }
+        drawFilledCircleWithOutline(x, y, radius, color, outlineColor, lineWidth) {
+            this.drawFilledCircle(x, y, radius, color)
             // Node outline
-            this.d3Context.beginPath();
-            this.d3Context.moveTo(node.x + radius, node.y);
-            this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-            this.d3Context.lineWidth = 2;
-            this.d3Context.strokeStyle = this.getNodeColor(node);
-            this.d3Context.stroke();
-        },
-        drawChildNode(node, radius) {
-            // Node fill
-            this.d3Context.beginPath();
-            this.d3Context.moveTo(node.x + radius, node.y);
-            this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-            this.d3Context.fillStyle = this.colors.childNode
-            this.d3Context.fill();
-
-            // Node outline
-            this.d3Context.lineWidth = 2;
-            this.d3Context.strokeStyle = this.getNodeColor(node);
+            this.d3Context.lineWidth = lineWidth;
+            this.d3Context.strokeStyle = outlineColor
             this.d3Context.stroke()
         },
+        drawFilledCircle(x, y, radius, color) {
+            this.d3Context.beginPath();
+            this.d3Context.moveTo(x + radius, y);
+            this.d3Context.arc(x, y, radius, 0, 2 * Math.PI);
+            this.d3Context.fillStyle = color;
+            this.d3Context.fill();
+        },
+        drawOutline(x, y, radius, color, lineWidth) {
+            this.d3Context.beginPath();
+            this.d3Context.moveTo(x + radius, y);
+            this.d3Context.arc(x, y, radius, 0, 2 * Math.PI);
+            this.d3Context.lineWidth = lineWidth;
+            this.d3Context.strokeStyle = color
+            this.d3Context.stroke();
+        },
+        drawParentNode(node, radius, colorOverride = null) {
+            const smallRadius = Math.max(radius * 0.5)
+            if (node.collapsed) {
+                this.drawFilledCircle(node.x, node.y, radius, "white")
+                // Inner node fill
+                this.drawFilledCircle(node.x, node.y, smallRadius, colorOverride ? colorOverride : this.colors.nodeColor)
+            } else { // node is expanded
+                this.drawFilledCircle(node.x, node.y, radius, colorOverride ? colorOverride : this.colors.nodeColor)
+                // Inner node fill
+                this.drawFilledCircle(node.x, node.y, smallRadius, "white")
+            }
+            this.drawOutline(node.x, node.y, radius, this.colors.nodeColor, 2)
+        },
+        drawChildNode(node, radius, colorOverride = null) {
+            this.drawFilledCircleWithOutline(node.x, node.y, radius, 
+                this.colors.childNode, colorOverride ? colorOverride : this.colors.nodeColor, 2)
+        },
         drawNodeName(node, radius) {
+            const offset = 4
             this.d3Context.font = "6px Verdana";
             this.d3Context.lineJoin = "round";
             // Outline
             this.d3Context.strokeStyle = 'black';
             this.d3Context.lineWidth = 1;
-            this.d3Context.strokeText(node.id, node.x + radius + 2, node.y);
+            this.d3Context.strokeText(node.id, node.x + radius + offset, node.y);
             // Fill
             this.d3Context.fillStyle = 'white';
-            this.d3Context.fillText(node.id, node.x + radius + 2, node.y);
+            this.d3Context.fillText(node.id, node.x + radius + offset, node.y);
         },
         drawSelectedSubreddits() {
-            const drawSelection = (node, color) => {
-                this.d3Context.beginPath();
-                this.drawNode(node)
-                this.d3Context.fillStyle = color
-                this.d3Context.fill();
-                this.d3Context.strokeStyle = color;
-                this.d3Context.lineWidth = 1;
-                this.d3Context.stroke();
-            }
             if (this.selectedSourceSubreddit) {
                 const node = this.getNodeById(this.selectedSourceSubreddit)
                 if (node) {
-                    drawSelection(node, "#03a9f4")
+                    this.drawNode(node, colorOverride = this.colors.selectedSourceColor)
                 }
             }
             if (this.selectedTargetSubreddit) {
                 const node = this.getNodeById(this.selectedTargetSubreddit)
                 if (node) {
-                    drawSelection(node, "#ff9800")
+                    this.drawNode(node, colorOverride = this.colors.selectedTargetColor)
+
                 }
             }
         },
@@ -420,22 +393,8 @@ Vue.component('graph-network', {
             if (this.selectedNodeId) {
                 const node = this.getNodeById(this.selectedNodeId)
                 if (node) {
-                    // this.d3Context.beginPath();
-                    // this.drawNode(node)
-                    // this.d3Context.fillStyle = "green"
-                    // this.d3Context.fill();
-                    // this.d3Context.strokeStyle = this.colors.selectedColor;
-                    // this.d3Context.lineWidth = 2;
-                    // this.d3Context.stroke();
-
-                    // Node outline
                     const radius = this.getNodeRadius(node)
-                    this.d3Context.beginPath();
-                    this.d3Context.moveTo(node.x + radius, node.y);
-                    this.d3Context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-                    this.d3Context.lineWidth = 2;
-                    this.d3Context.strokeStyle = this.colors.selectedColor;
-                    this.d3Context.stroke();
+                    this.drawOutline(node.x, node.y, radius, this.colors.selectedColor, 2)
                 }
             }
         },
@@ -533,14 +492,19 @@ Vue.component('graph-network', {
             return undefined;
         },
         expandNode(newNodeId, oldNodeId) {
+            console.log("in expandNode")
+            console.log(newNodeId)
+            console.log(oldNodeId)
             const node = this.getNodeById(newNodeId)
             if (node) { // Expand the new node
-                this.mutateNode(node.id, { ...node, "collapsed": false })
+                node.collapsed = false
+                this.mutateNode(node.id, node)
             }
             if (this.collapseAll) { // Collapse the old node
                 const node = this.getNodeById(oldNodeId)
                 if (node) {
-                    this.mutateNode(node.id, { ...node, "collapsed": true })
+                    node.collapsed = true
+                    this.mutateNode(node.id, node)
                 }
             }
         },
@@ -675,7 +639,7 @@ Vue.component('graph-network', {
             Object.assign(this.$data, { ...this.$data, ...d3ForceInitialState() })
         },
         getNodeRadius(node) {
-            return node.normalizedPostCount + this.baseRadius
+            return node.normalizedPostCount + this.baseNodeRadius
         },
         setForceSimulation() {
             // Overwrite the current simulation values with whatever is in Vue's data
