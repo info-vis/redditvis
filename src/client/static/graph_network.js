@@ -34,21 +34,27 @@ Vue.component('graph-network', {
                 backgroundColor: "white",
                 highlightColor: "#0e6efdc2",
                 nodeColor: "#90a4ae",
-                nodeOutlineColor: "#c1d5e0",
-                selectedColor: "#e5d163",
-                parentExpanded: "#0dcaf0",
-                childNode: "white",
+                nodeColorSecondary: "#f5f5f5",
+                nodeOutlineColor: "#cfd8dc",
+                selectedColor: "#fed351",
                 linkColor: "#48484826",
                 arrowColor: "#bdbdbd",
                 selectedSourceColor: "#03a9f4",
                 selectedTargetColor: "#ff9800"
             },
-            baseNodeRadius: 3
+            baseNodeRadius: 3,
+            nodeOutlineWidth: 2
         }
     },
     computed: {
         getNodesToDraw() {
-            return this.nodes.filter(node => (!node.collapsed || node.type != "child"))
+            const shouldNodeBeDrawn = node => (
+                this.selectedSourceSubreddit == node.id
+                || this.selectedTargetSubreddit == node.id
+                || !node.collapsed 
+                || node.type != "child"
+            )
+            return this.nodes.filter(node => shouldNodeBeDrawn(node))
         },
         getLinksToDraw() {
             const highlightedNodeIds = this.getNodesToDraw.map(x => x.id)
@@ -273,6 +279,7 @@ Vue.component('graph-network', {
         drawNodes() {
             const nodesToDraw = this.getNodesToDraw
             nodesToDraw.forEach(node => this.drawNode(node))
+            // Outside of drawNode for performance, since they can easily be fetched from nodesDictionary
             this.drawSelectedSubreddits()
             this.drawSelectedNode()
         },
@@ -311,7 +318,7 @@ Vue.component('graph-network', {
         },
         drawRegularNode(node, radius, colorOverride = null) {
             this.drawFilledCircleWithOutline(node.x, node.y, radius, 
-                colorOverride ? colorOverride : this.colors.nodeColor, this.colors.nodeOutlineColor, 2)
+                colorOverride ? colorOverride : this.colors.nodeColor, this.colors.nodeOutlineColor, this.nodeOutlineWidth)
         },
         drawHighlightedNode(node, radius) {
             const highlightRadius = radius + 2
@@ -348,19 +355,21 @@ Vue.component('graph-network', {
         drawParentNode(node, radius, colorOverride = null) {
             const smallRadius = Math.max(radius * 0.5)
             if (node.collapsed) {
-                this.drawFilledCircle(node.x, node.y, radius, "white")
+                this.drawFilledCircleWithOutline(node.x, node.y, radius, this.colors.nodeColorSecondary,
+                    this.colors.nodeOutlineColor, this.nodeOutlineWidth)
                 // Inner node fill
                 this.drawFilledCircle(node.x, node.y, smallRadius, colorOverride ? colorOverride : this.colors.nodeColor)
             } else { // node is expanded
-                this.drawFilledCircle(node.x, node.y, radius, colorOverride ? colorOverride : this.colors.nodeColor)
+                this.drawFilledCircleWithOutline(node.x, node.y, radius, colorOverride ? colorOverride : this.colors.nodeColor,
+                    this.colors.nodeOutlineColor, this.nodeOutlineWidth)
                 // Inner node fill
-                this.drawFilledCircle(node.x, node.y, smallRadius, "white")
+                this.drawFilledCircle(node.x, node.y, smallRadius, this.colors.nodeColorSecondary)
             }
-            this.drawOutline(node.x, node.y, radius, this.colors.nodeColor, 2)
+            // this.drawOutline(node.x, node.y, radius, this.colors.nodeColor, this.nodeOutlineWidth)
         },
         drawChildNode(node, radius, colorOverride = null) {
             this.drawFilledCircleWithOutline(node.x, node.y, radius, 
-                this.colors.childNode, colorOverride ? colorOverride : this.colors.nodeColor, 2)
+                this.colors.nodeColorSecondary, colorOverride ? colorOverride : this.colors.nodeOutlineColor, this.nodeOutlineWidth)
         },
         drawNodeName(node, radius) {
             const offset = 4
@@ -385,7 +394,6 @@ Vue.component('graph-network', {
                 const node = this.getNodeById(this.selectedTargetSubreddit)
                 if (node) {
                     this.drawNode(node, colorOverride = this.colors.selectedTargetColor)
-
                 }
             }
         },
@@ -394,7 +402,7 @@ Vue.component('graph-network', {
                 const node = this.getNodeById(this.selectedNodeId)
                 if (node) {
                     const radius = this.getNodeRadius(node)
-                    this.drawOutline(node.x, node.y, radius, this.colors.selectedColor, 2)
+                    this.drawOutline(node.x, node.y, radius, this.colors.selectedColor, this.nodeOutlineWidth)
                 }
             }
         },
@@ -491,29 +499,12 @@ Vue.component('graph-network', {
             // No node selected
             return undefined;
         },
-        expandNode(newNodeId, oldNodeId) {
-            console.log("in expandNode")
-            console.log(newNodeId)
-            console.log(oldNodeId)
-            const node = this.getNodeById(newNodeId)
-            if (node) { // Expand the new node
-                node.collapsed = false
-                this.mutateNode(node.id, node)
-            }
-            if (this.collapseAll) { // Collapse the old node
-                const node = this.getNodeById(oldNodeId)
-                if (node) {
-                    node.collapsed = true
-                    this.mutateNode(node.id, node)
-                }
-            }
-        },
         toggleCollapseChildren(group) {
             for (node of this.nodes) {
                 const belongsToGroup = node.group == group
                 if (belongsToGroup) {
-                    const mutatedNode = { ...node, "collapsed": !node.collapsed }
-                    this.mutateNode(node.id, mutatedNode)
+                    node.collapsed = !node.collapsed
+                    this.mutateNode(node.id, node)
                 }
             }
         },
@@ -625,15 +616,12 @@ Vue.component('graph-network', {
                 this.nodesDictionary[node.id] = index
             })
         },
-        handleSelectedSubreddit(newSubreddit, oldSubreddit) {
-            this.expandNode(newSubreddit, oldSubreddit)
+        handleSelectedSubreddit(newSubreddit) {
             this.selectedNodeId = newSubreddit
             this.simulationUpdate()
         },
         handleNetworkDataChange() {
             this.setDataFromNetworkData()
-            this.expandNode(this.selectedSourceSubreddit) // Expand in the case that the node is a child node
-            this.expandNode(this.selectedTargetSubreddit) // Expand in the case that the node is a child node
         },
         resetForceData() {
             Object.assign(this.$data, { ...this.$data, ...d3ForceInitialState() })

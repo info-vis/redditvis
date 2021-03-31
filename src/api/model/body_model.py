@@ -50,14 +50,6 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
-        self.max_sentiment = self._get_max_sentiment()
-
-    def _get_max_sentiment(self):
-            return (
-                self.data.groupby(["DATE", "SOURCE_SUBREDDIT"])['LINK_SENTIMENT'].sum()
-                .reset_index()['LINK_SENTIMENT'].max()
-            )
-
     def get_top_target_subreddits(self, num):
         return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
             .sort_values("counts", ascending=False).head(num)
@@ -68,29 +60,30 @@ class BodyModel:
         daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
 
         if target_subreddit is not None and source_subreddit is not None:
-            intermediate = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+            intermediate = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)].copy()
         elif source_subreddit is not None:
-            intermediate = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+            intermediate = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].copy()
         elif target_subreddit is not None:
-            intermediate = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
+            intermediate = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].copy()
         else:
             raise ValueError("source_subreddit and target_subreddit cannot both be None")
-   
-        intermediate = intermediate.sort_values(by=['DATE','TIMEOFDAY']) \
-                                .loc(axis=1)['LINK_SENTIMENT', 'DATE'] \
-                                .groupby('DATE')['LINK_SENTIMENT'].sum() \
-                                .div(self.max_sentiment) \
-                                .reindex(daterange, fill_value = 0) \
-                                .reset_index() \
-                                .rename(columns={'index': 'DATE'})
-        intermediate["LINK_SENTIMENT"] = round(intermediate["LINK_SENTIMENT"], 4)
 
+        intermediate.loc[:,'NUM_POSTS'] = intermediate.groupby('DATE')['DATE'].transform('count').fillna(0)     
+        intermediate.loc[:,'SUM_SENTIMENT'] = intermediate.groupby('DATE')['LINK_SENTIMENT'].transform('sum')
+        intermediate.loc[:, 'AVG_SENT_DAY'] = round(intermediate['SUM_SENTIMENT'].div(intermediate['NUM_POSTS']),4)
+
+        intermediate = intermediate.sort_values(by=['DATE','TIMEOFDAY']).loc(axis=1)['DATE','AVG_SENT_DAY'].set_index('DATE')
+        intermediate = intermediate[~intermediate.index.duplicated(keep='first')]
+
+        intermediate = intermediate.reindex(daterange, fill_value = 0) \
+                                .reset_index() \
+                                .rename(columns={'index': 'DATE'}) 
 
         intermediate['year'] = intermediate["DATE"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
         unique_years = intermediate["year"].unique()
         result = collections.defaultdict(list)
         for year in unique_years:
-            result[str(year)] = intermediate[intermediate["year"] == year].loc[:, ["DATE", "LINK_SENTIMENT"]].to_dict('records')
+            result[str(year)] = intermediate[intermediate["year"] == year].loc[:, ["DATE", "AVG_SENT_DAY"]].to_dict('records')
         return result
 
     def get_average_sentiments(self, target_subreddit, source_subreddit):
@@ -103,7 +96,7 @@ class BodyModel:
         else:
             raise ValueError("source_subreddit and target_subreddit cannot both be None")
         
-        result = result.loc['LINK_SENTIMENT'].mean()
+        result = result.loc[:,'LINK_SENTIMENT'].mean()
         return float(result)
 
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
