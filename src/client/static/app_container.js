@@ -8,7 +8,7 @@ Vue.component("app-container", {
       isLoadingData: false, // Whether network data is currently being loaded
       selectedSourceSubreddit: null, // The selected source subreddit after going through validation
       selectedTargetSubreddit: null, // The selected target subreddit after going through validation
-      sourceSubredditQuery: null, // The input form value of the source select component after submission
+      sourceSubredditQuery: "whiskyinventory", // The input form value of the source select component after submission
       targetSubredditQuery: null, // The input form value of the target select component after submission
       shownSubgraph: null, // The name of the subreddit for which the current subgraph is shown for
       showSubredditNames: false, // Whether subreddit names should be shown in the graph-network
