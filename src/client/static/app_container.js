@@ -227,26 +227,20 @@ Vue.component("app-container", {
       <div class="row my-3 mb-3">
         <!-- Graph network -->
         <div class="col-md-10 pe-0 mb-2">
-          <div>
-            <p v-if="shownSubgraph">
+          <p>
+            <p style="display:inline" v-if="shownSubgraph">
               Showing subgraph of subreddit 
               <a :href="subredditLink" target="_blank">
                 <strong>r/{{ shownSubgraph }}</strong>
               </a>
-              <info-button
-                title="Network graph"
-                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
-              >
-              </info-button>
             </p>
-            <p v-else>Showing network for top subreddits
-              <info-button
-                title="Network graph"
-                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
-              >
-              </info-button>
-            </p>
-          </div>
+            <p style="display:inline" v-else>Showing network for top subreddits</p>
+            <info-button
+              title="Network graph"
+              text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
+            >
+            </info-button>
+          </p>
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
