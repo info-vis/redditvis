@@ -227,15 +227,6 @@ Vue.component("app-container", {
       <div class="row my-3 mb-3">
         <!-- Graph network -->
         <div class="col-md-10 pe-0 mb-2">
-          <div>
-            <p v-if="shownSubgraph">
-              Showing subgraph of subreddit 
-              <a :href="subredditLink" target="_blank">
-                <strong>r/{{ shownSubgraph }}</strong>
-              </a>
-            </p>
-            <p v-else>Showing network for top subreddits</p>
-          </div>
           <graph-network
             v-if="networkData"
             v-bind:network-data="networkData"
@@ -268,6 +259,18 @@ Vue.component("app-container", {
               </div>
             </div>
           </div>
+
+          <div class="row">
+            <div class="col">
+              <p v-if="shownSubgraph">
+                Showing subgraph of subreddit 
+                <a :href="subredditLink" target="_blank">
+                  <strong>r/{{ shownSubgraph }}</strong>
+                </a>
+              </p>
+              <p v-else>Showing network of top 500 subreddit links by post count</p>
+            </div>
+          </div> 
 
           <div class="row"> 
             <div class="col">
