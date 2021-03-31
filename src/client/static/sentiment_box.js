@@ -6,7 +6,6 @@ Vue.component('sentiment-box', {
             height: 100,
             cellSize: 10,
             months: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
-            colors: ['#00ff00', '#ff0900', '#00000045'],
             isLoading: false,
             selectedYear: "2014",
             yearOptions: ["2014", "2015", "2016", "2017"],
@@ -144,22 +143,18 @@ Vue.component('sentiment-box', {
             // writes year names on the left
             this.drawYearNames(boundYears);
 
-            // gets min-maxvalues for color scale
-            const values = dateValues.map(c => c.value);
-            const maxValue = d3.max(values);
-            const minValue = d3.min(values);
-            const colorFn = d3.scaleLinear()
-                .domain([-1, 0, 1])
-                .range([this.colors.negative, this.colors.neutral, this.colors.positive])
-                .interpolate(d3.interpolateRgb.gamma(2.2))
-
             const countDay = d => d.getUTCDay();
             const formatDay = d => ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"][d.getUTCDay()];
+            
             // Writes daynames on the left
             this.drawDayNames(boundYears, countDay, formatDay);
 
             // draws rectangles based on values  
-            const timeWeek = d3.utcSunday;    
+            const timeWeek = d3.utcSunday
+            const colorFn = d3.scaleLinear()
+                .domain([-1, 0, 1])
+                .range([this.colors.negative, this.colors.neutral, this.colors.positive])
+                .interpolate(d3.interpolateRgb.gamma(2.2))
             const formatDate = d3.utcFormat("%x");         
             this.drawDayCells(boundYears, timeWeek, countDay, colorFn, formatDate);
         },
