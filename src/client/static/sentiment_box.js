@@ -136,8 +136,6 @@ Vue.component('sentiment-box', {
                 date: d3.timeDay(new Date(dv.DATE)),
                 value: dv.AVG_SENT_DAY
             }));
-            console.log(this.data)
-            console.log(dateValues)
             // wrangles data into array of arrays format
             const years = d3.group(dateValues, d => d.date.getFullYear());
             
