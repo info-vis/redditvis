@@ -8,7 +8,7 @@ Vue.component('sentiment-box', {
             months: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
             colors: ['#00ff00', '#ff0900', '#00000045'],
             isLoading: false,
-            selectedYear: "2017",
+            selectedYear: "2014",
             yearOptions: ["2014", "2015", "2016", "2017"],
             colors: {
                 positive: "#4caf50",

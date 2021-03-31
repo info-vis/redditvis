@@ -173,7 +173,8 @@ def properties_radar():
 		r=data_close_line.values,
 		theta=data_close_line.index,
 		line_color='rgb(64, 138, 207)',
-		showlegend=False
+		showlegend=False, 
+		name="Selection"
 	))
 
 	fig.add_trace(go.Scatterpolar(
