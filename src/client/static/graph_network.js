@@ -352,7 +352,8 @@ Vue.component('graph-network', {
             this.d3Context.stroke();
         },
         drawParentNode(node, radius, colorOverride = null) {
-            const smallRadius = Math.max(radius * 0.5)
+            const smallRadius = Math.max(radius * 0.6)
+            const smallestRadius = Math.max(radius * 0.5)
             if (node.collapsed) {
                 this.drawFilledCircleWithOutline(node.x, node.y, radius, this.colors.nodeColorSecondary,
                     this.colors.nodeOutlineColor, this.nodeOutlineWidth)
@@ -362,9 +363,8 @@ Vue.component('graph-network', {
                 this.drawFilledCircleWithOutline(node.x, node.y, radius, colorOverride ? colorOverride : this.colors.nodeColor,
                     this.colors.nodeOutlineColor, this.nodeOutlineWidth)
                 // Inner node fill
-                this.drawFilledCircle(node.x, node.y, smallRadius, this.colors.nodeColorSecondary)
+                this.drawFilledCircle(node.x, node.y, smallestRadius, this.colors.nodeColorSecondary)
             }
-            // this.drawOutline(node.x, node.y, radius, this.colors.nodeColor, this.nodeOutlineWidth)
         },
         drawChildNode(node, radius, colorOverride = null) {
             this.drawFilledCircleWithOutline(node.x, node.y, radius, 
