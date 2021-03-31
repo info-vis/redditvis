@@ -229,12 +229,23 @@ Vue.component("app-container", {
         <div class="col-md-10 pe-0 mb-2">
           <div>
             <p v-if="shownSubgraph">
-              Showing subgraph of subreddit 
+              Showing subgraph of subreddit
               <a :href="subredditLink" target="_blank">
                 <strong>r/{{ shownSubgraph }}</strong>
               </a>
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets."
+              >
+              </info-button>
             </p>
-            <p v-else>Showing network for top subreddits</p>
+            <p v-else>Showing network for top subreddits
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets."
+              >
+              </info-button>
+            </p>
           </div>
           <graph-network
             v-if="networkData"
@@ -334,7 +345,7 @@ Vue.component("app-container", {
             <div class="border p-2 rounded my-1 border shadow-sm" style="background-color: white">
                 <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
                 <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
-            </div>
+                </div>
             </div>
           </div>
           <!-- End Graph Controls -->
@@ -365,20 +376,16 @@ Vue.component("app-container", {
 
               <div class="row">
                 <div class="col-md-3">
-                  <info-button1></info-button1>
                   <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
                 </div>
                 <div class="col-md-3">
-                  <info-button2></info-button2>
                   <properties-plot :source-subreddit="selectedSourceSubreddit":target-subreddit="selectedTargetSubreddit">
                   </properties-plot>
                 </div>
                 <div class="col-md-3">
-                  <info-button3></info-button3>
                   <properties-radar :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></properties-radar>
                 </div>
                 <div class="col-md-3">
-                  <info-button4></info-button4>
                   <correlation-plot :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></correlation-plot>
                 </div>
               </div>
