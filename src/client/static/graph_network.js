@@ -156,7 +156,6 @@ Vue.component('graph-network', {
             this.d3Context.clearRect(0, 0, this.d3Canvas.width, this.d3Canvas.height);
         },
         drawLinks(links) {
-            // const getColor = (d) => d.highlight ? this.highlightColor : "#0000001a";
             const getColor = (d) => d.highlight ? this.colors.highlightColor : this.colors.linkColor;
             const getWidth = (d) => d.normalizedCount
             const getCurvature = () => .3;
@@ -561,7 +560,6 @@ Vue.component('graph-network', {
             nodeIds.forEach((nodeId) => {
                 const node = this.getNodeById(nodeId)
                 if (node) {
-                    // node = {...node,  ...attributes}
                     for (const [key, value] of Object.entries(attributes)) {
                         node[key] = value
                     }
