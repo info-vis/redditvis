@@ -1,9 +1,12 @@
+import collections
 import os
-from src.api.helpers.network_graph_helper import NetworkGraphHelper
+from datetime import datetime
 from typing import Optional
 
 import networkx as nx
 import pandas as pd
+from numpy.lib.utils import source
+from src.api.helpers.body_data_transformer import BodyDataTransformer
 
 
 class BodyModel:
@@ -12,10 +15,17 @@ class BodyModel:
     This returns a reference to the singleton object.
     """
     BODY_DATA_PATH = os.getenv("BODY_DATA_PATH")
+    NETWORK_BODY_DATA_PATH = BodyDataTransformer.OUTPUT_FILE_NAME
+    AGGREGATE_COLUMNS = [
+        'Automated readability index',
+        'Average word length',
+        'Average number of words per sentence',
+    ]
 
     __instance = None # A reference to an instance of itself
     data = None       # The data loaded from BODY_DATA_PATH
     graph = None
+
 
     @staticmethod
     def get_instance():
@@ -31,6 +41,8 @@ class BodyModel:
         else:
             BodyModel.__instance = self
         self.data = pd.read_parquet(self.BODY_DATA_PATH, engine="pyarrow")
+        self.network_data = pd.read_parquet(self.NETWORK_BODY_DATA_PATH, engine="pyarrow")
+
         result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
                 .size()\
                 .reset_index()\
@@ -38,13 +50,55 @@ class BodyModel:
                 .sort_values("count", ascending=False)
         self.graph = nx.from_pandas_edgelist(result, 'SOURCE_SUBREDDIT', 'TARGET_SUBREDDIT', create_using=nx.DiGraph())
 
+    def get_top_target_subreddits(self, num):
+        return self.data.groupby(["TARGET_SUBREDDIT"]).size().reset_index(name="counts") \
+            .sort_values("counts", ascending=False).head(num)
 
-    def get_sentiments(self, target):
-        posts_for_target = self.data.loc[self.data['TARGET_SUBREDDIT'] == target]
-        posts_for_target = posts_for_target.sort_values(by=['DATE','TIMEOFDAY'])
-        sentiments = list(posts_for_target['LINK_SENTIMENT'])
-        return sentiments 
+    def get_sentiments(self, target_subreddit, source_subreddit):
+        FIRST_DATE_IN_DATA_SET = '01-02-2014'
+        LATEST_DATE_IN_DATA_SET = '12-31-2017'
+        daterange = pd.date_range(FIRST_DATE_IN_DATA_SET, LATEST_DATE_IN_DATA_SET).astype(str)
+
+        if target_subreddit is not None and source_subreddit is not None:
+            intermediate = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)].copy()
+        elif source_subreddit is not None:
+            intermediate = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit].copy()
+        elif target_subreddit is not None:
+            intermediate = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit].copy()
+        else:
+            raise ValueError("source_subreddit and target_subreddit cannot both be None")
+
+        intermediate.loc[:,'NUM_POSTS'] = intermediate.groupby('DATE')['DATE'].transform('count').fillna(0)     
+        intermediate.loc[:,'SUM_SENTIMENT'] = intermediate.groupby('DATE')['LINK_SENTIMENT'].transform('sum')
+        intermediate.loc[:, 'AVG_SENT_DAY'] = round(intermediate['SUM_SENTIMENT'].div(intermediate['NUM_POSTS']),4)
+
+        intermediate = intermediate.sort_values(by=['DATE','TIMEOFDAY']).loc(axis=1)['DATE','AVG_SENT_DAY'].set_index('DATE')
+        intermediate = intermediate[~intermediate.index.duplicated(keep='first')]
+
+        intermediate = intermediate.reindex(daterange, fill_value = 0) \
+                                .reset_index() \
+                                .rename(columns={'index': 'DATE'}) 
+
+        intermediate['year'] = intermediate["DATE"].apply(lambda x: datetime.strptime(x, "%Y-%m-%d").year)
+        unique_years = intermediate["year"].unique()
+        result = collections.defaultdict(list)
+        for year in unique_years:
+            result[str(year)] = intermediate[intermediate["year"] == year].loc[:, ["DATE", "AVG_SENT_DAY"]].to_dict('records')
+        return result
+
+    def get_average_sentiments(self, target_subreddit, source_subreddit):
+        if target_subreddit != None and source_subreddit != None:
+            result = self.data.loc[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+        elif source_subreddit != None:
+            result = self.data.loc[self.data['SOURCE_SUBREDDIT'] == source_subreddit]
+        elif target_subreddit != None:
+            result = self.data.loc[self.data['TARGET_SUBREDDIT'] == target_subreddit]
+        else:
+            raise ValueError("source_subreddit and target_subreddit cannot both be None")
         
+        result = result.loc[:,'LINK_SENTIMENT'].mean()
+        return float(result)
+
     def get_top_properties(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
         """Getting top 10 semantic properties of the post for the source subredddit, target subreddit or all subreddits.
 
@@ -79,8 +133,6 @@ class BodyModel:
                 .size().sort_values(ascending=False).head(10)
         return self.data.groupby(['SOURCE_SUBREDDIT'])['TARGET_SUBREDDIT'].size().sort_values(ascending=False).head(10)
 
-
-
     def get_network_data(self, n_links: Optional[int] = None) -> pd.DataFrame:
         """Returns the network data.
 
@@ -93,19 +145,9 @@ class BodyModel:
             128037  trendingsubreddits        changelog    548
             114895       streetfighter              sf4    279
         """
-        if self.data is None:
-            raise ValueError("No data has been loaded in BodyModel.")
-
-        result = self.data.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-                .size()\
-                .reset_index()\
-                .rename(columns={0: "count"})\
-                .sort_values("count", ascending=False)
-
-        
         if n_links is not None:
-            return result.head(n_links)
-        return result
+            return self.network_data.head(n_links)
+        return self.network_data
 
     def get_subgraph_for_subreddit(self, subreddit: str, min_count = 5) -> pd.DataFrame:
         """Returns the a subgraph of the network data with a depth of 1, i.e. all incoming and
@@ -124,7 +166,7 @@ class BodyModel:
                     30	changelog	redditdev	7
         """
         ######## v3 begin ########
-        df = self.data
+        df = self.network_data
         
         def get_neighbors(subreddit, graph):
             neighbors = list(nx.all_neighbors(graph, subreddit))
@@ -132,18 +174,8 @@ class BodyModel:
 
         neighbors = get_neighbors(subreddit, self.graph)
         
-        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]\
-            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-            .size()\
-            .reset_index()\
-            .rename(columns={0: "count"})\
-            .sort_values("count", ascending=False)
-        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]\
-            .groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"])\
-            .size()\
-            .reset_index()\
-            .rename(columns={0: "count"})\
-            .sort_values("count", ascending=False)
+        subreddit_neighbors_df = df[(df["SOURCE_SUBREDDIT"] == subreddit) | (df["TARGET_SUBREDDIT"] == subreddit)]
+        neighbors_neighbors_df = df[(df["SOURCE_SUBREDDIT"].isin(neighbors)) | (df["TARGET_SUBREDDIT"].isin(neighbors))]
         # Reduce size
         neighbors_neighbors_df = neighbors_neighbors_df[neighbors_neighbors_df['count'] > min_count]
 
@@ -194,13 +226,27 @@ class BodyModel:
         return data[[property1, property2]]
 
     def get_aggregates(self, source_subreddit: Optional[str] = None, target_subreddit: Optional[str] = None):
-        data = self.data
         if source_subreddit is not None and target_subreddit is not None:
-            data = self.data[(self.data['SOURCE_SUBREDDIT'] == source_subreddit) & (self.data['TARGET_SUBREDDIT'] == target_subreddit)]
+            intermediate = self.data[
+                (self.data['SOURCE_SUBREDDIT'] == source_subreddit) \
+                    & (self.data['TARGET_SUBREDDIT'] == target_subreddit)
+            ]
+            num_of_posts = intermediate.groupby(["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT"]).size()[0]
         elif source_subreddit is not None:
-            data = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+            intermediate = self.data[self.data["SOURCE_SUBREDDIT"] == source_subreddit]
+            num_of_posts = intermediate.groupby("SOURCE_SUBREDDIT").size()[0]
         elif target_subreddit is not None:
-            data = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
-        return data.loc[:, ['Fraction of alphabetical characters',
-       'Fraction of digits', 'Fraction of uppercase characters',
-       'Fraction of white spaces', 'Fraction of special characters', 'Fraction of stopwords',]].mean().sort_values(ascending=False).multiply(100).round(decimals=2)
+            intermediate = self.data[self.data["TARGET_SUBREDDIT"] == target_subreddit]
+            num_of_posts = intermediate.groupby("TARGET_SUBREDDIT").size()[0]
+
+        result = intermediate.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
+        result["Number of posts"] = num_of_posts
+        return result
+
+    def get_global_aggregates(self):
+        """Returns the global aggregates over various properties.
+        """
+        result = self.data.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
+        result["Number of posts"] = self.data.shape[0]
+        return result
+        

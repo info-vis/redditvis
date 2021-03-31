@@ -28,22 +28,28 @@ Vue.component('properties-plot', {
             const propertiesPlotResponse = await fetch(url);
             const propertiesPlot = await propertiesPlotResponse.json();
             const graphDiv = document.getElementById("properties-plot")
-            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, {displayModeBar: false})
+            Plotly.react(graphDiv, propertiesPlot.data, propertiesPlot.layout, { displayModeBar: false })
             this.isLoading = false
         },
         async fetchAPIData() {
             this.fetchPlot()
         }
     },
-    created: async function(){
+    created: async function () {
         this.fetchAPIData()
     },
     template: `
     <div>
         <div class="row">
             <div class="col-md-10">
-                <p class="mb-0 mt-1" >
-                <small> <strong> Top topics of the post </strong></small>
+                <p class="mb-0 mt-1">
+                    <small> <strong> Top topics of the post </strong></small>
+                    <info-button
+                        title="Top topics of the post"
+                        text="The top 10 highest averages of each topic for the selected posts are displayed. 
+                            The topics are computed using LIWC dictionary dimensions."
+                    >
+                    </info-button>
                 </p>
             </div>
             <div class="col-md-2">

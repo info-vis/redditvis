@@ -1,4 +1,5 @@
 import collections
+from src.api.helpers.node_attribute_transformer import NodeAttributeTransformer
 
 import networkx as nx
 import pandas as pd
@@ -7,12 +8,23 @@ import pandas as pd
 class NetworkGraphHelper:
     """This class helps to with data formatting for the network graph."""
 
-    @staticmethod
-    def to_network_graph(data: pd.DataFrame) -> dict:
+    node_attribute_data = pd.read_parquet(
+        NodeAttributeTransformer.OUTPUT_FILE_NAME, engine="pyarrow"
+    )
+
+    def _merge_attributes(self, nodes):
+        nodes_df = pd.DataFrame(nodes, dtype=object)
+        return (
+            pd.merge(
+                nodes_df, self.node_attribute_data, left_on=0, right_on="subreddit"
+            )
+            .drop(columns="subreddit")
+            .values.tolist()
+        )
+
+    def to_network_graph(self, data: pd.DataFrame) -> dict:
         def to_links(data):
-            return data[
-                ["SOURCE_SUBREDDIT", "TARGET_SUBREDDIT", "count"]
-            ].values.tolist()
+            return data.values.tolist()
 
         def to_nodes_with_cluster():
             """Add cluster data to nodes.
@@ -53,5 +65,6 @@ class NetworkGraphHelper:
             return result
 
         nodes = to_nodes_with_cluster()
+        nodes = self._merge_attributes(nodes)
         links = to_links(data)
         return {"nodes": nodes, "links": links}
