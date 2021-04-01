@@ -17,7 +17,7 @@ PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
 PLOT_WIDTH = 300
 PLOT_HEIGHT = 200
 TEMPLATE = "plotly_dark"
-PRIMARY_COLOR = "#40c4ff"
+PRIMARY_COLOR = "#40bdf5"
 SECONDARY_COLOR = "#0288d1"
 MARGIN = {"t": 0, "b": 0, "l": 0, "r": 0}
 
@@ -90,7 +90,7 @@ def top_properties():
 			"bordercolor":"LightSteelBlue",
 			"borderwidth":0.5
 			},
-		font={"size": 9},
+		font={"size": 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -132,7 +132,7 @@ def plot_source_target_frequencies():
         height=PLOT_HEIGHT,
         dragmode=False,
         xaxis={"title": 'Number of posts'},
-        font={"size": 9},
+        font={"size": 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -213,7 +213,7 @@ def properties_radar():
 			"xanchor":"right",
 			"x":1.2
 		},
-		font={"size": 9},
+		font={"size": 8},
 		margin={"b": 0, "l": 20, "r": 0, "t": 0},
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -250,7 +250,7 @@ def correlation_plot():
 	fig.update_layout(
 		width=PLOT_WIDTH,
 		height=PLOT_HEIGHT-50,
-		font={'size':9},
+		font={'size': 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE

@@ -228,78 +228,6 @@ Vue.component("app-container", {
     <div id="wrapper">
       <div class="row mt-2">
 
-        <div class="col-md-2 px-1">
-          <div class="d-grid">
-            <button 
-                :title="showForceControls ? 'Hide force controls' : 'Show force controls'" 
-                class="btn btn-outline-primary btn-sm mb-1" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#forceControls" 
-                aria-expanded="false" 
-                aria-controls="forceControls"
-                @click="showForceControls = !showForceControls"
-            >
-                {{ showForceControls ? 'Hide foce controls' : 'Show force controls' }}
-            </button>
-          </div>
-
-          <sidebar-container>
-            <div class="row">
-              <div class="col">
-                <div class="input-group">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames" style="background-color: gray;">
-                    <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col">
-                <div class="input-group">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="collapseAllClusters" v-on:click="collapseAllClusters = !collapseAllClusters" style="background-color: gray;">
-                    <label class="form-check-label" for="collapseAllClusters">Expand all clusters</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 
-            <div class="row">
-              <div class="col">
-                <label for="linkSlider" class="form-label">Number of links: {{ numberOfLinksSliderValue }}/137821</label>
-                <input type="range" class="form-range" min="0" max="25000" step="50" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
-              </div>
-            </div>
-            -->
-          </sidebar-container>
-
-          <sidebar-container>
-            <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
-            <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
-          </sidebar-container>
-
-        </div>
-
-        <!-- Graph network -->
-        <div class="col-md-8 px-1">
-          <graph-network
-            v-if="networkData"
-            v-bind:network-data="networkData"
-            v-bind:selected-subreddit="selectedSourceSubreddit"
-            v-bind:selected-source-subreddit="selectedSourceSubreddit"
-            v-bind:selected-target-subreddit="selectedTargetSubreddit"
-            v-bind:show-subreddit-names="showSubredditNames"
-            v-bind:show-force-controls="showForceControls"
-            v-bind:collapse-all-clusters="collapseAllClusters"
-            v-on:node-selected="handleNodeSelected"
-            ref="graphNetwork"
-          ></graph-network>
-        </div>
-
         <!-- Side bar -->
         <div class="col-md-2 px-1">
 
@@ -314,7 +242,7 @@ Vue.component("app-container", {
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Oops!</strong>  
                 <span v-html="alert.message">
-                   {{ alert.message }}
+                  {{ alert.message }}
                 </span>
                 <button type="button" class="btn-close" @click="removeAlert(alert.id)" aria-label="Close"></button>
               </div>
@@ -354,7 +282,7 @@ Vue.component("app-container", {
           </div>
 
           <div class="row">
-           <div class="col">
+          <div class="col">
               <div class="my-1">
                 <select-subreddit
                   type="target"
@@ -369,9 +297,83 @@ Vue.component("app-container", {
               </div>
             </div>
           </div>
-
         </div>
-        <!-- End side bar -->
+        <!-- End side bar -->  
+      
+        <!-- Graph network -->
+        <div class="col-md-8 px-1">
+          <graph-network
+            v-if="networkData"
+            v-bind:network-data="networkData"
+            v-bind:selected-subreddit="selectedSourceSubreddit"
+            v-bind:selected-source-subreddit="selectedSourceSubreddit"
+            v-bind:selected-target-subreddit="selectedTargetSubreddit"
+            v-bind:show-subreddit-names="showSubredditNames"
+            v-bind:show-force-controls="showForceControls"
+            v-bind:collapse-all-clusters="collapseAllClusters"
+            v-on:node-selected="handleNodeSelected"
+            ref="graphNetwork"
+          ></graph-network>
+        </div>
+
+        <div class="col-md-2 px-1">
+        <div class="d-grid">
+          <button 
+              :title="showForceControls ? 'Hide force controls' : 'Show force controls'" 
+              class="btn btn-outline-primary btn-sm mb-1" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#forceControls" 
+              aria-expanded="false" 
+              aria-controls="forceControls"
+              @click="showForceControls = !showForceControls"
+          >
+              {{ showForceControls ? 'Hide force controls' : 'Show force controls' }}
+          </button>
+        </div>
+
+        <sidebar-container>
+          <div class="row">
+            <div class="col">
+              <div class="input-group">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames" style="background-color: gray;">
+                  <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="input-group">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="collapseAllClusters" v-on:click="collapseAllClusters = !collapseAllClusters" style="background-color: gray;">
+                  <label class="form-check-label" for="collapseAllClusters">Expand all clusters</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 
+          <div class="row">
+            <div class="col">
+              <label for="linkSlider" class="form-label">Number of links: {{ numberOfLinksSliderValue }}/137821</label>
+              <input type="range" class="form-range" min="0" max="25000" step="50" id="linkSlider" v-model.number="numberOfLinksSliderValue" @click="changeNumberOfLinks">
+            </div>
+          </div>
+          -->
+        </sidebar-container>
+
+        <sidebar-container>
+          <span class="badge bg-secondary mb-1">Nodes: {{ networkData && networkData.nodes && networkData.nodes.length }}</span>
+          <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
+        </sidebar-container>
+
+      </div>
+
+
+
       </div>
 
       <!-- Plots section -->
