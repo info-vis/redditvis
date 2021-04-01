@@ -173,7 +173,7 @@ def properties_radar():
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
-	fig = go.Figure(layout=go.Layout(height=300, width=PLOT_WIDTH - 50))
+	fig = go.Figure(layout=go.Layout(height=PLOT_HEIGHT, width=PLOT_WIDTH))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
