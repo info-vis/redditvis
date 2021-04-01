@@ -207,7 +207,7 @@ def properties_radar():
 			"x":1.2
 		},
 		font={"size": 9},
-		margin={"t": 0},
+		margin={"t": 0, "b": 0},
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
