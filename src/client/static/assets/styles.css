@@ -20,3 +20,7 @@ body {
 .details-container .card-header {
     padding: 0.2rem .3rem .3rem .8rem;
 }
+
+.details-container .card-body {
+    align-self: center;
+}

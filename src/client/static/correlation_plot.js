@@ -89,7 +89,7 @@ Vue.component('correlation-plot', {
             </div>
         </div>
         <div class="card-body">
-            <div class="row"> 
+            <div class="row g-1"> 
                 <div class="col my-1">
                     <label for="xAxis" style="font-size: 10px">X axis property</label>
                     <select id="xAxis" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="xAxisProperty" :style="selectStyle">
@@ -103,7 +103,11 @@ Vue.component('correlation-plot', {
                     </select>
                 </div>
             </div>
-            <div id="correlation-plot" class="chart"></div>
+            <div class="row"> 
+                <div class="col" style="text-align: -webkit-center;"> 
+                    <div id="correlation-plot" class="chart"></div>
+                </div>
+            </div>
         </div>
     </div> `
 })

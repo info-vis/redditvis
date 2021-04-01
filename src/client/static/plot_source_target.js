@@ -78,7 +78,7 @@ Vue.component('plot-source-target', {
             </div>
         </div>
         <div class="card-body">
-            <div id="plot-source-target" class="bk-root"></div>
+            <div id="plot-source-target" class="chart"></div>
         </div>
     </div> 
   `

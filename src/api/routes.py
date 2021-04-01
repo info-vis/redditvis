@@ -14,8 +14,10 @@ from src.api.model.body_model import BodyModel
 
 
 PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
-PLOT_WIDTH = 350
+PLOT_WIDTH = 300
 PLOT_HEIGHT = 200
+MARGIN = {"t": 0, "b": 0, "l": 0, "r": 0}
+
 network_graph_helper = NetworkGraphHelper()
 
 @bp.errorhandler(404)
@@ -86,7 +88,7 @@ def top_properties():
 			"borderwidth":0.5
 			},
 		font={"size": 9},
-		margin={"t": 0, "b": 0},
+		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
@@ -127,7 +129,7 @@ def plot_source_target_frequencies():
         dragmode=False,
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
-		margin={"t": 0, "b": 0},
+		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
@@ -207,7 +209,7 @@ def properties_radar():
 			"x":1.2
 		},
 		font={"size": 9},
-		margin={"t": 0, "b": 0, "l": 0},
+		margin={"b": 0, "l": 20, "r": 0, "t": 0},
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
@@ -240,10 +242,10 @@ def correlation_plot():
 
 	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(
-		width=PLOT_WIDTH+50,
+		width=PLOT_WIDTH,
 		height=PLOT_HEIGHT-50,
 		font={'size':9},
-		margin={"t": 0, "b": 0},
+		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 	
