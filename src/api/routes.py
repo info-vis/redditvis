@@ -16,6 +16,9 @@ from src.api.model.body_model import BodyModel
 PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
 PLOT_WIDTH = 300
 PLOT_HEIGHT = 200
+TEMPLATE = "plotly_dark"
+PRIMARY_COLOR = "#40c4ff"
+SECONDARY_COLOR = "#0288d1"
 MARGIN = {"t": 0, "b": 0, "l": 0, "r": 0}
 
 network_graph_helper = NetworkGraphHelper()
@@ -52,7 +55,7 @@ def top_properties():
 			y=data.index,
 			orientation='h',
 			showlegend=False,
-			marker_color='rgb(64, 138, 207)',
+			marker_color=PRIMARY_COLOR,
 			name="Selection"
 		))
 
@@ -62,7 +65,7 @@ def top_properties():
 			y=data.index,
 			mode="markers",
 			name='Avg. of all subreddits',
-			marker_color='rgb(0, 62, 120)',
+			marker_color=SECONDARY_COLOR,
 			marker_symbol="diamond"
 		))
 
@@ -89,7 +92,8 @@ def top_properties():
 			},
 		font={"size": 9},
 		margin=MARGIN,
-		paper_bgcolor=PLOT_BACKGROUND_COLOR
+		paper_bgcolor=PLOT_BACKGROUND_COLOR,
+		template=TEMPLATE
 	)
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -119,7 +123,7 @@ def plot_source_target_frequencies():
         y=data.index,
         orientation='h',
         showlegend=False,
-        marker_color='rgb(64, 138, 207)'
+        marker_color=PRIMARY_COLOR
     )])
 
     fig.update_yaxes(autorange="reversed")
@@ -130,7 +134,8 @@ def plot_source_target_frequencies():
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
 		margin=MARGIN,
-		paper_bgcolor=PLOT_BACKGROUND_COLOR
+		paper_bgcolor=PLOT_BACKGROUND_COLOR,
+		template=TEMPLATE
 	)
 
     return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -180,7 +185,7 @@ def properties_radar():
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
 		theta=data_close_line.index,
-		line_color='rgb(64, 138, 207)',
+		line_color=PRIMARY_COLOR,
 		showlegend=False, 
 		name="Selection"
 	))
@@ -188,7 +193,7 @@ def properties_radar():
 	fig.add_trace(go.Scatterpolar(
 		r=data_avg_close_line.values,
 		theta=data_avg_close_line.index,
-		line_color='rgb(0, 62, 120)',
+		line_color=SECONDARY_COLOR,
 		name='Avg. of all subreddits'
 	))
 
@@ -210,7 +215,8 @@ def properties_radar():
 		},
 		font={"size": 9},
 		margin={"b": 0, "l": 20, "r": 0, "t": 0},
-		paper_bgcolor=PLOT_BACKGROUND_COLOR
+		paper_bgcolor=PLOT_BACKGROUND_COLOR,
+		template=TEMPLATE
 	)
 
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
@@ -237,16 +243,17 @@ def correlation_plot():
 		y=data[y_axis_property],
 		opacity=0.4,
 		trendline="ols",
-		trendline_color_override="rgb(0, 62, 120)"
+		trendline_color_override=SECONDARY_COLOR
 	)
 
-	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
+	fig.update_traces(marker={"color":PRIMARY_COLOR})
 	fig.update_layout(
 		width=PLOT_WIDTH,
 		height=PLOT_HEIGHT-50,
 		font={'size':9},
 		margin=MARGIN,
-		paper_bgcolor=PLOT_BACKGROUND_COLOR
+		paper_bgcolor=PLOT_BACKGROUND_COLOR,
+		template=TEMPLATE
 	)
 	
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)

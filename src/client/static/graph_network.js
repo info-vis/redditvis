@@ -30,14 +30,14 @@ Vue.component('graph-network', {
             highlightedNodeIds: [],
             nodesDictionary: {}, // Used to store the index of each node in this.nodes
             colors: {
-                backgroundColor: "white",
-                highlightColor: "#0e6efdc2",
+                backgroundColor: "black",
+                highlightColor: "#ffff00dd",
                 nodeColor: "#90a4ae",
-                nodeColorSecondary: "#f5f5f5",
+                nodeColorSecondary: "#000000",
                 nodeOutlineColor: "#cfd8dc",
-                selectedColor: "#fed351",
-                linkColor: "#48484826",
-                arrowColor: "#bdbdbd",
+                selectedColor: "#0000ffdd",
+                linkColor: "#48484899",
+                arrowColor: "#bdbdbd99",
                 selectedSourceColor: "#03a9f4",
                 selectedTargetColor: "#ff9800"
             },
@@ -225,10 +225,10 @@ Vue.component('graph-network', {
             }
         },
         drawArrows(links) {
-            const ARROW_WH_RATIO = 1;
-            const ARROW_VLEN_RATIO = .2;
+            const ARROW_WH_RATIO = .75;
+            const ARROW_VLEN_RATIO = .3;
             links.forEach(link => {
-                const arrowLength = 5
+                const arrowLength = 10
 
                 this.d3Context.beginPath();
 
@@ -732,7 +732,7 @@ Vue.component('graph-network', {
     template: `
     <div>
         <div class="row ms-0">
-            <div class="col-md-2 border p-2 rounded border mb-2 shadow-sm" style="background-color: white" :class="showForceControls ? '' : 'collapse'">
+            <div class="col-md-2 border p-2 rounded border mb-2 shadow-sm" :class="showForceControls ? '' : 'collapse'">
                 <p><strong>Force controls</strong></p>
                 <div class="row">
                     <div class="col">

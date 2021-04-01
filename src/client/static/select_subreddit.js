@@ -20,7 +20,6 @@ Vue.component('select-subreddit', {
         styleObject() {
             return {
                 border: `1px solid ${this.borderColor}`,
-                "background-color": "white"
             }
         },
         subredditOptionsId() {
