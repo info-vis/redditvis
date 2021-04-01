@@ -127,7 +127,7 @@ def plot_source_target_frequencies():
         dragmode=False,
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
-		margin={"t": 0},
+		margin={"t": 0, "b": 0},
 		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
