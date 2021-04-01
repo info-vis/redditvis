@@ -6,7 +6,7 @@ Made by **InfoVis Team 9**.
 
 Consisting of:
 
-- [Gyte Tamašauskaitė](https://github.com/gtama7)
+- [Gytė Tamašauskaitė](https://github.com/gtama7)
 - [Selina Wong](https://github.com/seliinaa)
 - [Arthur Goedzee](https://github.com/AGoetzee)
 - [Emre Oktay](https://github.com/EmoktayrE)
