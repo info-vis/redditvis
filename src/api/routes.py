@@ -15,7 +15,7 @@ from src.api.model.body_model import BodyModel
 
 PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
 PLOT_WIDTH = 350
-
+PLOT_HEIGHT = 200
 network_graph_helper = NetworkGraphHelper()
 
 @bp.errorhandler(404)
