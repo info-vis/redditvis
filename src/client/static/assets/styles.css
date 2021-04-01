@@ -1,6 +1,7 @@
 body {
     font-size: .7rem;
     background-color: #eeeeee;
+    overflow-x: hidden;
 }
 
 .btn {
@@ -9,4 +10,13 @@ body {
 
 .form-control {
     font-size: .7rem;
+}
+
+.details-container {
+    margin-bottom: 1rem;
+    padding-bottom: 0rem;
+}
+
+.details-container .card-header {
+    padding: 0.2rem .3rem .3rem .8rem;
 }

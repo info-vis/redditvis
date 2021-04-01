@@ -37,7 +37,7 @@ Vue.component("aggregate-component", {
   },
   template: `
     <div class="card">
-      <div class="card-header p-1 text-center">
+      <div class="card-header p-1 text-center" style="font-size: 10px">
         {{ title }} <span><slot></slot></span>
         
       </div>

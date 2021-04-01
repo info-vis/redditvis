@@ -35,7 +35,7 @@ Vue.component("aggregate-container", {
     this.fetchAPIData()
   },
   template: `
-  <div>
+  <div class="mb-2">
       <div class="row">
         <div class="col">
             <div v-if="isLoading" class="d-flex justify-content-center">

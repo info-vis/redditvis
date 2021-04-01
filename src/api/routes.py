@@ -12,6 +12,10 @@ from src.api import bp
 from src.api.helpers.network_graph_helper import NetworkGraphHelper
 from src.api.model.body_model import BodyModel
 
+
+PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
+PLOT_WIDTH = 350
+
 network_graph_helper = NetworkGraphHelper()
 
 @bp.errorhandler(404)
@@ -62,7 +66,7 @@ def top_properties():
 
 	fig.update_yaxes(autorange="reversed")
 	fig.update_layout(
-		width=400,
+		width=PLOT_WIDTH,
 		height=300,
 		dragmode=False,
 		xaxis={
@@ -82,7 +86,8 @@ def top_properties():
 			"borderwidth":0.5
 			},
 		font={"size": 9},
-		margin={"t": 0}
+		margin={"t": 0},
+		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -117,12 +122,13 @@ def plot_source_target_frequencies():
 
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
-        width=400,
+        width=PLOT_WIDTH,
         height=300,
         dragmode=False,
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
-		margin={"t": 0}
+		margin={"t": 0},
+		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
     return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
@@ -167,7 +173,7 @@ def properties_radar():
 	data_close_line = data.append(data.head(1))
 	data_avg_close_line = data_avg.append(data_avg.head(1))
 
-	fig = go.Figure(layout=go.Layout(height=300, width=300))
+	fig = go.Figure(layout=go.Layout(height=300, width=PLOT_WIDTH - 50))
 
 	fig.add_trace(go.Scatterpolar(
 		r=data_close_line.values,
@@ -201,7 +207,8 @@ def properties_radar():
 			"x":1.2
 		},
 		font={"size": 9},
-		margin={"t": 0}
+		margin={"t": 0},
+		paper_bgcolor=PLOT_BACKGROUND_COLOR
 	)
 
 	fig.update_polars(radialaxis_tickformat="0.1%", radialaxis_tickvals=[0, 0.05, 0.10, 0.15, 0.20])
@@ -233,10 +240,12 @@ def correlation_plot():
 
 	fig.update_traces(marker={"color":"rgb(64, 138, 207)"})
 	fig.update_layout(
-		width=400,
+		width=PLOT_WIDTH,
 		height=250,
 		font={'size':9},
-		margin={"t": 0})
+		margin={"t": 0},
+		paper_bgcolor=PLOT_BACKGROUND_COLOR
+	)
 	
 	return json.dumps(fig, cls=utils.PlotlyJSONEncoder)
 

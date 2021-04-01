@@ -172,9 +172,9 @@ Vue.component('sentiment-box', {
         }
     },
     template: `
-        <div v-show="shouldLoadComponent">
-            <div>
-                <div class="row">
+    <div v-show="shouldLoadComponent" class="card details-container">
+        <div class="card-header">
+            <div class="row">
                     <div class="col-md-4">
                         <p class="mb-0 mt-1">
                             <small> <strong> Post sentiment per year </strong></small>
@@ -199,7 +199,7 @@ Vue.component('sentiment-box', {
                                 v-for="year in yearOptions"
                                 type="button" 
                                 class="btn btn-outline-primary btn-sm"
-                                style="padding: 0.2rem .3rem; font-size: 0.675rem;" 
+                                style="padding: 0.2rem .3rem; font-size: 0.6rem;" 
                                 :class="{ active: selectedYear == year}"
                                 @click="selectedYear = year"
                             >
@@ -208,9 +208,11 @@ Vue.component('sentiment-box', {
                         </div>
                     </div>
                 </div>
-
+            </div>
+            <div class="card-body">
                 <div id="sentiment-box"></div>
             </div>
         </div>
+    </div>
     `
 })

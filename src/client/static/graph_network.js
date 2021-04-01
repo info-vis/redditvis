@@ -26,7 +26,6 @@ Vue.component('graph-network', {
             d3LinkWidth: 1,
             ...d3ForceInitialState(),
             
-            collapseAll: true,
             selectedNodeId: null,
             highlightedNodeIds: [],
             nodesDictionary: {}, // Used to store the index of each node in this.nodes
@@ -68,6 +67,8 @@ Vue.component('graph-network', {
         selectedSourceSubreddit: String,
         selectedTargetSubreddit: String,
         showSubredditNames: Boolean, // Show a name label next to each node
+        showForceControls: Boolean,
+        collapseAllClusters: Boolean,
     },
     watch: {
         showSubredditNames: "simulationUpdate",
@@ -100,7 +101,7 @@ Vue.component('graph-network', {
         d3ForceCenterStrength: function () {
             this.setForceSimulation()
         },
-        collapseAll: "toggleCollapseAllChildren",
+        collapseAllClusters: "toggleCollapseAllChildren",
         selectedNodeId: function (newNodeId, oldNodeId) {
             if (this.selectedNodeId) {
                 this.$emit("node-selected", this.selectedNodeId)
@@ -424,7 +425,6 @@ Vue.component('graph-network', {
             this.simulationUpdate()
         },
         panToCenter() {
-            const selectedNode = this.getNodeById(this.selectedNodeId)
             const zoomLevel = 1
             const transform = d3.zoomIdentity.translate(this.d3Canvas.width / 2, this.d3Canvas.height / 2).scale(zoomLevel).translate(-(this.d3Canvas.width / 2), -(this.d3Canvas.height / 2))
             this.d3Transform = transform
@@ -508,13 +508,13 @@ Vue.component('graph-network', {
             }
         },
         toggleCollapseAllChildren() {
-            this.nodes.forEach(x => x.collapsed = this.collapseAll)
+            this.nodes.forEach(x => x.collapsed = this.collapseAllClusters)
             this.loadDataIntoSimulation()
         },
         setDimensionsOfCanvas(withUpdate = true) {
             var containerDimensions = document.getElementById('graph-network-container').getBoundingClientRect();
             this.d3Canvas.width = containerDimensions.width; // The width of the parent div of the canvas
-            this.d3Canvas.height = window.innerHeight / 1.8; // A fraction of the height of the screen
+            this.d3Canvas.height = window.innerHeight / 2.5; // A fraction of the height of the screen
             if (withUpdate) {
                 this.simulationUpdate()
             }
@@ -669,7 +669,7 @@ Vue.component('graph-network', {
                 id: d[0],
                 type: d[1],
                 group: d[2],
-                collapsed: this.collapseAll,
+                collapsed: this.collapseAllClusters,
                 postCount: d[3],
                 normalizedPostCount: parseFloat((Math.log2(d[3]) * 1.3).toFixed(2))
             }))
@@ -723,13 +723,16 @@ Vue.component('graph-network', {
     mounted() {
         this.init()
     },
+    updated() {
+        this.setDimensionsOfCanvas()
+    },
     destroyed() {
         window.removeEventListener("resize", this.setDimensionsOfCanvas);
     },
     template: `
     <div>
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-md-2" :class="showForceControls ? '' : 'collapse'">
                 <p><strong>Force controls</strong></p>
                 <div class="row">
                     <div class="col">
@@ -742,7 +745,7 @@ Vue.component('graph-network', {
                 <div class="row">
                     <div class="col">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked v-model="collapseAll">
+                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked v-model="collapseAllClusters">
                             <label class="form-check-label" for="flexSwitchCheckChecked">Collapse all clusters</label>
                         </div>
                     </div>
@@ -764,8 +767,8 @@ Vue.component('graph-network', {
 
                 <label for="customRange2" class="form-label">Center Strength</label>: <strong>{{ d3ForceCenterStrength }}</strong>
                 <input type="range" class="form-range" min="0" max="2" step=".01" id="customRange2" v-model="d3ForceCenterStrength">
-
             </div>
+
             <div class="col">
                 <div id="graph-network-container">
                 </div>

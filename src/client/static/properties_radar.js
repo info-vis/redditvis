@@ -41,25 +41,29 @@ Vue.component('properties-radar', {
     },
 
     template: `
-    <div>
-        <div class="row">
-            <div class="col-md-10">
-                <p class="mb-0 mt-1" > 
-                    <small> <strong> Psychological processes of posts </strong></small>
-                    <info-button
-                        title="Psychological processes of posts"
-                        text="The average values for the psychological processes (an overarching categorisation of topics) of the posts.
-                        The processes are computed using LIWC dictionary dimensions."    
-                    >
-                    </info-button>
-                </p>
-            </div>
-            <div class="col-md-2">
-                <div v-if="isLoading" class="d-flex justify-content-center">
-                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+    <div class="card details-container">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-10">
+                    <p class="mb-0 mt-1" > 
+                        <small> <strong> Psychological processes of posts </strong></small>
+                        <info-button
+                            title="Psychological processes of posts"
+                            text="The average values for the psychological processes (an overarching categorisation of topics) of the posts.
+                            The processes are computed using LIWC dictionary dimensions."    
+                        >
+                        </info-button>
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <div v-if="isLoading" class="d-flex justify-content-center">
+                        <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="properties-radar" class="chart"></div>
+        <div class="card-body">
+            <div id="properties-radar" class="chart"></div>
+        </div>
     </div> `
 })
