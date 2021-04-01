@@ -17,7 +17,7 @@ PLOT_BACKGROUND_COLOR = "rgba(255,255,255,0)"
 PLOT_WIDTH = 300
 PLOT_HEIGHT = 200
 TEMPLATE = "plotly_dark"
-PRIMARY_COLOR = "#40c4ff"
+PRIMARY_COLOR = "#40bdf5"
 SECONDARY_COLOR = "#0288d1"
 MARGIN = {"t": 0, "b": 0, "l": 0, "r": 0}
 
