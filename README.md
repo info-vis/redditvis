@@ -2,6 +2,18 @@
 
 A Visual Analytics dashboard for gaining insights into the [Social Network: Reddit Hyperlink Network](https://snap.stanford.edu/data/soc-RedditHyperlinks.html) data set.
 
+Made by **InfoVis Team 9**.
+
+Consisting of:
+
+- [Gyte Tamašauskaitė](https://github.com/gtama7)
+- [Selina Wong](https://github.com/seliinaa)
+- [Arthur Goedzee](https://github.com/AGoetzee)
+- [Emre Oktay](https://github.com/EmoktayrE)
+- [Misha Rigot](https://github.com/misharigot)
+
+![image](https://user-images.githubusercontent.com/15928604/113339656-14656c00-932b-11eb-90e1-0f90d8808d57.png)
+
 ## Running the app
 
 This project uses [Poetry](https://python-poetry.org/) as both a package and environment manager, essentially replacing pip/conda/pipenv and venv/conda.
