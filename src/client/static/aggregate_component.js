@@ -53,7 +53,6 @@ Vue.component("aggregate-component", {
     <div class="card">
       <div class="card-header p-1 text-center" style="font-size: 10px">
         {{ title }} <span><slot></slot></span>
-        
       </div>
       <div :class="cardBodyClasses">
         <h5 :class="cardTitleClasses" style="color:#40c4ff;">
@@ -71,6 +70,7 @@ Vue.component("aggregate-component", {
         <p v-if="hasNegativePosts" class="card-text mb-1" style="font-size:11px;color:#ccd5d9">
           <span style="color:#ccd5d9"> Negative posts count: </span> <strong> {{ negativePosts.toLocaleString() }} </strong>
         </p>
+      </div>
     </div>
   `
 })
