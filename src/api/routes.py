@@ -123,7 +123,7 @@ def plot_source_target_frequencies():
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(
         width=PLOT_WIDTH,
-        height=300,
+        height=PLOT_HEIGHT,
         dragmode=False,
         xaxis={"title": 'Number of posts'},
         font={"size": 9},
