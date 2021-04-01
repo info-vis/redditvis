@@ -50,7 +50,6 @@ Vue.component('select-subreddit', {
                             <strong>Selected {{ type }} subreddit:</strong> 
                             <div style="font-size: 14px">
                                 <a v-if="selectedSubreddit"
-                                    class="" 
                                     target="_blank" 
                                     v-bind:href="subredditLink"
                                     role="button"
@@ -58,7 +57,7 @@ Vue.component('select-subreddit', {
                                 >
                                     r/{{ selectedSubreddit }}
                                 </a>
-                                <div v-if="!selectedSubreddit" style="font-size: 10px" >None</div>
+                                <div v-if="!selectedSubreddit" style="font-size: 12px" >None</div>
                             </div>
                         </div>
                     </div>

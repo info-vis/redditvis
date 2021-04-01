@@ -226,7 +226,7 @@ Vue.component("app-container", {
   },
   template: `
     <div id="wrapper">
-      <div class="row mt-2 mb-1">
+      <div class="row mt-2">
 
         <div class="col-md-2 px-1">
           <div class="d-grid">
@@ -321,17 +321,20 @@ Vue.component("app-container", {
             </div>
           </div>
 
-          <div class="row">
-            <div class="col">
-              <p v-if="shownSubgraph">
-                Showing subgraph of subreddit 
-                <a :href="subredditLink" target="_blank">
-                  <strong>r/{{ shownSubgraph }}</strong>
+          <sidebar-container>
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
+              >
+              </info-button>
+              <span v-if="shownSubgraph">
+                Showing subgraph of subreddit:</br>
+                <a :href="subredditLink" target="_blank" style="font-size: 14px">
+                  r/{{ shownSubgraph }}
                 </a>
-              </p>
-              <p v-else>Showing network of top 500 subreddit links by post count</p>
-            </div>
-          </div> 
+              </span>
+              <span v-else>Showing network of top 500 subreddit links by post count</span>
+          </sidebar-container>
 
           <div class="row"> 
             <div class="col">
@@ -375,8 +378,11 @@ Vue.component("app-container", {
 
       <div class="row">
         <div class="col">
-
-              <strong> {{detailsOnDemandCardTitle}} </strong>
+              <!--
+              <div class="text-center mb-1 border-1"> 
+                {{detailsOnDemandCardTitle}}
+              </div>
+              -->
 
               <div class="row">
                 <div class="col-md-6">
