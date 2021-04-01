@@ -742,14 +742,6 @@ Vue.component('graph-network', {
                         <button title="Reload network" class="btn btn-primary btn-sm mb-2" @click="handleNetworkDataChange"><i class="bi bi-tropical-storm"></i></button><br/>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked v-model="collapseAllClusters">
-                            <label class="form-check-label" for="flexSwitchCheckChecked">Collapse all clusters</label>
-                        </div>
-                    </div>
-                </div>
                 <label for="customRange1" class="form-label">Force strength</label>: <strong>{{ d3ForceChargeStrength }}</strong>
                 <input type="range" class="form-range" min="-100" max="10" step="1" id="customRange1" v-model="d3ForceChargeStrength">
 

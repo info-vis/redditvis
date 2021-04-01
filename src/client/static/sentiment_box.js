@@ -209,7 +209,7 @@ Vue.component('sentiment-box', {
                     </div>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div id="sentiment-box"></div>
             </div>
         </div>
