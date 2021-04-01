@@ -328,7 +328,7 @@ Vue.component("app-container", {
               aria-controls="forceControls"
               @click="showForceControls = !showForceControls"
           >
-              {{ showForceControls ? 'Hide foce controls' : 'Show force controls' }}
+              {{ showForceControls ? 'Hide force controls' : 'Show force controls' }}
           </button>
         </div>
 
