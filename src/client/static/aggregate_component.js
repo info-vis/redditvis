@@ -36,16 +36,10 @@ Vue.component("aggregate-component", {
     },
     cardBodyClasses: function() {
       let classes = "card-body p-1 text-center"
-      // if (!this.globalAverage) {
-      //   classes += " position-relative"
-      // }
       return classes
     },
     cardTitleClasses: function() {
       let classes = "card-title mb-1"
-      // if (!this.globalAverage) {
-      //   classes += " position-absolute top-50 start-50 translate-middle fs-3"
-      // }
       return classes
     }
   },
