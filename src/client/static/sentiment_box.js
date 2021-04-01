@@ -13,8 +13,9 @@ Vue.component('sentiment-box', {
                 positive: "#4caf50",
                 neutral: "#eeeeee",
                 negative: "#f44336",
-                noData: "#fafafa"
-            }
+                noData: "rgb(34, 36, 38)"
+            },
+            textColor: "white"
         }
     },
     props: {
@@ -96,6 +97,7 @@ Vue.component('sentiment-box', {
                 .attr("y", d => (countDay(d) + 0.5) * this.cellSize)
                 .attr("dy", "0.31em")
                 .attr("font-size", 8)
+                .style("fill", this.textColor)
                 .text(formatDay);
         },
         drawYearNames: function (year) {
@@ -107,6 +109,7 @@ Vue.component('sentiment-box', {
                 .attr("font-size", 10)
                 .attr("font-weight", 550)
                 .attr("transform", "rotate(270)")
+                .style("fill", this.textColor)
                 .text(d => d[0]);
         },
         createSvg: function () {

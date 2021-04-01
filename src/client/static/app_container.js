@@ -249,7 +249,7 @@ Vue.component("app-container", {
               <div class="col">
                 <div class="input-group">
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames">
+                    <input class="form-check-input" type="checkbox" id="showSubredditNames" v-on:click="toggleShowSubredditNames" style="background-color: gray;">
                     <label class="form-check-label" for="showSubredditNames">Show subreddit names</label>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ Vue.component("app-container", {
               <div class="col">
                 <div class="input-group">
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="collapseAllClusters" v-on:click="collapseAllClusters = !collapseAllClusters">
+                    <input class="form-check-input" type="checkbox" id="collapseAllClusters" v-on:click="collapseAllClusters = !collapseAllClusters" style="background-color: gray;">
                     <label class="form-check-label" for="collapseAllClusters">Expand all clusters</label>
                   </div>
                 </div>

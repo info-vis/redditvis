@@ -5,10 +5,10 @@ Vue.component('info-button', {
         return {
             id: null,
             styleObject: {
-                color: "#9e9e9e",
+                // color: "#9e9e9e",
                 "font-size": "16px",
                 padding: "0px",
-                "background-color": "#fafafa",
+                // "background-color": "#fafafa",
                 border: "none",
             }
         }

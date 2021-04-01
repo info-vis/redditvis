@@ -42,10 +42,10 @@ Vue.component("aggregate-component", {
         
       </div>
       <div :class="cardBodyClasses">
-        <h5 :class="cardTitleClasses" style="color:#408acf;">
+        <h5 :class="cardTitleClasses" style="color:#40c4ff;">
           {{ value.toLocaleString() }}
         </h5>
-        <p v-if="globalAverage" class="card-text mb-1" style="font-size:11px;color:#003e78">
+        <p v-if="globalAverage" class="card-text mb-1" style="font-size:11px;color:#0288d1">
           Global average: <strong> {{ globalAverage.toLocaleString() }} </strong>
         </p>
         <p v-if="globalAverage" class="card-text mb-1" style="font-size: 11px;/* color: #d32f2f; */">
