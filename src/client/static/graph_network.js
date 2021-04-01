@@ -31,7 +31,7 @@ Vue.component('graph-network', {
             nodesDictionary: {}, // Used to store the index of each node in this.nodes
             colors: {
                 backgroundColor: "black",
-                highlightColor: "#ffff00",
+                highlightColor: "#ffff00dd",
                 nodeColor: "#90a4ae",
                 nodeColorSecondary: "#484848",
                 nodeOutlineColor: "#cfd8dc",
