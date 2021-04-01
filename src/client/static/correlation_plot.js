@@ -67,39 +67,47 @@ Vue.component('correlation-plot', {
         this.fetchPlot()
     },
     template: `
-    <div>
-        <div class="row"> 
-            <div class="col-md-10">
-                <p class="mb-0 mt-1" > 
-                    <small> <strong> Correlation of the post properties </strong></small>
-                    <info-button
-                        title="Correlation of the post properties"
-                        text="The correlation between two selected properties. 
-                            There are 50 properties to select from, including descriptive details and topics of the posts.
-                            The trendline is estimated using Ordinary Least Squares regression."
-                    ></info-button>
-                </p>
-            </div>
-            <div class="col-md-2">
-                <div v-if="isLoading" class="d-flex justify-content-center">
-                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+    <div class="card details-container">
+        <div class="card-header">
+            <div class="row"> 
+                <div class="col-md-10">
+                    <p class="mb-0 mt-1" > 
+                        <small> <strong> Correlation of the post properties </strong></small>
+                        <info-button
+                            title="Correlation of the post properties"
+                            text="The correlation between two selected properties. 
+                                There are 50 properties to select from, including descriptive details and topics of the posts.
+                                The trendline is estimated using Ordinary Least Squares regression."
+                        ></info-button>
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <div v-if="isLoading" class="d-flex justify-content-center">
+                        <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row"> 
-            <div class="col my-1">
-                <label for="xAxis" style="font-size: 10px">X axis property</label>
-                <select id="xAxis" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="xAxisProperty" :style="selectStyle">
-                    <option :value="item" v-for="item in properties" > {{ item }} </option>               
-                </select>
+        <div class="card-body">
+            <div class="row g-1"> 
+                <div class="col my-1">
+                    <label for="xAxis" style="font-size: 10px">X axis property</label>
+                    <select id="xAxis" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="xAxisProperty" :style="selectStyle">
+                        <option :value="item" v-for="item in properties" > {{ item }} </option>               
+                    </select>
+                </div>
+                <div class="col my-1">
+                    <label for="yAxis" style="font-size: 10px">Y axis property</label>
+                    <select id="yAxis" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="yAxisProperty" :style="selectStyle">
+                        <option :value="item" v-for="item in properties" > {{ item }} </option>               
+                    </select>
+                </div>
             </div>
-            <div class="col my-1">
-                <label for="yAxis" style="font-size: 10px">Y axis property</label>
-                <select id="yAxis" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="yAxisProperty" :style="selectStyle">
-                    <option :value="item" v-for="item in properties" > {{ item }} </option>               
-                </select>
+            <div class="row"> 
+                <div class="col" style="text-align: -webkit-center;"> 
+                    <div id="correlation-plot" class="chart"></div>
+                </div>
             </div>
         </div>
-        <div id="correlation-plot" class="chart"></div>
     </div> `
 })

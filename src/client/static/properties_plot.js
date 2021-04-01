@@ -39,25 +39,29 @@ Vue.component('properties-plot', {
         this.fetchAPIData()
     },
     template: `
-    <div>
-        <div class="row">
-            <div class="col-md-10">
-                <p class="mb-0 mt-1">
-                    <small> <strong> Top topics of posts</strong></small>
-                    <info-button
-                        title="Top topics of posts"
-                        text="The top 10 highest averages of each topic for the selected posts are displayed. 
-                            The topics are computed using LIWC dictionary dimensions."
-                    >
-                    </info-button>
-                </p>
-            </div>
-            <div class="col-md-2">
-                <div v-if="isLoading" class="d-flex justify-content-center">
-                    <div class="spinner-grow spinner-grow-sm" role="status"></div>
+    <div class="card details-container">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-10">
+                    <p class="mb-0 mt-1">
+                        <small> <strong> Top topics of posts</strong></small>
+                        <info-button
+                            title="Top topics of posts"
+                            text="The top 10 highest averages of each topic for the selected posts are displayed. 
+                                The topics are computed using LIWC dictionary dimensions."
+                        >
+                        </info-button>
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <div v-if="isLoading" class="d-flex justify-content-center">
+                        <div class="spinner-grow spinner-grow-sm" role="status"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="properties-plot" class="chart"></div>
+        <div class="card-body">
+            <div id="properties-plot" class="chart"></div>
+        </div>
     </div> `
 })

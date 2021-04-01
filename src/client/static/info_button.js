@@ -54,7 +54,7 @@ Vue.component('info-button', {
                 v-bind:title="title"
                 v-bind:data-bs-content="text"
             >
-                <i class="bi bi-info-square"></i>
+                <i class="bi bi-info-square" style="font-size: 13px"></i>
             </a>
         </span>
     `
