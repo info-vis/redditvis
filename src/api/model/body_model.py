@@ -243,17 +243,11 @@ class BodyModel:
 
         result = intermediate.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
         result["Number of posts"] = num_of_posts
-        pos_posts = intermediate.loc[(intermediate["LINK_SENTIMENT"]==1)].groupby(["LINK_SENTIMENT"]).size()
-        neg_posts = intermediate.loc[(intermediate["LINK_SENTIMENT"]== -1)].groupby(["LINK_SENTIMENT"]).size()
+        pos_posts = intermediate.loc[(intermediate["LINK_SENTIMENT"] == 1)].groupby(["LINK_SENTIMENT"]).size()
+        neg_posts = intermediate.loc[(intermediate["LINK_SENTIMENT"] == -1)].groupby(["LINK_SENTIMENT"]).size()
         result["Positive posts"] = pos_posts.iloc[0] if len(pos_posts) > 0 else 0
         result["Negative posts"] = neg_posts.iloc[0] if len(neg_posts) > 0 else 0
-        # result["Positive posts"] = intermediate.loc[(intermediate["LINK_SENTIMENT"]==1)].groupby(["LINK_SENTIMENT"]).size().reset_index()[0]
-        # result["Negative posts"] = intermediate.loc[(intermediate["LINK_SENTIMENT"]== -1)].groupby(["LINK_SENTIMENT"]).size().reset_index()[0]
-        # if  len(result["Negative posts"]) == 0:
-        #     result["Negative posts"] = 0
-        # else:
-        #     result["Negative posts"] = result["Negative posts"][0]
-        print(result)
+    
         return result
 
     def get_global_aggregates(self):

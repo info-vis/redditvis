@@ -737,7 +737,7 @@ Vue.component('graph-network', {
                 </div>
             </div>
 
-            <div class="col-md-2 border p-2 rounded border me-2 shadow-sm" :class="showForceControls ? '' : 'collapse'">
+            <div class="col-md-2 border p-2 rounded border me-3 shadow-sm" :class="showForceControls ? '' : 'collapse'">
                 <p><strong>Force controls</strong></p>
                 <div class="row">
                     <div class="col">

@@ -90,7 +90,7 @@ def top_properties():
 			"bordercolor":"LightSteelBlue",
 			"borderwidth":0.5
 			},
-		font={"size": 9},
+		font={"size": 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -132,7 +132,7 @@ def plot_source_target_frequencies():
         height=PLOT_HEIGHT,
         dragmode=False,
         xaxis={"title": 'Number of posts'},
-        font={"size": 9},
+        font={"size": 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -213,7 +213,7 @@ def properties_radar():
 			"xanchor":"right",
 			"x":1.2
 		},
-		font={"size": 9},
+		font={"size": 8},
 		margin={"b": 0, "l": 20, "r": 0, "t": 0},
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
@@ -250,7 +250,7 @@ def correlation_plot():
 	fig.update_layout(
 		width=PLOT_WIDTH,
 		height=PLOT_HEIGHT-50,
-		font={'size':9},
+		font={'size': 8},
 		margin=MARGIN,
 		paper_bgcolor=PLOT_BACKGROUND_COLOR,
 		template=TEMPLATE
