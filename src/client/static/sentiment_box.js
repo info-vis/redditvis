@@ -180,8 +180,9 @@ Vue.component('sentiment-box', {
                             <small> <strong> Post sentiment per year </strong></small>
                             <info-button
                                 title="Sentiment plot"
-                                text="The sum of all sentiments of the posts on one day is computed and displayed according to a color scale, 
-                                    depending on the overall positivity or negativity of the posts."
+                                text="The average post sentiment per day is computed and displayed according to a red to green color scale, 
+                                    depending on the overall negativity or positivity of the posts. Red is more negative, and green is more positive. 
+                                    Empty cells have no posts on that day."
                             >
                             </info-button>
                         </p>
