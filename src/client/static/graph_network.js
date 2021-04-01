@@ -731,8 +731,8 @@ Vue.component('graph-network', {
     },
     template: `
     <div>
-        <div class="row">
-            <div class="col-md-2" :class="showForceControls ? '' : 'collapse'">
+        <div class="row ms-0">
+            <div class="col-md-2 border p-2 rounded border mb-2 shadow-sm" style="background-color: white" :class="showForceControls ? '' : 'collapse'">
                 <p><strong>Force controls</strong></p>
                 <div class="row">
                     <div class="col">
@@ -769,7 +769,7 @@ Vue.component('graph-network', {
                 <input type="range" class="form-range" min="0" max="2" step=".01" id="customRange2" v-model="d3ForceCenterStrength">
             </div>
 
-            <div class="col">
+            <div class="col ps-1 mb-1">
                 <div id="graph-network-container">
                 </div>
             </div>

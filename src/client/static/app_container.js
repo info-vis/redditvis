@@ -384,7 +384,7 @@ Vue.component("app-container", {
               </div>
               -->
 
-              <div class="row">
+              <div class="row g-2">
                 <div class="col-md-6">
                     <aggregate-container :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit">
                     </aggregate-container>
@@ -395,7 +395,7 @@ Vue.component("app-container", {
                 </div>
               </div>
 
-              <div class="row">
+              <div class="row g-2">
 
                 <div class="col-md-3">
                     <plot-source-target :source-subreddit="selectedSourceSubreddit" :target-subreddit="selectedTargetSubreddit"></plot-source-target>
