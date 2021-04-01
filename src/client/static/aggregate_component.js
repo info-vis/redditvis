@@ -16,6 +16,12 @@ Vue.component("aggregate-component", {
     }
   },
   computed: {
+    hasPositivePosts: function() {
+      return this.positivePosts != null
+    },
+    hasNegativePosts: function() {
+      return this.negativePosts != null
+    },
     difference: function() {
       const result = this.value - this.globalAverage
       return Number.parseFloat(result).toFixed(2)
@@ -59,10 +65,10 @@ Vue.component("aggregate-component", {
         <p v-if="globalAverage" class="card-text mb-1" style="font-size: 11px;/* color: #d32f2f; */">
           Difference: <span :style="differenceStyle">{{ difference }}</span>
         </p>
-        <p v-if="positivePosts" class="card-text mb-1" style="font-size:11px;color:#003e78">
+        <p v-if="hasPositivePosts" class="card-text mb-1" style="font-size:11px;color:#003e78">
           Positive posts: <strong> {{ positivePosts.toLocaleString() }} </strong>
         </p>
-        <p v-if="negativePosts" class="card-text mb-1" style="font-size:11px;color:#003e78">
+        <p v-if="hasNegativePosts" class="card-text mb-1" style="font-size:11px;color:#003e78">
           Negative posts: <strong> {{ negativePosts.toLocaleString() }} </strong>
         </p>
     </div>
