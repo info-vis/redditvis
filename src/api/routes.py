@@ -202,7 +202,7 @@ def properties_radar():
 		legend={
 			"orientation":"h",
 			"yanchor":"bottom",
-			"y":0,
+			"y":-0.2,
 			"xanchor":"right",
 			"x":1.2
 		},
