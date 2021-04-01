@@ -67,7 +67,7 @@ def top_properties():
 	fig.update_yaxes(autorange="reversed")
 	fig.update_layout(
 		width=PLOT_WIDTH,
-		height=300,
+		height=PLOT_HEIGHT,
 		dragmode=False,
 		xaxis={
 			"tickformat":'0.1%',
