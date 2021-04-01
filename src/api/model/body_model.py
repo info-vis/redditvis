@@ -19,7 +19,7 @@ class BodyModel:
     AGGREGATE_COLUMNS = [
         'Automated readability index',
         'Average word length',
-        'Average number of words per sentence',
+        'Average number of words per sentence'
     ]
 
     __instance = None # A reference to an instance of itself
@@ -243,6 +243,13 @@ class BodyModel:
 
         result = intermediate.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
         result["Number of posts"] = num_of_posts
+        result["Positive posts"] = intermediate.loc[(intermediate["LINK_SENTIMENT"]==1)].groupby(["LINK_SENTIMENT"]).size()[1]
+        result["Negative posts"] = intermediate.loc[(intermediate["LINK_SENTIMENT"]== -1)].groupby(["LINK_SENTIMENT"]).size()[-1]
+        if result["Negative posts"] == KeyError:
+            result["Negative posts"] = 0
+        # else:
+            # result["Negative posts"] = result["Negative posts"][0]
+
         return result
 
     def get_global_aggregates(self):
@@ -250,5 +257,6 @@ class BodyModel:
         """
         result = self.data.loc[:, self.AGGREGATE_COLUMNS].mean().round(decimals=2)
         result["Number of posts"] = self.data.shape[0]
-        return result
-        
+        result["Positive posts"] = self.data.loc[(self.data["LINK_SENTIMENT"]==1)].groupby(["LINK_SENTIMENT"]).size()[1]
+        result["Negative posts"] = self.data.loc[(self.data["LINK_SENTIMENT"]==-1)].groupby(["LINK_SENTIMENT"]).size()[-1]
+        return result       

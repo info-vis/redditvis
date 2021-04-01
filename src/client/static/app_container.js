@@ -227,7 +227,95 @@ Vue.component("app-container", {
   template: `
     <div id="wrapper">
       <div class="row mt-2">
+      
+        <!-- Side bar -->
+        <div class="col-md-2 px-1">
 
+          <!-- Spinner/Loading icon -->
+          <div v-if="isLoadingData" class="d-flex justify-content-center col">
+              <div class="spinner-grow my-2" role="status">
+              </div>
+          </div>
+
+          <div v-for="alert in alerts" :key="alert.id" class="row"> 
+            <div class="col">
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Oops!</strong>  
+                <span v-html="alert.message">
+                  {{ alert.message }}
+                </span>
+                <button type="button" class="btn-close" @click="removeAlert(alert.id)" aria-label="Close"></button>
+              </div>
+            </div>
+          </div>
+
+          <sidebar-container>
+              <info-button
+                title="Network graph"
+                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
+              >
+              </info-button>
+              <span v-if="shownSubgraph">
+                Showing subgraph of subreddit:</br>
+                <a :href="subredditLink" target="_blank" style="font-size: 14px">
+                  r/{{ shownSubgraph }}
+                </a>
+              </span>
+              <span v-else>Showing network of top 500 subreddit links by post count</span>
+          </sidebar-container>
+
+          <div class="row"> 
+            <div class="col">
+              <div class="mb-1">
+                <select-subreddit
+                  type="source"
+                  borderColor="#03a9f4"
+                  :selectedSubreddit="selectedSourceSubreddit"
+                  :subredditOptions="subredditSelectOptions('source')"
+                  v-on:select-subreddit="handleSelectSubreddit"
+                  v-on:pan-to-subreddit="handlePanToSubreddit"
+                  v-on:clear-subreddit="handleClearSubreddit"
+                  ref="selectSourceSubreddit"
+                ></select-subreddit>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+          <div class="col">
+              <div class="my-1">
+                <select-subreddit
+                  type="target"
+                  borderColor="#ff9800"
+                  :selectedSubreddit="selectedTargetSubreddit"
+                  :subredditOptions="subredditSelectOptions('target')"
+                  v-on:select-subreddit="handleSelectSubreddit"
+                  v-on:pan-to-subreddit="handlePanToSubreddit"
+                  v-on:clear-subreddit="handleClearSubreddit"
+                  ref="selectTargetSubreddit"
+                ></select-subreddit>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- End side bar -->
+
+        <!-- Graph network -->
+        <div class="col-md-8 px-1">
+          <graph-network
+            v-if="networkData"
+            v-bind:network-data="networkData"
+            v-bind:selected-subreddit="selectedSourceSubreddit"
+            v-bind:selected-source-subreddit="selectedSourceSubreddit"
+            v-bind:selected-target-subreddit="selectedTargetSubreddit"
+            v-bind:show-subreddit-names="showSubredditNames"
+            v-bind:show-force-controls="showForceControls"
+            v-bind:collapse-all-clusters="collapseAllClusters"
+            v-on:node-selected="handleNodeSelected"
+            ref="graphNetwork"
+          ></graph-network>
+        </div>
         <div class="col-md-2 px-1">
           <div class="d-grid">
             <button 
@@ -282,96 +370,7 @@ Vue.component("app-container", {
             <span class="badge bg-secondary">Links: {{ networkData && networkData.links && networkData.links.length }}</span>
           </sidebar-container>
 
-        </div>
-
-        <!-- Graph network -->
-        <div class="col-md-8 px-1">
-          <graph-network
-            v-if="networkData"
-            v-bind:network-data="networkData"
-            v-bind:selected-subreddit="selectedSourceSubreddit"
-            v-bind:selected-source-subreddit="selectedSourceSubreddit"
-            v-bind:selected-target-subreddit="selectedTargetSubreddit"
-            v-bind:show-subreddit-names="showSubredditNames"
-            v-bind:show-force-controls="showForceControls"
-            v-bind:collapse-all-clusters="collapseAllClusters"
-            v-on:node-selected="handleNodeSelected"
-            ref="graphNetwork"
-          ></graph-network>
-        </div>
-
-        <!-- Side bar -->
-        <div class="col-md-2 px-1">
-
-          <!-- Spinner/Loading icon -->
-          <div v-if="isLoadingData" class="d-flex justify-content-center col">
-              <div class="spinner-grow my-2" role="status">
-              </div>
-          </div>
-
-          <div v-for="alert in alerts" :key="alert.id" class="row"> 
-            <div class="col">
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Oops!</strong>  
-                <span v-html="alert.message">
-                   {{ alert.message }}
-                </span>
-                <button type="button" class="btn-close" @click="removeAlert(alert.id)" aria-label="Close"></button>
-              </div>
-            </div>
-          </div>
-
-          <sidebar-container>
-              <info-button
-                title="Network graph"
-                text="The network graph shows the post interactions between source subreddits and their targets. A subgraph will be shown of the selected source- or target subreddit, which consists of its neighbors and its neighbor's neighbors. Clusters - shown as nodes with a smaller gray center - can be expanded or collapsed by double-clicking on the node."
-              >
-              </info-button>
-              <span v-if="shownSubgraph">
-                Showing subgraph of subreddit:</br>
-                <a :href="subredditLink" target="_blank" style="font-size: 14px">
-                  r/{{ shownSubgraph }}
-                </a>
-              </span>
-              <span v-else>Showing network of top 500 subreddit links by post count</span>
-          </sidebar-container>
-
-          <div class="row"> 
-            <div class="col">
-              <div class="mb-1">
-                <select-subreddit
-                  type="source"
-                  borderColor="#03a9f4"
-                  :selectedSubreddit="selectedSourceSubreddit"
-                  :subredditOptions="subredditSelectOptions('source')"
-                  v-on:select-subreddit="handleSelectSubreddit"
-                  v-on:pan-to-subreddit="handlePanToSubreddit"
-                  v-on:clear-subreddit="handleClearSubreddit"
-                  ref="selectSourceSubreddit"
-                ></select-subreddit>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-           <div class="col">
-              <div class="my-1">
-                <select-subreddit
-                  type="target"
-                  borderColor="#ff9800"
-                  :selectedSubreddit="selectedTargetSubreddit"
-                  :subredditOptions="subredditSelectOptions('target')"
-                  v-on:select-subreddit="handleSelectSubreddit"
-                  v-on:pan-to-subreddit="handlePanToSubreddit"
-                  v-on:clear-subreddit="handleClearSubreddit"
-                  ref="selectTargetSubreddit"
-                ></select-subreddit>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- End side bar -->
+        </div>       
       </div>
 
       <!-- Plots section -->

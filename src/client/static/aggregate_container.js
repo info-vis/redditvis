@@ -48,6 +48,8 @@ Vue.component("aggregate-container", {
         <aggregate-component
           title="Number of posts"
           :value="aggregateData.data['Number of posts']"
+          :positivePosts="aggregateData.data['Positive posts']"
+          :negativePosts="aggregateData.data['Negative posts']"
         ></aggregate-component>
 
         <aggregate-component
