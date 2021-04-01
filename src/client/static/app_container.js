@@ -297,7 +297,6 @@ Vue.component("app-container", {
               </div>
             </div>
           </div>
-
         </div>
         <!-- End side bar -->  
       
